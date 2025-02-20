@@ -1,0 +1,28 @@
+{
+    'name': 'Signature BMG',
+    'version': '1.0.0',
+    'category': '',
+    'author': 'BMG Tech',
+    'license': 'LGPL-3',
+    'summary': 'Add signature in multiple reports',
+    'images': ['static/description/banner.png', 'static/description/icon.png'],
+    'depends': ['base', 'account', 'sale', 'purchase', 'bmg_sale', 'bmg_achat'],
+    'data': [
+        'views/gcs_res_company.xml',
+        'views/gcs_invoice.xml',
+        'views/gcs_sales.xml',
+        'views/gcs_purchase_order.xml',
+        'views/gcs_setting.xml',
+        'views/gcs_users.xml',
+        'reports/gcs_sale_order.xml',
+        'reports/gcs_invoice_report.xml',
+        'reports/gcs_purchase_order_report.xml',
+        'reports/sale_devis.xml',
+        'reports/purchase_rfq.xml',
+
+    ],
+    'support': 'support@geelani.com',
+    'application': True,
+    'installable': True,
+    'auto_install': False,
+}

@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mrp_production,access_mrp_production,model_mrp_production,mrp.group_mrp_user,1,1,1,1
+access_mrp_operation_of,access_mrp_operation_of,model_mrp_operation_of,,1,1,1,1
+access_label_management,access_label_management,model_label_management,,1,1,1,1
+access_productivity_dashboard,access_productivity_dashboard,model_productivity_dashboard,,1,1,1,1
+access_return_components_wizard,access_return_components_wizard,model_return_components_wizard,,1,1,1,1
+access_return_components_line_wizard,access_return_components_line_wizard,model_return_components_line_wizard,,1,1,1,1
+access_stock_inventory,access_stock_inventory,model_stock_inventory,,1,1,1,1
+access_return_lines,access_return_lines,model_return_lines,,1,1,1,1
+access_wizard_cancel_inventory,access_wizard_cancel_inventory,model_wizard_cancel_inventory,,1,1,1,1

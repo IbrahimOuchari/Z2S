@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_products_user,access_sale_products,model_sale_products,sales_team.group_sale_salesman,1,1,1,1
+access_sale_products_manager,access_sale_products,model_sale_products,sales_team.group_sale_manager,1,1,1,1
+access_sale_quantity_user,access_sale_quantity,model_sale_quantity,sales_team.group_sale_salesman,1,1,1,1
+access_sale_quantity_manager,access_sale_quantity,model_sale_quantity,sales_team.group_sale_manager,1,1,1,1
+access_rapport_vente_commercial,access.rapport.vente.commercial,model_rapport_vente_commercial,base.group_user,1,1,1,1
+access_sale_salesperson_report,access.sale.salesperson.report,model_sale_salesperson_report,base.group_user,1,1,1,1
+access_topselling_orderline,access_topselling_orderline,model_topselling_orderline,base.group_user,1,1,1,1
+access_rapport_stock_all,rapport_stock all,model_rapport_stock,base.group_user,1,1,1,1
+
+access_product_detail,access_product_detail,model_product_detail,base.group_user,1,1,1,1
+
+access_stock_card_report_wizard,access.stock.card.report.wizard,model_stock_card_report_wizard,base.group_user,1,1,1,0
+access_report_stock_card_report,access.report.stock.card.report,model_report_stock_card_report,base.group_user,1,1,1,0
+access_stock_card_view,access.stock.card.view,model_stock_card_view,base.group_user,1,1,1,0

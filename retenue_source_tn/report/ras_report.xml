@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_ras_template" model="ir.actions.report">
+            <field name="name">Retenue à la Source</field>
+            <field name="model">account.payment</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">retenue_source_tn.ras_template</field>
+            <field name="report_file">retenue_source_tn.ras_template</field>
+            <field name="print_report_name">'RAS - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_account_payment"/>
+        </record>
+
+
+         <record id="action_ras_template_facture" model="ir.actions.report">
+            <field name="name">Retenue à la Source Facture</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">retenue_source_tn.ras_template_facture</field>
+            <field name="report_file">retenue_source_tn.ras_template_facture</field>
+            <field name="print_report_name">'RAS - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_account_move"/>
+        </record>
+
+    </data>
+</odoo>

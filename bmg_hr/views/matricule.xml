@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="seq_hr_employee_id" model="ir.sequence">
+        <field name="name">Matricule Employé</field>
+        <field name="code">hr.employee.id</field>
+        <field name="prefix"/>
+        <field name="padding">3</field>
+    </record>
+
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="groups_id" eval="[(6, 0, [ref('hr.group_hr_user') ])]"/>
+        <field name="arch" type="xml">
+
+            <field name="identification_id" position="replace"/>
+            <xpath expr="//field[@name='job_title']" position="after">
+                <group>
+                    <label for="identification_id" class="oe_edit_only"/>
+                    <h3>
+                        <field name="identification_id"/>
+                    </h3>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='passport_id']" position="before">
+                <field name="num_cin"/>
+                <field name="date_cin"/>
+                <field name="matricule_cnss"/>
+            </xpath>
+
+                        <field name="bank_account_id" position="replace">
+                            <field name="banque"/>
+                            <field name="compte_banque"/>
+                        </field>
+
+        </field>
+    </record>
+
+    <record id="view_employee_tree" model="ir.ui.view">
+        <field name="name">hr.employee.tree.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="groups_id" eval="[(6, 0, [ref('hr.group_hr_user') ])]"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="identification_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_employee_filter" model="ir.ui.view">
+        <field name="name">Employés</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="groups_id" eval="[(6, 0, [ref('hr.group_hr_user') ])]"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="identification_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_kanban_view_employees" model="ir.ui.view">
+        <field name="name">HR - Employees Kanban</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>
+        <field name="groups_id" eval="[(6, 0, [ref('hr.group_hr_user') ])]"/>
+        <field name="arch" type="xml">
+            <li id="last_login" position="after">
+                <li t-if="record.identification_id">
+                    <field name="identification_id"/>
+                </li>
+            </li>
+        </field>
+    </record>
+
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hr.employee.id</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath
+                    expr="//div[hasclass('app_settings_block') and @data-key='hr']"
+                    position="inside"
+            >
+                <h2>Identification des Employés</h2>
+                <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="employee_id_gen_method"/>
+                            <span
+                                    class="fa fa-lg fa-building-o"
+                                    title="Les valeurs définies ici sont spécifiques à l'entreprise."
+                                    role="img"
+                                    aria-label="Les valeurs définies ici sont spécifiques à l'entreprise."
+                                    groups="base.group_multi_company"
+                            />
+                            <div class="row">
+                                <div class="text-muted col-lg-8">
+                                    Select &amp; configurer le schéma de génération d'identifiant d'employé par défaut
+                                </div>
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <field
+                                            name="employee_id_gen_method"
+                                            class="o_light_label"
+                                            context="{'default_company_id': company_id}"
+                                    />
+                                </div>
+                                <div
+                                        class="mt16"
+                                        attrs="{'invisible': [('employee_id_gen_method','!=','random')]}"
+                                >
+                                    <label for="employee_id_random_digits"/>
+                                    <field
+                                            name="employee_id_random_digits"
+                                            class="o_light_label"
+                                            context="{'default_company_id': company_id}"
+                                            attrs="{'required': [('employee_id_gen_method','=','random')]}"
+                                    />
+                                </div>
+                                <div
+                                        class="mt16"
+                                        attrs="{'invisible': [('employee_id_gen_method','!=','sequence')]}"
+                                >
+                                    <label for="employee_id_sequence"/>
+                                    <field
+                                            name="employee_id_sequence"
+                                            class="o_light_label"
+                                            domain="[('company_id', '=', company_id)]"
+                                            context="{'default_company_id': company_id}"
+                                            attrs="{'required': [('employee_id_gen_method','=','sequence')]}"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>

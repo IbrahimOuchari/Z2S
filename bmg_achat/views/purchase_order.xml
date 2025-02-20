@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_new_purchase_order_form" model="ir.ui.view">
+        <field name="name">view.new.purchase.order.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Archivage BC Achat -->
+
+            <xpath expr="//div[@name='button_box']" position="after">
+                <widget name="web_ribbon" title="Archivé"
+                        bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="toggle_active" type="object" string="Actif"
+                        attrs="{'invisible': [('state','in',['brouillon'])]}"
+                        class="oe_stat_button" icon="fa-archive">
+                    <field name="active" widget="boolean_toggle" string="Actif"
+                           options='{"terminology": "archive"}'/>
+                </button>
+            </xpath>
+
+
+            <xpath expr="//header" position="after">
+                <field name="bc_achat_annule" invisible="1"/>
+                <div class="alert alert-danger text-center o_form_header" role="status"
+                     attrs="{'invisible': ['|', ('state', 'not in', ('brouillon','validation','rejete','cancel')), ('bc_achat_annule', '=', False)]}">
+                    <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+                    <div>
+                        <strong>Raison de Refus :
+                            <field name="motif_validation_bc"/>
+                        </strong>
+                    </div>
+                </div>
+            </xpath>
+
+
+            <!-- modification header -->
+            <xpath expr="/form/header/field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">purchase,done</attribute>
+            </xpath>
+
+            <xpath expr="//header//button[@name='action_rfq_send']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//header//button[@name='print_quotation']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//form//header//button[@name='button_draft']" position="replace">
+                <button string="Remettre en Brouillon" states="cancel" name="button_draft_achat" type="object"/>
+            </xpath>
+            <xpath expr="//header//button[@name='button_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header//button[@name='button_confirm']" position="after">
+                <button name="button_confirm_bc_achat" string="Confirmer BC" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('confirme')])]}"
+                        groups="bmg_achat.create_po"/>
+
+                <button name="action_save_bc"
+                        string="Envoi Pour Validation" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('brouillon')])]}"
+                />
+
+                <button name="action_validation_bc"
+                        string="Validation BC" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('validation')])]}"
+                        groups="bmg_achat.create_po"/>
+
+                <button name="action_invalidation_bc"
+                        string="Rejeter BC" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('validation')])]}"
+                        groups="bmg_achat.create_po"/>
+
+                <button name="action_in_draft_bc"
+                        string="Remettre en Brouillon" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('rejete')])]}"
+                />
+
+                <button name="print_report"
+                        string="Imprimer BC" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('purchase')])]}"/>
+            </xpath>
+
+
+            <xpath expr="//sheet//field[@name='date_order']" position="attributes">
+                <attribute name="invisible">0</attribute>
+                <attribute name="widget">date</attribute>
+            </xpath>
+            <xpath expr="//sheet//field[@name='date_approve']" position="attributes">
+                <attribute name="invisible">0</attribute>
+                <attribute name="readonly">0</attribute>
+                <attribute name="widget">date</attribute>
+            </xpath>
+            <label for="date_approve" position="attributes">
+                <attribute name="string">Date Commande</attribute>
+            </label>
+
+            <xpath expr="//sheet//field[@name='date_planned']" position="attributes">
+                <attribute name="widget">date</attribute>
+            </xpath>
+            <label for="date_planned" position="attributes">
+                <attribute name="string">Date Livraison Souhaitée</attribute>
+            </label>
+            <!-- fin -->
+            <!-- modification info BC -->
+
+            <xpath expr="//sheet//field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+                <attribute name="readonly">0</attribute>
+            </xpath>
+            <xpath expr="//sheet//field[@name='partner_id']" position="after">
+                <field name="rfq_seq"/>
+            </xpath>
+
+
+            <!-- fin -->
+            <!-- modification page ligne de commande -->
+
+            <xpath expr="//sheet//notebook//page//tree//field[@name='product_id']"
+                   position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+            <!-- fin -->
+
+            <!-- modification page autre information -->
+            <xpath expr="//sheet//field[@name='partner_ref']"
+                   position="after">
+                <field name="user_id" position="move"/>
+                <field name="payment_term_id" position="move"/>
+
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']"
+                   position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='notes']" position="after">
+                <field name="description_achat"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!--    view de BC Tree-->
+
+    <record id="purchase_form_action_bmg" model="ir.actions.act_window">
+        <field name="name">Purchase Orders</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
+        <field name="view_id" ref="purchase.purchase_order_view_tree"/>
+        <field name="search_view_id" ref="purchase.purchase_order_view_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No purchase order found. Let's create one!
+            </p>
+            <p>
+                Once you ordered your products to your supplier, confirm your request for quotation and it will turn
+                into a purchase order.
+            </p>
+        </field>
+    </record>
+
+    <!-- menu item -->
+    <menuitem id="purchase.menu_purchase_form_action"
+              name="Bon de Commande Achat"
+              parent="purchase.menu_purchase_root"
+              groups="purchase.group_purchase_user,purchase.group_purchase_manager"
+              action="bmg_achat.purchase_form_action_bmg"
+              sequence="10"/>
+
+    <menuitem id="purchase.menu_procurement_management_supplier_name"
+              name="Fournisseur"
+              parent="purchase.menu_purchase_root"
+              groups="purchase.group_purchase_user,purchase.group_purchase_manager"
+              action="account.res_partner_action_supplier"
+              sequence="15"/>
+
+    <menuitem id="purchase.menu_article_achat"
+              name="Articles"
+              parent="purchase.menu_purchase_root"
+              groups="purchase.group_purchase_user,purchase.group_purchase_manager"
+              sequence="20"/>
+
+    <menuitem id="purchase.menu_procurement_partner_contact_form"
+              name="Articles"
+              parent="purchase.menu_article_achat"
+              groups="purchase.group_purchase_user,purchase.group_purchase_manager"
+              action="purchase.product_normal_action_puchased"
+              sequence="20"/>
+
+    <menuitem id="purchase.product_product_menu"
+              name="Variantes d'Articles"
+              parent="purchase.menu_article_achat"
+              groups="purchase.group_purchase_user,purchase.group_purchase_manager"
+              action="purchase.product_product_action"
+              sequence="25"/>
+
+    <menuitem id="purchase.menu_product_pricelist_action2_purchase"
+              name="Prix Fournisseurs"
+              parent="purchase.menu_purchase_root"
+              groups="purchase.group_purchase_user,purchase.group_purchase_manager"
+              action="product.product_supplierinfo_type_action"
+              sequence="30"/>
+
+    <delete model="ir.ui.menu" id="purchase.menu_purchase_rfq"/>
+
+    <record id="res_config_settings_view_condition_general" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.condition.general</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="purchase.res_config_settings_view_form_purchase"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='purchase']" position="inside">
+                <h2>Conditions Générales d'Achat</h2>
+                <div class="row mt16 o_settings_container">
+                    <label string="Conditions Générales" for="description_achat"/>
+
+                    <field name="description_achat"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="view_purchase_order_filter_validation" model="ir.ui.view">
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_search"/>
+        <field name="arch" type="xml">
+            <search position="inside">
+                <filter name="validation" string="Attente Validation" domain="[('state', '=', 'validation')]"/>
+                <filter name="confirme" string="BC Accepté" domain="[('state', '=', 'confirme')]"/>
+                <filter name="purchase" string="Bon de Commande" domain="[('state', '=', 'purchase')]"/>
+                <filter name="rejete" string="Rejeté" domain="[('state', '=', 'rejete')]"/>
+                <separator/>
+            </search>
+            <group position="inside">
+                <filter
+                        string="Statut Bon de Commande"
+                        name="state"
+                        domain="[]"
+                        context="{'group_by': 'state'}"
+                />
+            </group>
+        </field>
+    </record>
+
+
+</odoo>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Tree View remains unchanged -->
+    <record id="view_mrp_productivity_tree_control_quality" model="ir.ui.view">
+        <field name="name">mrp.productivity.tree</field>
+        <field name="model">mrp.production</field>
+        <field name="arch" type="xml">
+            <tree string="Productivité des Opérations" create="false" delete="false">
+<!--                <field name="name" string="OF"/>-->
+                <field name="product_id" string="Article"/>
+                <field name="ref_product_client" string="Référence Article"/>
+                <field name="description" string="Désignation"/>
+                <field name="product_qty" string="Quantité Produite"/>
+<!--                <field name="create_date" string="Date création OF"/>-->
+                <field name="quality_control_id" string="Controle quality" />
+                <field name="ppm" />
+                <field name="total_non_conform_count" />
+                <field name="global_defect_rate" />
+<!--                <field name="ppm" string="PPM"/>-->
+
+                <field name="quality_control_checked" invisible="0"/>
+                <field name="control_quality_state" invisible="1"/>
+                <field name="state" string="Etat"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Updated Search View -->
+    <record id="view_mrp_production_filter_quality" model="ir.ui.view">
+        <field name="name">mrp.production.quality.search</field>
+        <field name="model">mrp.production</field>
+        <field name="arch" type="xml">
+            <search string="Recherche Contrôle Qualité">
+                <!-- Basic Information -->
+                <field name="name" string="OF"/>
+                <field name="product_id" string="Article"/>
+                <field name="ref_product_client" string="Référence Article"/>
+                <field name="description" string="Désignation"/>
+
+                <!-- Quality Control Fields -->
+                <field name="quality_control_id" string="Controle quality"/>
+                <field name="control_quality_state"/>
+
+
+                <!-- Date Filters -->
+                <filter string="Créé aujourd'hui" name="created_today"
+                        domain="[('create_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                ('create_date', '&lt;', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+
+                <!-- Quality Filters -->
+                <filter string="Avec contrôle qualité" name="has_quality"
+                        domain="[('quality_control_checked', '!=', False)]"/>
+                <filter string="Sans contrôle qualité" name="no_quality"
+                        domain="[('quality_control_id', '=', False)]"/>
+
+                <!-- PPM Ranges -->
+
+                <!-- Status -->
+                <separator/>
+                <filter string="En cours" name="in_progress"
+                        domain="[('control_quality_state', 'in', ['in_progress', 'closed'])]"/>
+                <filter string="Terminé" name="done"
+                        domain="[('control_quality_state', '=', 'validated')]"/>
+
+                <!-- Grouping -->
+                <group expand="0" string="Regrouper par">
+                    <filter string="Article" name="group_by_product"
+                            context="{'group_by':'product_id'}"/>
+                    <filter string="OF" name="group_by_OF"
+                            context="{'group_by':'name'}"/>
+                    <filter string="Contrôle Qualité" name="group_by_quality"
+                            context="{'group_by':'quality_control_id'}"/>
+                    <filter string="État" name="group_by_state"
+                            context="{'group_by':'state'}"/>
+                    <filter string="Date de création" name="group_by_create_date"
+                            context="{'group_by':'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_control_quality_analysis_tree" model="ir.actions.act_window">
+        <field name="name">Contrôle Qualités</field>
+        <field name="res_model">mrp.production</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_mrp_productivity_tree_control_quality"/>
+        <field name="search_view_id" ref="view_mrp_production_filter_quality"/>
+        <field name="context">{
+            'search_default_has_quality': 1
+        }</field>
+    </record>
+
+
+
+
+<!--       <menuitem id="menu_Z2S_control_quality"-->
+<!--              name="Analyse"-->
+<!--              parent="menu_root_control_quality"-->
+<!--              sequence="1"-->
+    /> <!-- Replace with your actual module name -->
+
+    <!-- Menu item remains unchanged -->
+    <menuitem id="menu_productivity_analysis_control_quality"
+              name="Tableau de bord des Contrôles qualité"
+              parent="menu_root_control_quality"
+              action="action_control_quality_analysis_tree"
+              sequence="1"/>
+</odoo>

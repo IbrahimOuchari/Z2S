@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="partner_view_buttons_01" model="ir.ui.view">
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.partner_view_buttons"/>
+        <field name="arch" type="xml">
+            <div role="alert" position="after">
+                <div
+                        class="alert alert-warning"
+                        role="alert"
+                        attrs="{'invisible': [('overdue_invoice_count', '=', 0)]}"
+                >
+                    Le client a
+                    <field name="overdue_invoice_count"/>
+                    <button
+                            string="Facture(s) en Retard"
+                            type="object"
+                            name="jump_to_overdue_invoices"
+                            class="oe_link"
+                    />pour montant total de
+                    <field name="overdue_invoice_amount"/>
+                </div>
+            </div>
+        </field>
+    </record>
+
+</odoo>

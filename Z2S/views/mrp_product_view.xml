@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_search_inherited_id" model="ir.ui.view">
+            <field name="name">mrp.production.search</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search/field[@name='name']" position="before">
+                    <field name="ref_product_client" string="Référence Article"/>
+                </xpath>
+
+
+            </field>
+        </record>
+    </data>
+</odoo>

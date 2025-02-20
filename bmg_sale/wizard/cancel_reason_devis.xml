@@ -1,0 +1,27 @@
+<odoo>
+
+    <record id="view_wizard_cancel_reason_devis_form" model="ir.ui.view">
+    <field name="name">wizard.cancel.reason.devis.form</field>
+    <field name="model">wizard.cancel.reason.devis</field>
+    <field name="arch" type="xml">
+        <form>
+            <group>
+                <field name="cancel_reason"/>
+            </group>
+            <footer>
+                <button string="Annuler" class="btn-secondary" special="cancel"/>
+                <button string="Confirmer" class="btn-primary" type="object" name="confirm_cancel_reason_devis"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
+<record id="action_wizard_cancel_reason_devis" model="ir.actions.act_window">
+    <field name="name">Raison de Refus</field>
+    <field name="res_model">wizard.cancel.reason.devis</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="view_wizard_cancel_reason_devis_form"/>
+    <field name="target">new</field>
+</record>
+
+</odoo>

@@ -1,0 +1,41 @@
+<odoo>
+	<data>
+
+	    <record id="rapport_stock_form_view" model="ir.ui.view">
+			<field name="name">rapport.stock.form</field>
+			<field name="model">rapport.stock</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+
+		        <form string="Rapport de Stock">
+	                <group>
+		        		<group>
+		                    <field name="product_ids" widget="many2many_tags" options="{'no_create':True, 'no_open':True}"/>
+		                    <field name="categ_ids" widget="many2many_tags" options="{'no_create':True, 'no_open':True}"/>
+		                </group>
+		                <group>
+		                	<field name="location_ids" domain="[('usage','=','internal')]" widget="many2many_tags" options="{'no_create':True, 'no_open':True}"/>
+		                </group>
+		        	</group>
+
+	                <footer>
+	                    <button name="print_excel_report" string="Exporter" type="object" class="oe_highlight"/> or
+	                    <button string="Annuler" class="oe_link" special="cancel"/>
+	                </footer>
+
+		        </form>
+	    	</field>
+	    </record>
+
+	    <record id="rapport_stock_xlsx" model="ir.actions.act_window">
+			<field name="name">Rapport de Stock</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">rapport.stock</field>
+			<field name="view_mode">form</field>
+			<field name="view_id" ref="rapport_stock_form_view"/>
+			<field name="target">new</field>
+	    </record>
+
+
+	</data>
+</odoo>

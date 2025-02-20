@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <report
+            id="action_report_products_amount"
+            string="Products PDF Report"
+            model="models.bmg_reporting.rapport_produit_top_vente"
+            report_type="qweb-pdf"
+            file="bmg_reporting.report_products_amount"
+            name="bmg_reporting.report_products_amount"
+        />
+
+         <report
+            id="action_report_products"
+            string="Rapport Vente Produit"
+            model="models.bmg_reporting.rapport_produit_top_vente"
+            report_type="qweb-pdf"
+            file="bmg_reporting.report_products"
+            name="bmg_reporting.report_products"
+        />
+
+    </data>
+</odoo>

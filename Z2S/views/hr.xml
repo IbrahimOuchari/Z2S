@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<odoo>
+        <record id="view_hr_employee_form_z2s" model="ir.ui.view">
+            <field name="name">hr.z2s.employee.form</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <field name="work_location" position="after">
+                    <field name="affectation_id"/>
+                </field>
+
+                <xpath expr="//div[hasclass('oe_button_box')]/button" position="before">
+                    <button class="oe_stat_button" name="attachment_tree_view" type="object" icon="fa-files-o">
+                        <field string="Documents" name="doc_count" widget="statinfo"/>
+                    </button>
+                </xpath>
+                <field name="mobile_phone" position="before">
+<!--                    <div>-->
+<!--                        <strong>-->
+<!--                            <label for="sequence"/>-->
+<!--                        </strong>-->
+<!--                        <field name="sequence" readonly="1"/>-->
+
+<!--                    </div>-->
+                    <field name="cin"/>
+                    <field name="delivred"/>
+                    <field name="num_cnss"/>
+                </field>
+
+                <page name="personal_information" position="after">
+                    <page name="divers" string="Divers">
+                        <field name="other_info" string="Autres Informations"/>
+                    </page>
+                </page>
+
+            </field>
+        </record>
+
+        <record id="sequence_self_service" model="ir.sequence">
+            <field name="name">matricule Employee</field>
+            <field name="code">hr.employee.mat</field>
+            <field name="active">TRUE</field>
+            <field name="prefix"></field>
+            <field name="padding">6</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <!-- hr.affectation -->
+        <record id="view_hr_Affectation_form" model="ir.ui.view">
+            <field name="name">hr.affectation.form</field>
+            <field name="model">hr.affectation</field>
+            <field name="arch" type="xml">
+                <form string="Affectation">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box"/>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" placeholder="e.g. Affectation"/>
+                            </h1>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hr_Affectation_tree" model="ir.ui.view">
+            <field name="name">hr.affectation.tree</field>
+            <field name="model">hr.affectation</field>
+            <field name="arch" type="xml">
+                <tree string="Affectation">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="hr_Affectation_view_kanban" model="ir.ui.view">
+            <field name="name">hr.affectation.kanban</field>
+            <field name="model">hr.affectation</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div>
+                                    <strong>
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="view_Affectation_filter" model="ir.ui.view">
+            <field name="name">hr.affectation.search</field>
+            <field name="model">hr.affectation</field>
+            <field name="arch" type="xml">
+                <search string="Affectations">
+                    <field name="name" string="Affectation"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_hr_Affectation" model="ir.actions.act_window">
+            <field name="name">Affectation</field>
+            <field name="res_model">hr.affectation</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_Affectation_filter"/>
+            <field name="context">{"search_default_Current":1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Créer une Affectation.
+
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+                id="menu_view_hr_Affectation"
+                action="action_hr_Affectation"
+                parent="hr.menu_human_resources_configuration"
+                sequence="200"/>
+</odoo>

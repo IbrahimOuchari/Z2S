@@ -1,0 +1,64 @@
+<odoo>
+    <!-- Kanban View for Productivity Dashboard -->
+    <record id="view_productivity_dashboard_kanban" model="ir.ui.view">
+        <field name="name">productivity.dashboard.kanban</field>
+        <field name="model">productivity.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard" create="0">
+                <!-- Fields -->
+                <field name="item_id"/>
+                <field name="period_start"/>
+                <field name="period_end"/>
+                <field name="productivity_data"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card #{kanban_color(record.color.raw_value)}">
+                            <div class="oe_kanban_primary_left">
+                                <div>
+                                    <strong>Item:</strong>
+                                    <field name="item_id"/>
+                                </div>
+                                <div>
+                                    <strong>Manufacturing Order:</strong>
+                                    <field name="manufacturing_order_id"/>
+                                </div>
+                                <div>
+                                    <strong>Start Period:</strong>
+                                    <field name="period_start"/>
+                                </div>
+                                <div>
+                                    <strong>End Period:</strong>
+                                    <field name="period_end"/>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_primary_right">
+                                <div>
+                                    <strong>Productivity Data:</strong>
+                                    <field name="productivity_data" widget="html"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Action for Productivity Dashboard -->
+    <record id="action_productivity_dashboard" model="ir.actions.act_window">
+        <field name="name">Productivity Dashboard</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">productivity.dashboard</field>
+        <field name="view_mode">kanban,form</field>
+        <field name="view_id" eval="False"/>
+        <field name="domain">[]</field> <!-- Adjust domain as needed -->
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Menu Item for Productivity Dashboard -->
+    <menuitem id="menu_productivity_dashboard"
+              name="Productivity Dashboard"
+              parent="mrp.menu_mrp_root"
+              action="action_productivity_dashboard"/>
+</odoo>

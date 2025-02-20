@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="devis_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="doc">
+
+                    <div style=" text-align: center; margin-top: -5%; color: #AF0408; font-size: 200%; font-weight: bold">
+                        <span t-field="doc.name"/>
+                    </div>
+
+                    <div style=" margin-left: 8%; margin-top: 3%;">
+                        <p>
+                            <b>Client :</b>
+                            <span t-field="doc.partner_id"/>
+                        </p>
+                        <p>
+                            <b>Adresse :</b>
+                            <span t-field="doc.partner_id.street"/>
+                            -
+                            <span t-field="doc.partner_id.city"/>
+                            -
+                            <span t-field="doc.partner_id.zip"/>
+                            -
+                            <span t-field="doc.partner_id.country_id"/>
+                        </p>
+                        <p t-if="doc.partner_id.vat">
+                            <b>Matricule Fiscale :</b>
+                            <span t-field="doc.partner_id.vat"/>
+                        </p>
+                    </div>
+
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        <br></br>
+                        <div class="row" id="informations">
+                            <div t-if="doc.date_devis" class="col-auto col-3 mw-100 mb-2">
+                                <strong>Date Devis:</strong>
+                                <p class="m-0" t-field="doc.date_devis"
+                                   t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                            <div t-if="doc.validity_date" class="col-auto col-3 mw-100 mb-2"
+                                 name="expiration_date">
+                                <strong>Date d'expiration :</strong>
+                                <p class="m-0" t-field="doc.validity_date"/>
+                            </div>
+                            <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
+                                <strong>Chargé Client :</strong>
+                                <p class="m-0" t-field="doc.user_id"/>
+                            </div>
+                        </div>
+
+                        <br></br>
+
+                        <!-- Is there a discount on at least one line? -->
+                        <t t-set="display_discount" t-value="any(l.discount for l in doc.devis_line)"/>
+
+                        <table class="table table-sm o_main_table">
+                            <!-- In case we want to repeat the header, remove "display: table-row-group" -->
+                            <thead style="display: table-row-group">
+                                <tr>
+                                    <th name="th_description" class="text-center">Description</th>
+                                    <th name="th_quantity" class="text-center">Quantité</th>
+                                    <th name="th_priceunit" class="text-center">P.U.</th>
+                                    <th name="th_discount" t-if="display_discount" class="text-center"
+                                        groups="product.group_discount_per_so_line">
+                                        <span>Rem.%</span>
+                                    </th>
+                                    <th name="th_pu_remise" class="text-center">P.U. Après Remise</th>
+                                    <th name="th_subtotal" class="text-center">
+                                        <span groups="account.group_show_line_subtotals_tax_excluded">Montant H.T.
+                                        </span>
+                                        <span groups="account.group_show_line_subtotals_tax_included">Montant T.T.C.
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="sale_tbody">
+
+                                <t t-set="current_subtotal" t-value="0"/>
+
+                                <t t-foreach="doc.devis_line" t-as="line">
+
+                                    <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"
+                                       groups="account.group_show_line_subtotals_tax_excluded"/>
+                                    <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"
+                                       groups="account.group_show_line_subtotals_tax_included"/>
+
+                                    <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                        <t t-if="not line.display_type">
+                                            <td name="td_name">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <td name="td_quantity" class="text-center">
+                                                <span t-field="line.qty"/>
+                                                <span t-field="line.product_uom"/>
+                                            </td>
+                                            <td name="td_priceunit" class="text-center">
+                                                <span t-field="line.price_unit"/>
+                                            </td>
+                                            <td t-if="display_discount" class="text-right"
+                                                groups="product.group_discount_per_so_line">
+                                                <span t-field="line.discount"/>
+                                            </td>
+                                           <td name="td_pu_remise" class="text-center">
+                                                <span t-field="line.pu_remise"/>
+                                            </td>
+                                            <td name="td_subtotal" class="text-center o_price_total">
+                                                <span t-field="line.price_subtotal"
+                                                      groups="account.group_show_line_subtotals_tax_excluded"/>
+                                                <span t-field="line.price_total"
+                                                      groups="account.group_show_line_subtotals_tax_included"/>
+                                            </td>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_section'">
+                                            <td name="td_section_line" colspan="99">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <t t-set="current_section" t-value="line"/>
+                                            <t t-set="current_subtotal" t-value="0"/>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_note'">
+                                            <td name="td_note_line" colspan="99">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+
+                                    <t t-if="current_section and (line_last or doc.devis_line[line_index+1].display_type == 'line_section')">
+                                        <tr class="is-subtotal text-right">
+                                            <td name="td_section_subtotal" colspan="99">
+                                                <strong class="mr16">Montant H.T.</strong>
+                                                <span t-esc="current_subtotal"
+                                                      t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <div class="clearfix" name="so_total_summary">
+                            <div id="total" class="row" name="total">
+                                <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                                    <table class="table table-sm">
+                                        <tr class="border-black o_subtotal" style="">
+                                            <td name="td_amount_untaxed_label">
+                                                <strong>Montant H.T.</strong>
+                                            </td>
+                                            <td name="td_amount_untaxed" class="text-center">
+                                                <span t-field="doc.amount_untaxed"/>
+                                            </td>
+                                        </tr>
+                                        <t t-foreach="doc.amount_by_group" t-as="amount_by_group">
+                                            <tr style="">
+                                                <t t-if="amount_by_group[5] == 1 and doc.amount_untaxed == amount_by_group[2]">
+                                                    <td name="td_amount_by_group_label_3">
+                                                        <strong>T.V.A.</strong>
+
+
+                                                    </td>
+                                                    <td name="td_amount_by_group_3" class="text-center o_price_total">
+                                                        <span t-esc="amount_by_group[1]"
+                                                              t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+                                                    </td>
+                                                </t>
+                                                <t t-else="">
+                                                    <td name="td_amount_by_group_label">
+                                                        <span t-esc="amount_by_group[0]"/>
+                                                    </td>
+                                                    <td name="td_amount_by_group" class="text-center o_price_total">
+                                                        <span t-esc="amount_by_group[1]"
+                                                              t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                        <tr class="border-black o_total">
+                                            <td name="td_amount_total_label">
+                                                <strong>Montant T.T.C.</strong>
+                                            </td>
+                                            <td name="td_amount_total" class="text-center">
+                                                <span t-field="doc.amount_total"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br></br>
+                        <div class="signature" style="float:right !important;width:200px;">
+                            <span style="text-decoration:underline;font-size:16px;">
+                                <b>Cachet et Signature</b>
+                            </span>
+                        </div>
+                        <br></br>
+                        <br></br>
+
+                        <div class="oe_structure"/>
+
+                        <p t-field="doc.devis_terms"/>
+                        <p t-field="doc.note"/>
+                        <p t-if="doc.payment_term_id.note">
+                            <span t-field="doc.payment_term_id.note"/>
+                        </p>
+                        <p id="fiscal_position_remark"
+                           t-if="doc.fiscal_position_id and doc.fiscal_position_id.sudo().note">
+                            <strong>Fiscal Position Remark:</strong>
+                            <span t-field="doc.fiscal_position_id.sudo().note"/>
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+
+

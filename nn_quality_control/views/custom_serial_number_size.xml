@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="assets_backend_size_custom" name="size_custom" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet"  type="text/css"  href="/nn_quality_control/static/src/css/thead_size.css"/>
+
+
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,28 @@
+
+{
+    "name": "BMG Menu Comptabilité",
+    "version": "14",
+    "category": "Accounting",
+    "license": "AGPL-3",
+    "summary": "Adds missing menu entries for Account module",
+    'author': 'BMG Tech',
+    'website': 'www.bmgtech.tn',
+    "depends": ["account"],
+    "data": [
+        "views/menu.xml",
+        "views/res_config_settings_views.xml",
+        "views/view_account_account_template.xml",
+        "views/view_account_bank_statement.xml",
+        "views/view_account_chart_template.xml",
+        "views/view_account_fiscal_position_template.xml",
+        "views/view_account_group.xml",
+        "views/view_account_tag.xml",
+        "views/view_account_tax_group.xml",
+        "views/view_account_tax_template.xml",
+        "views/view_account_type.xml",
+    ],
+    'images': ['static/description/banner.png'],
+    'installable': True,
+    'application': True,
+    'auto_install': False,
+}

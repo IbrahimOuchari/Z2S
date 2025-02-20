@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="crm_team_view_form" model="ir.ui.view">
+        <field name="name">crm.team.form</field>
+        <field name='model'>crm.team</field>
+        <field name='inherit_id' ref="sales_team.crm_team_view_form"/>
+        <field name='arch' type="xml">
+            <group name="left" position="inside">
+                <field name='manual_delivery'/>
+            </group>
+        </field>
+    </record>
+
+
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name='inherit_id' ref="sale.view_order_form"/>
+        <field name='arch' type="xml">
+            <button name="action_confirm" position="before">
+                <button
+                        type="object"
+                        name="action_manual_delivery_wizard"
+                        class="btn btn-primary"
+                        string="Créer Bon de Livraison"
+                        context="{'active_model': 'sale.order', 'active_id': id, 'active_ids': [id]}"
+                        attrs="{'invisible': ['|', '|', ('manual_delivery', '=', False), ('picking_status', '=', 'done'), ('state', '!=', 'sale')]}"
+                />
+
+            </button>
+            <group name="sale_shipping" position="inside">
+                <field name="manual_delivery" widget="boolean_toggle"/>
+            </group>
+        </field>
+    </record>
+    <record id="view_order_line_tree" model="ir.ui.view">
+        <field name="name">sale.order.line.tree</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale.view_order_line_tree"/>
+        <field name="arch" type="xml">
+            <field name="qty_delivered" position="before">
+                <!--                <field name="qty_procured" />-->
+                <field name="qty_to_procure"/>
+            </field>
+        </field>
+    </record>
+    <record id="view_sales_order_undelivered_line_filter" model="ir.ui.view">
+        <field name="name">sale.order.undelivered.line</field>
+        <field name="model">sale.order.line</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher les Lignes non Livrées">
+                <field name="order_id"/>
+                <separator/>
+                <filter
+                        string="Livraison non Planifiée"
+                        name="filter_unplanned"
+                        domain="[('qty_to_procure', '!=', 0), ('state', '=', 'sale')]"
+                        help="Lignes de commande client confirmées, exécutées ou en état d'exception et aucune livraison n'est créée pour les satisfaire"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="action_order_line_delivery_tree_vente" model="ir.actions.act_window">
+        <field name="name">Commande à Livrer</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order.line</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_sales_order_undelivered_line_filter"/>
+        <field name="context">{"search_default_filter_unplanned":1}</field>
+        <field name="filter" eval="True"/>
+        <field name="help" type="html">
+            <p>Voici une liste de chaque ligne de commande client à facturer.</p>
+        </field>
+    </record>
+    <menuitem
+            id="menu_delivery_sales_order_lines"
+            parent="stock.menu_stock_warehouse_mgmt"
+            action="action_order_line_delivery_tree_vente"
+            sequence="99"
+            groups="stock.group_stock_user"
+    />
+
+
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_inherit_view" model="ir.ui.view">
+        <field name="name">crm.lead.inherited.view</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//group[@name='lead_partner']/field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+				<attribute name="domain">[('is_customer', '=', True)]</attribute>
+            </xpath>
+
+               <xpath expr="//group[@name='opportunity_partner']/field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+				<attribute name="domain">[('is_customer', '=', True)]</attribute>
+            </xpath>
+
+		</field>
+	</record>
+
+    <record id="view_crm_case_kanban_inherit_readonly" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.inherit.readonly</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+				<attribute name="readonly">True</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+
+</odoo>

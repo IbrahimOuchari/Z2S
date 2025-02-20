@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <template id="external_layout_boxed_inventory" inherit_id="web.external_layout_boxed">
+            <xpath expr="//div[contains(@class, 'o_boxed_header')]" position="replace">
+                <div class="o_boxed_header">
+                    <div class="row mb8">
+                        <div class="col-4">
+                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo"
+                                 class="img-fluid"/>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h2 t-if="o.name" class="mt0 mb0" t-field="o.name"/>
+                            <div t-if="o.accounting_date" class="mt2">
+                                <strong>Date:</strong>
+                                <span t-field="o.accounting_date"/>
+                            </div>
+                            <div t-if="not o.accounting_date">
+                                <p>Accounting date not found or empty.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

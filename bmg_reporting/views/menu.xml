@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="rapport"
+              name="Rapports Analyse"
+              web_icon="bmg_reporting,static/description/reporting.png"
+              sequence="30"/>
+
+    <menuitem id="crm"
+              name="CRM"
+              parent="rapport"
+              sequence="0"/>
+
+    <!--    Menu Vente-->
+    <menuitem id="vente"
+              name="Vente"
+              parent="rapport"
+              sequence="1"/>
+
+    <menuitem id="menu_top_selling_products"
+              name="Produit Top Vente"
+              parent="vente"
+              action="open_menu_top_selling_product"
+              sequence="5"/>
+
+    <menuitem action="action_sale_report_wizard"
+              name="Rapport de Vente par Commercial"
+              id="menu_sale_report_wizard"
+              parent="vente"/>
+
+    <menuitem
+            id="menu_top_sales"
+            name="Rapport Top Vente"
+            parent="vente"
+            sequence="4"
+            action="open_top_sales_action"/>
+
+
+    <menuitem action="product_margin.product_margin_act_window" id="menu_action_product_margin"
+              name="Marges par Articles" sequence="20"
+              parent="menu_top_sales"/>
+
+
+    <!--    Menu Achat-->
+    <menuitem id="achat"
+              name="Achat"
+              parent="rapport"
+              sequence="10"/>
+
+    <menuitem id="menu_report_produit_fournisseur"
+              action="action_report"
+              parent="achat"
+    />
+
+    <!--    Menu Stock-->
+    <menuitem id="stock"
+              name="Stock"
+              parent="rapport"
+              sequence="2"/>
+
+    <menuitem id="rapport_stock"
+              action="rapport_stock_xlsx"
+              parent="stock"/>
+
+
+
+
+</odoo>

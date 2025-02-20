@@ -1,0 +1,10 @@
+<odoo>
+<report
+    id="action_quality_control_report"
+    model="control.quality"
+    string="Contrôle Qualité Excel"
+    report_type="xlsx"
+    name="nn_quality_control.quality_control_report_template"
+    file="quality_control_report.xlsx"
+    attachment_use="False"/>
+</odoo>

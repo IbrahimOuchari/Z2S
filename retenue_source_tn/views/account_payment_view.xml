@@ -1,0 +1,36 @@
+<odoo>
+    <data>
+        <record id="mjt_view_account_payment_form_inherit" model="ir.ui.view">
+            <field name="name">mjt.account.payment.form.inherit</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='ref']" position="after">
+                    <field name="is_pass_writeoff" invisible="1"/>
+                    <field name="is_wht_trx" attrs="{'invisible': [('is_internal_transfer', '!=', False)]}"/>
+                </xpath>
+                <xpath expr="//group[1]/group[@name='group3']" position="after">
+                    <field name="wht_line_ids" mode="tree,kanban" nolabel="1"
+                           attrs="{'invisible': [('is_wht_trx', '=', False)]}">
+                        <tree editable="bottom" string="Witholding Items">
+                            <field name="account_id"/>
+                            <field name="name" required="1"/>
+                            <field name="amount_wht"/>
+                        </tree>
+                        <form>
+                            <sheet>
+                                <group name="ras" string="Retenue à la Source">
+                                    <field name="account_id"/>
+                                    <field name="name" required="1"/>
+                                    <field name="amount_wht"/>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                    <!-- <field name="line_ids"/> -->
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

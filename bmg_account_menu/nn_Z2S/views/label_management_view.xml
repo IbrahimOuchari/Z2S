@@ -1,0 +1,26 @@
+<record id="view_mrp_production_form_inherit2" model="ir.ui.view">
+    <field name="name">mrp.production.form.inherit</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+    <field name="arch" type="xml">
+        <xpath expr="//notebook" position="inside">
+            <page string="Gestion de Lot">
+                <field name="label_management_ids">
+                    <tree>
+                        <field name="name"/>
+                        <field name="finished_product_id"/>
+                        <field name="client_reference"/>
+                        <field name="designation"/>
+                        <field name="quantity_per_batch"/>
+                        <field name="cumule"/>
+                        <field name="leftover_quantity"/>
+                    </tree>
+                </field>
+            </page>
+        </xpath>
+    </field>
+
+
+
+
+</record>

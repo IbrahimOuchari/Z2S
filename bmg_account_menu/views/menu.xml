@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <menuitem id="compta"
+              name="Comptabilité"
+              web_icon="bmg_account_menu,static/description/compta.png"
+              sequence="40"/>
+    <menuitem
+            id="menu_accounting_bank_and_cash"
+            name="Bank and Cash"
+            parent="compta"
+            sequence="15"
+    />
+    <menuitem
+            id="menu_account_coa_settings"
+            sequence="200"
+            name="Templates"
+            parent="account.menu_finance_configuration"
+            groups="base.group_no_one"
+    />
+
+    <!--    Menu Comptabilité-->
+
+    <menuitem id="menu_tableau_bord"
+              action="account.open_account_journal_dashboard_kanban"
+              name="Tableau de Bord"
+              parent="compta"
+              sequence="1"/>
+
+    <menuitem id="paiement"
+              name="Paiement"
+              parent="compta"
+              sequence="10"/>
+
+    <menuitem id="rapport_comptable_1"
+              name="Pièces Comptable"
+              parent="compta"
+              sequence="20"/>
+
+    <menuitem id="rapport_comptable"
+              name="Rapports Comptable"
+              parent="compta"
+              sequence="20"/>
+
+    <menuitem id="rapport_comptable_2"
+              name="Comptabilité2"
+              parent="compta"
+              sequence="20"/>
+
+    <menuitem id="account.menu_finance_entries_accounting_miscellaneous"
+              sequence="5"
+              parent="rapport_comptable_1">
+
+    </menuitem>
+    <menuitem id="account.menu_finance_entries_accounting_journals" name="Etats Financiers" sequence="2"
+              parent="compta">
+    </menuitem>
+    <menuitem id="account.menu_finance_entries_accounting_ledgers" name="Rapport" sequence="3"
+              parent="rapport_comptable_1">
+    </menuitem>
+    <menuitem id="account.menu_finance_entries_management" name="Management" sequence="10"
+              groups="account.group_account_invoice,account.group_account_readonly"
+              parent="rapport_comptable_1"/>
+    <menuitem id="account.menu_finance_entries_generate_entries" name="Generate Entries"
+              parent="rapport_comptable_1"/>
+    <menuitem id="account.menu_finance_entries_actions" name="Actions" sequence="11"
+              groups="account.group_account_user"
+              parent="rapport_comptable_1">
+    </menuitem>
+
+    <!-- changement du menu comptabilité du menu Facturation -->
+</odoo>

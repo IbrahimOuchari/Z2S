@@ -1,0 +1,12 @@
+<odoo>
+
+    <!--    Validateur DA -->
+    <record id="valide_da" model="res.groups">
+        <field name="name">Validation des Demandes d'Achat</field>
+    </record>
+
+    <!--    Création BC Achat -->
+    <record id="create_po" model="res.groups">
+        <field name="name">Confirmation BC Achat</field>
+    </record>
+</odoo>

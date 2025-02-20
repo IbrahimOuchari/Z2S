@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ras_template_facture">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="header">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <span>
+                                <strong>REPUBLIQUE TUNISIENNE
+                                    <br/>
+                                </strong>
+                            </span>
+                            <span>
+                                <strong>MINISTERE DU PLAN ET DES FINANCES
+                                    <br/>
+                                </strong>
+                            </span>
+                            <span>
+                                <strong>DIRECTION GENERALE DE CONTROLE FISCAL</strong>
+                            </span>
+                        </div>
+                        <div class="col-6 text-center">
+                            <span>
+                                <strong>CERTIFICAT DE RETENUE D'IMPOT
+                                    <br/>
+                                </strong>
+                            </span>
+                            <span>
+                                <strong>SUR LE REVENUE
+                                    <br/>
+                                </strong>
+                            </span>
+                            <span>
+                                <strong>OU D'IMPOT SUR LES SOCIETES
+                                </strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page">
+                    <div class="text-center">
+                        <p style="text-align: center;">Retenue effectuée le :
+                            <span t-field="o.date_retenue"/>
+                        </p>
+                    </div>
+                    <br/>
+                    <div class="content" style="border: 1 solid black; padding: 5px;">
+                        <div class="col-12">
+                            <h4>
+                                A - PERSONNE OU ORGANISME PAYEUR
+                            </h4>
+                        </div>
+                        <div class="text-center"
+                             style="border: 1 solid black; display: inline-block; position: absolute; top: 100; right: 30; padding-left: 2%;">
+                            <p style="text-align: center;">
+                                <b>Matricule fiscal - Identifiant unique</b>
+                            </p>
+                            <p style="text-align: center;">
+                                <t t-if="o.move_type == 'out_invoice'" class="col-3 bm-2">
+                                    <span t-field="o.partner_id.vat"/>
+                                </t>
+                                <t t-if="o.move_type == 'in_invoice'" class="col-3 bm-2">
+                                    <span t-field="o.company_id.vat"/>
+                                </t>
+                            </p>
+                        </div>
+                        <br></br>
+                        <br></br>
+                        <b>Dénomination de la personne ou de l'organisme payeur :</b>
+                        <t t-if="o.move_type == 'out_invoice'" class="col-3 bm-2">
+                            <span t-field="o.partner_id"/>
+                        </t>
+                        <t t-if="o.move_type == 'in_invoice'" class="col-3 bm-2">
+                            <span t-field="o.company_id"/>
+                        </t>
+                        <br></br>
+                        <br></br>
+
+                        <b>Adresse :</b>
+                        <t t-if="o.move_type == 'out_invoice'" class="col-3 bm-2">
+                            <span t-field="o.partner_id.street"/>
+                            <span t-field="o.partner_id.city"/>
+                            <span t-field="o.partner_id.zip"/>
+                            <span t-field="o.partner_id.country_id"/>
+                        </t>
+                        <t t-if="o.move_type == 'in_invoice'" class="col-3 bm-2">
+                            <span t-field="o.company_id.street"/>
+                            <span t-field="o.company_id.city"/>
+                            <span t-field="o.company_id.zip"/>
+                            <span t-field="o.company_id.country_id"/>
+                        </t>
+                        <br></br>
+
+                        <div class="col-12">
+                            <h4>
+                                B.- RETENUES AFFECTUÉES SUR
+                            </h4>
+                        </div>
+                        <div class="content" style="text-align: center;">
+                            <table style="width: 90%; auto; border-collapse: collapse; border: 2; display: inline-block; table-layout: auto;">
+                                <t>
+                                    <tr style="height: 50px; background-color: #f2f2f2;">
+                                        <th style="text-align: center; border: 1 solid black">Référence</th>
+                                        <th style="text-align: venter; border: 1 solid black;">
+                                            Montant Brut
+                                        </th>
+                                        <th style="text-align: center; border: 1 solid black;">
+                                            <span t-field="o.withholding_tax"/>
+                                        </th>
+                                        <th style="text-align: center; border: 1 solid black;">
+                                            Montant Net
+                                        </th>
+                                    </tr>
+                                    <tr style="height: 100px;">
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-field="o.name"/>
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-esc="o.amount_total - o.stamp_tax.amount"/>
+                                            DT
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-field="o.amount_withholding"/>
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-esc="o.amount_total - o.stamp_tax.amount - o.amount_withholding"/>
+                                            DT
+                                        </td>
+                                    </tr>
+                                    <!--                                    Timbre-->
+                                    <tr style="height: 100px;">
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            Timbre Fiscal
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-field="o.stamp_tax.amount"/>
+                                            DT
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">-
+
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-field="o.stamp_tax.amount"/>
+                                            DT
+                                        </td>
+                                    </tr>
+                                    <!-- Fin Timbre-->
+
+
+                                    <tr style="height: 60px; background-color: #f2f2f2;">
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <b>Total Général</b>
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-field="o.amount_total"/>
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-field="o.amount_withholding"/>
+                                        </td>
+                                        <td style="text-align: center; border: 1 solid black;">
+                                            <span t-esc="o.amount_total - o.amount_withholding"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+                        </div>
+                        <br></br>
+
+                        <div class="col-12">
+                            <h4>
+                                C.- BENEFICIAIRE
+                            </h4>
+                        </div>
+                        <div class="text-center"
+                             style="border: 1 solid black; display: inline-block; position: absolute; top: 610; right: 30; padding-left: 2%;">
+                            <p style="text-align: center;">
+                                <b>Matricule fiscal - Identifiant unique</b>
+                            </p>
+                            <p style="text-align: center;">
+                                <t t-if="o.move_type == 'in_invoice'" class="col-3 bm-2">
+                                    <span t-field="o.partner_id.vat"/>
+                                </t>
+                                <t t-if="o.move_type == 'out_invoice'" class="col-3 bm-2">
+                                    <span t-field="o.company_id.vat"/>
+                                </t>
+                            </p>
+                        </div>
+                        <br></br>
+                        <br></br>
+
+                        <b>Nom, prénoms ou raison sociale :</b>
+                        <t t-if="o.move_type == 'in_invoice'" class="col-3 bm-2">
+                            <span t-field="o.partner_id"/>
+                        </t>
+                        <t t-if="o.move_type == 'out_invoice'" class="col-3 bm-2">
+                            <span t-field="o.company_id"/>
+                        </t>
+                        <br></br>
+                        <br></br>
+
+                        <b>Adresse :</b>
+                        <t t-if="o.move_type == 'in_invoice'" class="col-3 bm-2">
+                            <span t-field="o.partner_id.street"/>
+                            <span t-field="o.partner_id.city"/>
+                            <span t-field="o.partner_id.zip"/>
+                            <span t-field="o.partner_id.country_id"/>
+                        </t>
+                        <t t-if="o.move_type == 'out_invoice'" class="col-3 bm-2">
+                            <span t-field="o.company_id.street"/>
+                            <span t-field="o.company_id.city"/>
+                            <span t-field="o.company_id.zip"/>
+                            <span t-field="o.company_id.country_id"/>
+                        </t>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+
+                        <div class="text-center">
+                            <p style="text-align: center;">
+                                Je soussigné, certifie exacts les renseignements figurants sur le présent certificat et
+                                m'expose aux sanctions prévus par la loi pour toute inaxactitude
+                            </p>
+                            <p style="text-align: center;">
+                                <t t-if="o.move_type == 'out_invoice'" class="col-3 bm-2">
+                                    <span t-field="o.partner_id.city"/>
+                                </t>
+                                <t t-if="o.move_type == 'in_invoice'" class="col-3 bm-2">
+                                    <span t-field="o.company_id.city"/>
+                                </t>
+                                le,
+                                <span t-field="o.date_retenue"/>
+                            </p>
+                            <p style="text-align: center;">
+                                Cachet et signature du payeur
+                            </p>
+                        </div>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+
+
+
+                    </div>
+                </div>
+            </t>
+        </t>
+
+    </template>
+</odoo>

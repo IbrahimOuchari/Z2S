@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_change_stage" model="ir.ui.view">
+        <field name="name">crm.change.stage</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//button[@name='action_set_won_rainbowman']" position="before">
+                <button string="Séquence suivante" type="object"
+                        name="change_stage_with_next_ordre_id" class="oe_highlight"/>
+            </xpath>
+
+            <xpath expr="//field[@name='name']" position="after">
+                <group>
+                    <field name="client" string="Prospection" class="oe_inline"/>
+                </group>
+            </xpath>
+
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="ordre_id" invisible="1"/>
+                <field name="next_ordre_id" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+
+            <xpath expr="//notebook/page[@name='lead']" position="after">
+                <page string="Historique de l'Opportunité">
+                    <field name="stage_change_history_ids" readonly="1">
+                        <tree>
+                            <field name="stage_id"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+
+        </field>
+
+
+    </record>
+
+
+    <record id="crm_stage_sequence" model="ir.ui.view">
+        <field name="name">crm.stage.sequence</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_stage_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='probability']" position="after">
+                <field name="ordre"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!--        view Historique des opportunités-->
+
+    <record id="crm_change_stage_history" model="ir.ui.view">
+        <field name="name">crm.stage.change.history</field>
+        <field name="model">crm.stage.change.history</field>
+        <field name="arch" type="xml">
+            <tree string="Historique des Opportunités" create="false">
+                <field name="lead_id" string="Opportunité"/>
+                <field name="partner_id" string="Client"/>
+                <field name="stage_id" string="Statut"/>
+                <field name="date_start" string="Date Début"/>
+                <field name="date_end" string="Date Fin"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="crm_change_stage_history_search" model="ir.ui.view">
+        <field name="name">crm.stage.change.history.search</field>
+        <field name="model">crm.stage.change.history</field>
+        <field name="arch" type="xml">
+            <search>
+                <group expand="0" string="Group By">
+                    <filter string="Opportunité" name="opportunite" domain="[]" context="{'group_by':'lead_id'}"/>
+                    <filter string="Statut" name="statut" domain="[]" context="{'group_by':'stage_id'}"/>
+                    <filter string="Client" name="client" domain="[]" context="{'group_by':'partner_id'}"/>
+
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_crm_change_stage_history" model="ir.actions.act_window">
+        <field name="name">Historique des Opportunités</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">crm.stage.change.history</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_id" ref="crm_change_stage_history"/>
+        <field name="search_view_id" ref="crm_change_stage_history_search"/>
+    </record>
+
+    <menuitem
+            id="action_crm_change_stage_history_menu"
+            name="Historique des Opportunités"
+            action="action_crm_change_stage_history"
+            parent="crm.crm_menu_root"
+            sequence="15"
+    />
+</odoo>

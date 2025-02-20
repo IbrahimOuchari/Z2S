@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_routing_tree_view" model="ir.ui.view">
+        <field name="name">mrp.routing.tree</field>
+        <field name="model">mrp.routing</field>
+        <field name="arch" type="xml">
+
+            <tree string="Routing Work Centers">
+                <field name="code"/>
+                <field name="name" string="Gamme"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="mrp_routing_form_view" model="ir.ui.view">
+        <field name="name">mrp.routing.form</field>
+        <field name="model">mrp.routing</field>
+        <field name="arch" type="xml">
+
+            <form string="Routing Work Centers">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="code"/>
+                        </h1>
+                    </div>
+                    <group name="description">
+                        <field name="name" string="Référence Gamme"/>
+                    </group>
+                    <notebook>
+                        <page string="Opération des postes de charge">
+                            <field name="gamme_id">
+                                <tree>
+
+                                    <field name="name" string="Opération"/>
+                                    <field name="sequence" string="Séquence"/>
+                                    <field name="workcenter_id" string="Poste de Charge"/>
+                                    <field name="time_cycle" string="Durée"/>
+                                </tree>
+
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="routing_action" model="ir.actions.act_window">
+        <field name="name">Gamme</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">mrp.routing</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="mrp_routing_tree_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer une nouvelle Gamme
+            </p>
+        </field>
+
+    </record>
+
+    <menuitem id="menu_routing_action"
+              name="Gamme"
+              action="routing_action"
+              parent="mrp.menu_mrp_root"
+              groups="mrp.group_mrp_routings"
+              sequence="22"/>
+
+    <record id="mrp_routing_workcenter_form_view_routing" model="ir.ui.view">
+        <field name="name">mrp.routing.form</field>
+        <field name="model">mrp.routing.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view"/>
+        <field name="arch" type="xml">
+
+
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='bom_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='workcenter_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='company_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='bom_id']" position="after">
+                <field name="routing_id" invisible="0" required="0"/>
+            </xpath>
+
+
+        </field>
+    </record>
+
+    <record id="mrp_routing_bom_form_view_routing" model="ir.ui.view">
+        <field name="name">mrp.bom.routing.form</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_qty']" position="after">
+                <label for="routing_id"/>
+                <field name="routing_id" invisible="0" required="1" string="Gamme"
+                       options="{'no_create': True, 'no_create_edit':True}"/>
+            </xpath>
+
+
+            <xpath expr="//form/sheet/notebook/page/field/tree/field[@name='product_qty']" position="after">
+                <field name="routing_id" invisible="1"/>
+                <field name="operation_routing_id" string="Consommé dans l'opération"
+                       options="{'no_create': True, 'no_create_edit':True}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='company_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='type']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='code']" position="attributes">
+                <attribute name="string">Nom de la Nomenclature</attribute>
+                <attribute name="required">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='product_tmpl_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+
+            <!--             <xpath expr="//form/sheet/notebook/page/field[@name='operation_ids']" position="attributes">-->
+            <!--                        <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>-->
+            <!--                        <attribute name="readonly">1</attribute>-->
+            <!--                </xpath>
+                 <notebook>
+            <page string="Operations poste de charge"
+                      name="operations poste de charge"
+                      groups="mrp.group_mrp_routings">
+                    <field name="gamme_id"
+                           groups="mrp.group_mrp_routings"/>
+                </page>
+                 </notebook>
+                 -->
+        </field>
+    </record>
+
+    <record id="operation_tree_view_routing" model="ir.ui.view">
+        <field name="name">operation.tree.view.routing</field>
+        <field name="model">mrp.routing.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_workcenter_tree_view"/>
+        <field name="arch" type="xml">
+
+
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="routing_id" string="Gamme"/>
+            </xpath>
+
+            <xpath expr="//field[@name='time_cycle']" position="after">
+                <field name="time_cycle_manual" string="Temps manuel"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sequence_mrp_route" model="ir.sequence">
+        <field name="name">Routing</field>
+        <field name="code">mrp.routing</field>
+        <field name="prefix">Gamme/</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+
+</odoo>
+
+
+
+

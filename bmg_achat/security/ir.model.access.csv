@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_price_history,access.purchase.price.history,model_purchase_price_history,,1,1,1,1
+access_purchase_rfq,access.purchase.rfq,model_purchase_rfq,purchase.group_purchase_user,1,1,1,1
+access_purchase_rfq_line,access.purchase.rfq.line,model_purchase_rfq_line,purchase.group_purchase_user,1,1,1,1
+
+access_purchase_order_type,purchase.order.type,model_purchase_order_type,purchase.group_purchase_user,1,0,0,0
+access_purchase_order_type_manager,purchase.order.type manager,model_purchase_order_type,purchase.group_purchase_manager,1,1,1,1
+
+access_wizard_cancel_reason_da,access_wizard_cancel_reason_da,model_wizard_cancel_reason_da,base.group_user,1,1,1,1
+access_wizard_cancel_reason_bc_achat,access_wizard_cancel_reason_bc_achat,model_wizard_cancel_reason_bc_achat,base.group_user,1,1,1,1

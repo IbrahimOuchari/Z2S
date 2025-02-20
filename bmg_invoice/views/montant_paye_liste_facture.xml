@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_invoice_paid_amount_tree">
+            <field name="name">view.invoice.paid.amount.tree.inherit</field>
+            <field name="inherit_id" ref="account.view_invoice_tree"/>
+            <field name="model">account.move</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_residual_signed']" position="after">
+                    <field name="paid_amount" sum="Paid Amount" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_residual_signed']" position="attributes">
+                    <attribute name="optional">show</attribute>
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount_total_signed']" position="attributes">
+                    <attribute name="string">Montant TTC</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
+

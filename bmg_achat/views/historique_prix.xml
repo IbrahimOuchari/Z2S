@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="product_template_add_purchase_price_history" model="ir.ui.view">
+            <field name="name">product.template.form.view.add.purchase.price.history</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Historique Prix d'Achat" attrs="{'invisible': [('purchase_ok', '=', False)]}">
+                        <field name="purchase_price_history_ids" nolabel="1" mode="tree,kanban">
+                            <tree>
+                                <field name="variant_id"/>
+                                <field name="purchase_order_id"/>
+                                <field name="purchase_order_date"/>
+                                <field name="partner_id"/>
+                                <field name="user_id"/>
+                                <field name="product_uom_qty"/>
+                                <field name="unit_price"/>
+                                <field name="total_price"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="res_config_settings_view_form_purchase_add_purchase_history_configuration" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.purchase.add.purchase.history.configuration</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="purchase.res_config_settings_view_form_purchase"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@data-key='purchase']" position="inside">
+                    <h2>Historique des Prix d'Achat</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label string="Limite des Enregistrements" for="purchase_order_line_record_limit"/>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="purchase_order_line_record_limit" class="o_light_label"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label string="Afficher Historique Prix Basé sur" for="purchase_order_status"/>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="purchase_order_status" class="o_light_label" widget="radio"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

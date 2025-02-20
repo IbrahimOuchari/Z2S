@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="external_layout_boxed_bmg" inherit_id="web.external_layout_boxed">
+            <xpath expr="//div[@class='o_boxed_header']" position="replace">
+                <div class="o_boxed_header_bmg">
+
+                    <div class="row mb8">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo"
+                             style="max-width: 200px; max-height: 100px"/>
+                        <div name="company_address" class="float-center mb4"
+                             style="font-size: 25px; margin-left: 20%; margin-top: 3%; font-weight: bold;">
+                            <span class="company_address" t-field="company.partner_id"/>
+                        </div>
+                        <div class="col-3 text-right mb2" style="margin-top: 2%">
+                            <h6 class="mt0" t-field="company.report_header"/>
+                        </div>
+                    </div>
+                </div>
+
+            </xpath>
+
+
+            <xpath expr="//div[@class='text-center']" position="replace">
+
+                <div class="text-center_bmg" style="text-align: center">
+                    <ul class="list-inline">
+                        <li class="list-inline-item">
+                            <span t-field="company.street"/>
+                        </li>
+                        <li t-if="company.city" class="list-inline-item">
+                            <span t-field="company.city"/>
+                        </li>
+                        <li t-if="company.zip" class="list-inline-item">
+                            <span t-field="company.zip"/>
+                        </li>
+                        <li t-if="company.country_id" class="list-inline-item">
+                            <span t-field="company.country_id"/>
+                        </li>
+                    </ul>
+                    <ul class="list-inline">
+                        <li t-if="company.vat" class="list-inline-item">
+                            <b>M.F.</b>
+                            <span t-field="company.vat"/>
+                        </li>
+                        <li t-if="company.company_registry" class="list-inline-item">
+                            <b>RNE :</b>
+                            <span t-field="company.company_registry"/>
+                        </li>
+                    </ul>
+                    <ul class="list-inline">
+                        <li t-if="company.phone" class="list-inline-item">
+                            Téléphone :
+                            <span class="o_force_ltr" t-field="company.phone"/>
+                        </li>
+                        <li t-if="company.email" class="list-inline-item">
+                            <b>E-mail :</b>
+                            <span t-field="company.email"/>
+                        </li>
+                        <li t-if="company.website" class="list-inline-item">
+                            <b>Site Web :</b>
+                            <span t-field="company.website"/>
+                        </li>
+                    </ul>
+                    <ul class="list-inline">
+                        <li t-if="company.compte_bancaire" class="list-inline-item">
+                            <b>RIB :</b>
+                            <span t-field="company.compte_bancaire"/>
+                            <b>-</b>
+                            <span t-field="company.banque"/>
+                            <b>-</b>
+                            <span t-field="company.agence"/>
+                        </li>
+                    </ul>
+                    <div t-field="company.report_footer"/>
+                    <div t-if="report_type == 'pdf'">
+                        Page:
+                        <span class="page"/>
+                        /
+                        <span class="topage"/>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

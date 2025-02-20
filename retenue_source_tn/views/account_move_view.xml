@@ -1,0 +1,76 @@
+<odoo>
+    <data>
+        <!-- Account Move Line Form View -->
+        <record id="mjt_account_move_inherit" model="ir.ui.view">
+            <field name="name">mjt.account.move.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <!--            BMG-->
+
+                <xpath expr="//field[@name='payment_reference']" position="after">
+                    <field name="ras_apply" widget="boolean_toggle" string="Appliquer RAS"/>
+                    <field name="withholding_tax" invisible="0" string="Taux de Retenue"
+                    attrs="{'invisible': [('ras_apply', '=', False)]}"/>
+                </xpath>
+
+                <page position="after">
+                    <page string="Retenue à la Source">
+                        <group>
+                            <field name="ras_tax" invisible="1" string="is ras"/>
+                        </group>
+                        <group>
+                            <field name="withholding_tax" string="Taux de Retenue"/>
+                        </group>
+                        <group>
+                            <field name="amount_withholding" string="Montant Retenue" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="date_retenue" string="Date Retenue"/>
+                        </group>
+                        <group>
+                            <field name="ras_executed" readonly="1" widget="boolean_toggle" string="Retenue appliquée"/>
+                        </group>
+
+                    </page>
+                </page>
+                <!--            BMG-->
+
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='tax_ids']" position="after">
+                    <field name="withholding_tax" invisible="1"/>
+                    <field name="withholding_tax_id" options="{'no_create': True, 'no_create_edit':True}" invisible="1"/>
+                    <field name="withholding_subtotal" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='price_total']" position="before">
+                    <field name="withholding_tax"/>
+                    <field name="withholding_tax_id" options="{'no_create': True, 'no_create_edit':True}"
+                           invisible="1"/>
+                    <field name="withholding_subtotal" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='narration']" position="before">
+                    <group>
+                    <field name="amount_withholding"/>
+                    </group>
+                </xpath>
+                <xpath expr="//field[@name='to_check']" position="after">
+                    <field name="wht_executed" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Product Template Form View -->
+<!--        <record id="mjt_product_template_form_view_inherit" model="ir.ui.view">-->
+<!--            <field name="name">mjt.product.product.form.view.inherit</field>-->
+<!--            <field name="model">product.template</field>-->
+<!--            <field name="inherit_id" ref="product.product_template_form_view"/>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <xpath expr="//field[@name='uom_po_id']" position="after">-->
+<!--                    <field name="apply_withholding"/>-->
+<!--                    <field name="withholding_tax_id" attrs="{'invisible': [('apply_withholding', '=', False)]}"-->
+<!--                           options="{'no_create': True, 'no_create_edit':True}"/>-->
+<!--                </xpath>-->
+<!--            </field>-->
+<!--        </record>-->
+
+    </data>
+</odoo>

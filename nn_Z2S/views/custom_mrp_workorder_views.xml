@@ -1,0 +1,74 @@
+<odoo>
+    <data>
+        <!--  Inherit the existing view  -->
+        <record id="view_mrp_production_workorder_tree_editable_custom" model="ir.ui.view">
+            <field name="name">mrp.production.work.order.tree.editable.custom</field>
+            <field name="model">mrp.workorder</field>
+            <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_editable_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='duration_expected']" position="attributes">
+                    <!--  Change the label  -->
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_planned_start']" position="attributes">
+                    <!--  Change the label  -->
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='duration_expected']" position="after">
+                    <!--  Change the label  -->
+                    <field name="duration_expected_formatted"/>
+                    <!--  Set the field as readonly when OF is confirmed  -->
+                    <!--                     <attribute name="modifiers">{'readonly': [['state', 'in', ['done', 'cancel']]]}</attribute> -->
+                </xpath>
+                <xpath expr="//field[@name='qty_producing']" position="attributes">
+                    <!--  Change the label  -->
+                    <attribute name="invisible">1</attribute>
+                    <!--  Set the field as readonly when OF is confirmed  -->
+                    <!--                     <attribute name="modifiers">{'readonly': [['state', 'in', ['done', 'cancel']]]}</attribute> -->
+                </xpath>
+                <xpath expr="//field[@name='duration_expected_formatted']" position="after">
+                    <!--  Change the label  -->
+                    <field name="production_id" invisible="1"/>
+                    <field name="real_duration" invisible="1"/>
+                    <!--                    <field name="real_duration_float"/>-->
+                    <field name="real_duration_formatted" string="Durée Réelle"/>
+                    <field name="operation_qty" string="Quantité"/>
+                    <!--                     <field name="real_duration_float" string="Durée F"/> -->
+                    <field name="productivity" avg="Moyenne Productivité" string="Productivité" widget="percentage" />
+
+                    <!--  Productivity  -->
+                    <!--  Set the field as readonly when OF is confirmed  -->
+                    <!--                     <attribute name="modifiers">{'readonly': [['state', 'in', ['done', 'cancel']]]}</attribute> -->
+                </xpath>
+                <xpath expr="//field[@name='duration']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--  Make 'button_start' always invisible  -->
+                <xpath expr="//button[@name='button_start']" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+                <xpath expr="//tree/field[@name='state']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--  Make 'button_pending' always invisible  -->
+                <xpath expr="//button[@name='button_pending']" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+                <!--  Make 'button_finish' always invisible  -->
+                <xpath expr="//button[@name='button_finish']" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+                <!--  Similarly, make other buttons always invisible  -->
+                <xpath expr="//button[@name='479']" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_unblock']" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_open_wizard']" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

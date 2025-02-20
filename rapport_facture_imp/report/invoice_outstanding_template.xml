@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="invoice_outstanding">
+    <t t-call="web.html_container">
+    <t t-call="web.external_layout">
+        <t t-set="docs" t-value="docs.with_context()"/>
+        <div class="page">
+            <div class="oe_structure"/>
+            <div align="center"> 
+                <br/>                  
+                <h2> Rapport de Factures Clients Impayées</h2>
+            </div>
+            <br/>
+            <table border="1" class="table table-condensed" style="border-style:solid">
+                <tr style="height:30%">
+                    <td style="border: 1px solid black" align="center">Date Début</td>
+                    <td style="border: 1px solid black" align="center"><span t-field="docs.start_date"/></td>
+                    <td style="border: 1px solid black" align="center">Date Fin</td>
+                    <td style="border: 1px solid black" align="center"> <span t-field="docs.end_date"/></td>                  
+                </tr>
+            </table>
+            <br/>
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Date Facturation</th>
+                        <th>Référence</th>
+                        <th>Responsable</th>
+                        <th>Echéance</th>
+                        <th>Total</th>
+                        <th>Montant Dû</th>
+                    </tr>
+                </thead>
+                <tbody class="sale_tbody">
+                    <t t-foreach="invoices" t-as="invoice">
+                        <tr>
+                            <td><span t-field="invoice.partner_id"/></td>
+                            <td><span t-field="invoice.invoice_date"/></td>
+                            <td><span t-field="invoice.name"/></td>
+                            <td><span t-field="invoice.user_id"/></td>
+                            <td><span t-field="invoice.invoice_date_due"/></td>
+                            <td><span t-field="invoice.amount_total"/></td>
+                            <td><span t-field="invoice.amount_residual"/></td>
+                        </tr>                                
+		    </t>
+                </tbody>
+            </table>
+            <br/>
+            <br/>                  
+            <div>
+                <strong>Encours Total :
+                    <span t-field="docs.total_amount_due"/>
+                </strong>
+            </div>
+        </div>
+    </t>
+    </t>
+</template>
+</odoo>

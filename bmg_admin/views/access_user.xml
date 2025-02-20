@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+<!-- Ajouter groupe exclu dans groupe menu -->
+    <record id="edit_menu_access_restricted" model="ir.ui.view">
+        <field name="name">ir.ui.menu.restricted</field>
+        <field name="model">ir.ui.menu</field>
+        <field name="inherit_id" ref="base.edit_menu_access" />
+        <field name="arch" type="xml">
+            <field name="groups_id" position="before">
+                <label for="groups_id" />
+            </field>
+            <field name="groups_id" position="after">
+                <label for="excluded_group_ids" />
+                <field name="excluded_group_ids" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Masquer menu par user -->
+    <data>
+        <record id="masquer_menu_user_form_inherit" model="ir.ui.view">
+            <field name="name">masquer_menu_user</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Masquer Menu">
+                        <tree>
+                            <field name="hide_menu_access_ids" options="{'no_create':1,'no_create_edit':1}"/>
+                        </tree>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

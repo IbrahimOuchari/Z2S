@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="etiquette_z2s_reception" model="report.paperformat">
+            <field name="name">Etiquette Réception</field>
+            <field name="default" eval="True"/>
+            <field name="format">custom</field>
+            <field name="page_height">210</field>
+            <field name="page_width">100</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">5</field>
+            <field name="margin_bottom">5</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">10</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <record id="action_template_etiquette_reception" model="ir.actions.report">
+            <field name="name">Etiquette Réception</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">Z2S.template_etiquette_reception</field>
+            <field name="report_file">Z2S.template_etiquette_reception</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="Z2S.etiquette_z2s_reception"/>
+        </record>
+
+        <template id="template_etiquette_reception">
+            <t t-call="web.html_container">
+                <div class="page">
+                    <t t-foreach="docs" t-as="picking">
+                        <t t-foreach="picking.move_lines" t-as="move">
+                            <t t-foreach="move.move_line_ids" t-as="move_line">
+                                <div style="display: inline-table; height: 10rem; width: 32%;">
+                                    <table class="table table-condensed"
+                                           style="width: 1000px; height: 400px; border-collapse: collapse; font-size: 25px;"
+                                           t-if="picking.move_lines">
+                                        <tr>
+                                            <th style="border: 1px solid black; padding: 8px;">
+                                                <span t-esc="picking.partner_id.name"/>
+                                            </th>
+
+                                            <th style="border: 1px solid black; padding: 8px;">
+                                                <span t-esc="picking.date_done"
+                                                      t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                                            </th>
+
+
+                                        </tr>
+
+                                        <tr>
+                                            <td style="border: 1px solid black; padding: 8px; text-align: center;">
+                                                <p style="font-weight: bold;">Référence :</p>
+                                                <span t-esc="move.ref_product_client_id"/>
+                                            </td>
+
+                                            <td style="border: 1px solid black; padding: 8px; text-align: center;">
+                                                <p style="font-weight: bold;">Quantité Colis :
+                                                    <span t-esc="move.colis"/>
+                                                </p>
+                                                <p style="font-weight: bold;">Quantité :
+                                                    <span t-esc="move.quantity_done"/>
+                                                </p>
+
+                                            </td>
+
+                                        </tr>
+
+                                        <tr>
+                                            <td style="border: 1px solid black; padding: 8px; text-align: center;">
+                                                <span t-esc="picking.name"/>
+                                            </td>
+
+                                            <td style="border: 1px solid black; padding: 8px; text-align: center;">
+                                                <span t-esc="move.description_sale_id"/>
+                                            </td>
+
+
+                                        </tr>
+
+
+                                    </table>
+                                </div>
+                            </t>
+                        </t>
+                    </t>
+                </div>
+            </t>
+
+        </template>
+
+
+        <record id="view_print_etiquette" model="ir.ui.view">
+            <field name="name">view.print.etiquette</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//header//button[@name='button_scrap']" position="after">
+                    <button name="print_etiquette"
+                            string="Imprimer Etiquette" class="btn-primary" type="object"
+                            attrs="{'invisible': [('operation_fourni', 'not in', [('fourni')])]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

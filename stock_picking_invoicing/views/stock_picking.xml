@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_picking_inherit_tree2" model="ir.ui.view">
+        <field name="name">stock.picking.tree.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <field name="backorder_id" position="after">
+                <field name="invoice_state" groups="account.group_account_invoice"/>
+            </field>
+        </field>
+    </record>
+    <record id="view_picking_invoicing_internal_search" model="ir.ui.view">
+        <field name="name">stock.picking.search.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//search/field[@name='name']" position="before">
+                <field name="move_ids_without_package" string="Référence Article"
+                       filter_domain="[('move_ids_without_package.ref_product_client_id', 'ilike', self)]"/>
+            </xpath>
+            <field name="product_id" position="before">
+                <filter
+                        name="picking_to_invoice"
+                        string="Shipments to Invoice"
+                        domain="[('invoice_state', '=', '2binvoiced')]"
+                />
+            </field>
+        </field>
+    </record>
+    <record id="view_picking_form" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock_picking_invoice_link.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- The replace is needed because the tree view definition below change
+            also the field view defined in stock_picking_invoice_link -->
+            <field name="invoice_ids" position="replace"/>
+            <notebook position="inside">
+                <page
+                        string="Invoicing"
+                        name="page_invoicing"
+                        groups="account.group_account_invoice"
+                        attrs="{'invisible': [('invoice_state', 'in', [False, 'none'])]}"
+                >
+                    <group colspan="2">
+                        <field name="invoice_ids" coslpan="2" nolabel="1">
+                            <tree>
+                                <field name="partner_id"/>
+                                <field name="name"/>
+                                <field name="ref"/>
+                                <field name="invoice_date"/>
+                                <field name="state"/>
+                                <field name="amount_untaxed" sum="True"/>
+                                <field name="amount_tax"/>
+                                <field name="amount_total" sum="True"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </notebook>
+            <button name="do_unreserve" position="after">
+                <button
+                        name="%(action_stock_invoice_onshipping)d"
+                        string="Create Invoice"
+                        attrs="{'invisible': ['|', '|', ('picking_type_code', '!=', 'outgoing'), ('state', '!=', 'done'), ('invoice_state', '!=', '2binvoiced')]}"
+                        type="action"
+                        class="oe_highlight"
+                        groups="base.group_user"
+                />
+            </button>
+            <field name="move_ids_without_package" position="attributes">
+                <attribute name="context">
+                    {'default_invoice_state': invoice_state,
+                    'address_in_id': partner_id,
+                    'form_view_ref':'stock.view_move_picking_form',
+                    'tree_view_ref':'stock.view_move_picking_tree',
+                    'default_picking_type_id': picking_type_id,
+                    'default_picking_id': id,
+                    'default_location_id': location_id,
+                    'default_location_dest_id': location_dest_id}
+                </attribute>
+            </field>
+            <field name="move_type" position="before">
+                <field name="invoice_state" groups="account.group_account_invoice"/>
+            </field>
+
+            <button name="%(stock.act_stock_return_picking)d" position="after">
+                <button
+                        name="set_to_be_invoiced"
+                        type="object"
+                        string="Set to be invoiced"
+                        attrs="{'invisible':['|', '|',
+                         ('invoice_state', '=', 'invoiced'),
+                         ('invoice_ids', '=', True), ('state', '=', 'cancel')]}"
+                />
+            </button>
+        </field>
+    </record>
+
+
+    <!--        Vue des BL Facturés-->
+
+    <record id="view_bl_facturation_tree" model="ir.ui.view">
+        <field name="name">invoice.bl.tree</field>
+        <field name="model">stock.picking</field>
+
+        <field name="arch" type="xml">
+            <tree string="Bon de Livraison" create="false" default_order="date_done desc">
+
+                <field name="name" string="N° BL"/>
+                <field name="partner_id" string="Client"/>
+                <field name="date_done" string="Date"/>
+                <field name="origin" string="N° Commande"/>
+                <field name="amount_total" sum="Montant Total"/>
+                <field name="invoice_state" string="Etat Facture"/>
+                <field name="state"/>
+                <field name="operation_fourni" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="search_view_bl_facturation" model="ir.ui.view">
+        <field name="name">search.view.bl.facturation</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <search string="Search Etat des Bons de Livraison">
+                <filter string="Facturé" name="invoice" domain="[('invoice_state','=', 'invoiced')]"/>
+                <filter string="A Facturé" name="to_invoice" domain="[('invoice_state', '=', '2binvoiced')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Statut Facturation" name="state_invoice" domain="[]"
+                            context="{'group_by':'invoice_state'}"/>
+                    <filter string="Client" name="partner" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Bon de Commande" name="bc" domain="[]" context="{'group_by':'origin'}"/>
+                    <filter string="Date" name="date_done" domain="[]"
+                            context="{'group_by': 'date_done'}"/>
+
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_view_bl_facturation_tree" model="ir.actions.act_window">
+        <field name="name">Bon de Livraison</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="domain">[('operation_fourni','=', 'livraison')]</field>
+        <field name="search_view_id" ref="search_view_bl_facturation"/>
+        <field name="view_id" ref="view_bl_facturation_tree"/>
+    </record>
+
+    <menuitem
+            id="menu_view_bl_facturation_tree"
+            name="Etat des bons de livraison"
+            action="action_view_bl_facturation_tree"
+            parent="bmg_account_menu.compta"
+            sequence="2"
+    />
+</odoo>

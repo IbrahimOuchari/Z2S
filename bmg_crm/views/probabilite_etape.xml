@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="crm_lead_view_form_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='probability']" position="before">
+                <field name="stage_probability"/>
+            </xpath>
+
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="options">{'clickable': false, 'fold_field': 'fold'}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='probability']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+
+
+            <xpath
+                    expr="//button[@name='action_set_automated_probability']"
+                    position="before"
+            >
+                <field name="is_stage_probability" invisible="1"/>
+                <button
+                        class="btn btn-link"
+                        name="action_set_stage_probability"
+                        type="object"
+                        attrs="{'invisible': [('is_stage_probability', '=', True)]}"
+                >
+                    <i
+                            class="fa fa-gear"
+                            role="img"
+                            title="Switch to stage probability"
+                            aria-label="Switch to stage probability"
+                    />
+                </button>
+                <small
+                        class="oe_grey"
+                        attrs="{'invisible': [('is_stage_probability', '=', True)]}"
+                >
+                    <field name="stage_probability"/>
+                    %% (Selon l'étape)
+                </small>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_stage_search_inherit" model="ir.ui.view">
+        <field name="name">Stage - Search - inherit</field>
+        <field name="inherit_id" ref="crm.crm_lead_stage_search"/>
+        <field name="model">crm.stage</field>
+        <field name="arch" type="xml">
+            <field name="sequence" position="after">
+                <field name="probability"/>
+            </field>
+        </field>
+    </record>
+    <record id="crm_stage_tree_inherit" model="ir.ui.view">
+        <field name="name">crm.stage.tree.inherit</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_stage_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="probability"/>
+            </field>
+
+            <field name="name" position="before">
+                <field name="ordre"/>
+            </field>
+        </field>
+    </record>
+    <record id="crm_stage_form_inherit" model="ir.ui.view">
+        <field name="name">crm.stage.form.inherit</field>
+        <field name="model">crm.stage</field>
+        <field name="inherit_id" ref="crm.crm_stage_form"/>
+        <field name="arch" type="xml">
+            <field name="team_count" position="after">
+                <group name="probability">
+                    <field name="on_change"/>
+                    <field
+                            name="probability"
+                            attrs="{'invisible': [('on_change', '=', False)]}"
+                    />
+                </group>
+            </field>
+        </field>
+    </record>
+</odoo>

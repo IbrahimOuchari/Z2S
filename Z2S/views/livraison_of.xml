@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="ordre_fabrication_stock_move_line" model="ir.ui.view">
+            <field name="name">ordre.fabrication.stock.move.line</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="/form/header/button[@name='action_cancel']" position="after">
+                    <button name="action_annule_of"
+                            string="Annuler OF" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state_of', 'in', [('livre')])]}"
+                            groups="Z2S.annule_of"/>
+                </xpath>
+
+                <xpath expr="/form/header/field[@name='state']" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,progress,done,livre"/>
+                </xpath>
+
+                <xpath expr="/form/header/field[@name='state']" position="after">
+                    <field name="state_of" widget="statusbar"/>
+                </xpath>
+
+                <xpath expr="//field[@name='user_id']" position="before">
+                    <field name="date_prevue_fin_prod"/>
+                    <field name="date_creation" readonly="1"/>
+                    <field name="date_realisation" readonly="1"/>
+
+                </xpath>
+
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="client_id"/>
+                    <field name="ref_product_client" string="Référence Article"/>
+                    <field name="description" string="Désigantion"/>
+                    <field name="num_bc" options="{'no_create': True, 'no_create_edit':True}"/>
+                    <field name="num_bc_client"/>
+
+                </xpath>
+
+
+                <xpath expr="//field[@name='user_id']" position="after">
+
+                    <field name="quantite_livre"/>
+                    <field name="active_livraison" invisible="1"/>
+                    <field name="quantite_restante"/>
+                    <field name="cout_of"/>
+                </xpath>
+
+                <notebook>
+                    <page string="Livraison sur OF" name="livraison_stock_of">
+
+                        <field name="stock_move_line_ids" string="Liste des livraison sur OF">
+
+                            <tree editable="bottom">
+                                <field name="ref_of"/>
+                                <field name="date_done_id" string="Date BL" widget="date"/>
+                                <field name="num_bl" string="N° BL"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="poste_id"/>
+                                <field name="product_id" invisible="1"/>
+                                <field name="qty_done" sum="Total"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+
+                <!--                Tableau des opérations OF-->
+                <notebook>
+                    <page string="Opértions" name="operation_of">
+
+                        <field name="details_operation" string="Opérations sur OF">
+
+                            <tree editable="bottom">
+                                <field name="bom_id"/>
+                                <field name="gamme_id"/>
+                                <field name="operation" options="{'no_create': True, 'no_create_edit':True}"/>
+                                <field name="heure_debut"/>
+                                <field name="heure_fin"/>
+                                <field name="duree"/>
+                                <field name="quantite"/>
+                                <field name="employee" options="{'no_create': True, 'no_create_edit':True}"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+
+
+                <xpath expr="//field[@name='product_id']" position="replace">
+                    <field name="product_id"
+                           options="{'no_create': True, 'no_create_edit':True}"
+                           domain="[('sale_ok', '=', True), ('state_product', '=', '1')]"/>
+                </xpath>
+
+                <xpath expr="//form/sheet/notebook/page/field/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="domain">[('sale_ok', '=', False)]</attribute>
+                    <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+                </xpath>
+
+                <xpath expr="//form/sheet/notebook/page/field/tree/field[@name='quantity_done']" position="after">
+                    <field name="cout_produit" sum="Total" groups="base.group_erp_manager" optional="hide"/>
+                </xpath>
+
+
+            </field>
+        </record>
+
+
+        <record id="ordre_fabrication_tree_view" model="ir.ui.view">
+            <field name="name">ordre.fabrication.tree.view</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="decoration-success" add="state == 'done' &lt; state_of == 'livre'"/>
+                    <attribute name="decoration-info" add="state == 'done' &lt; state_of == 'none'"/>
+
+                </xpath>
+
+                <xpath expr="//field[@name='date_planned_start']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('state', 'in', [('done'), ('cancel')])]}</attribute>
+                    <attribute name="widget">remaining_days</attribute>
+                </xpath>
+
+
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="date_creation" optional="show"/>
+                </xpath>
+
+                <xpath expr="//field[@name='date_planned_start']" position="after">
+                    <field name="date_realisation" optional="show"/>
+                    <field name="date_prevue_fin_prod" optional="show"/>
+                </xpath>
+
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="ref_product_client" string="Référence Client"/>
+                    <field name="client_id"/>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='state']" position="after">
+                    <field name="state_of" widget="badge"
+                           decoration-success="state_of == 'livre'"
+                           decoration-info="state_of == 'none'"
+                           decoration-danger="state_of == 'cancel'"
+                    />
+                </xpath>
+
+                <xpath expr="//field[@name='product_qty']" position="after">
+                    <field name="quantite_restante"/>
+                    <field name="cout_of"/>
+                </xpath>
+
+            </field>
+        </record>
+
+
+    </data>
+</odoo>
+
+
+

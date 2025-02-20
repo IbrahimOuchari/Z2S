@@ -1,0 +1,35 @@
+{
+    'name': "BMG Admin",
+    'author': 'BMG Tech',
+    'category': '',
+    'summary': """""",
+    'license': 'AGPL-3',
+    'website': 'www.bmgtech.tn',
+    'description': "Modules BMG Technologies Admin",
+    'version': '14.0',
+
+    'depends': ['base', 'base_setup', 'web_tour', 'web', 'calendar', 'sale_management', 'purchase', 'bmg_sale',
+                'report_xlsx', 'report_xlsx_helper', 'date_range', 'options_impression_rapport'],
+
+    'data': [
+        'security/ir.model.access.csv',
+        'report/report_template.xml',
+        'views/chiffre_lettre.xml',
+        'views/access_user.xml',
+        'views/fixe_ligne.xml',
+        'views/calendar.xml',
+        'views/ville_tunisie.xml',
+        'views/res_company.xml',
+        'views/login_background.xml',
+        'templates/left_login_template.xml',
+        'templates/right_login_template.xml',
+        'templates/middle_login_template.xml',
+        'templates/assets.xml',
+
+    ],
+    'bootstrap': True,
+    'images': ['static/description/banner.png'],
+    'installable': True,
+    'application': True,
+    'auto_install': False,
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <template id="purchase_rfq_signature" inherit_id="bmg_achat.rfq_template">
+
+         <xpath expr="//div[@class='signature']" position="after">
+            <t t-if="doc.sign">
+                <t t-if="doc.type_of_signature == 'company_signature'">
+                    <t t-if="doc.is_purchase_rfq">
+                        <t t-if="doc.company_id.signature">
+                            <t t-if="doc.signature_position">
+                                <div class="text-left" style="float:left; padding-top:50px">
+                                    <img t-att-src="image_data_uri(doc.company_id.signature)" style="max-height: 6cm; max-width: 12cm;"/>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="text-right" style="float:right; padding-top:50px">
+                                    <img t-att-src="image_data_uri(doc.company_id.signature)" style="max-height: 6cm; max-width: 12cm;"/>
+                                </div>
+
+                            </t>
+                        </t>
+                    </t>
+                </t>
+                <t t-if="doc.type_of_signature == 'individual_signature'">
+                    <t t-if="doc.is_purchase_rfq">
+                        <t t-if="doc.user_id.gcs_signature">
+                            <t t-if="doc.signature_position">
+                                <div class="text-left" style="padding-top:50px; padding-left:50px">
+                                    <img t-att-src="image_data_uri(doc.user_id.gcs_signature)" style="max-height: 6cm; max-width: 12cm;"/>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="text-right" style="padding-top:50px; padding-left:50px">
+                                    <img t-att-src="image_data_uri(doc.user_id.gcs_signature)" style="max-height: 6cm; max-width: 12cm;"/>
+                                </div>
+                            </t>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </xpath>
+
+    </template>
+</odoo>

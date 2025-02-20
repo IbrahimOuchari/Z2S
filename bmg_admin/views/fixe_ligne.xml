@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="fix_entete" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/bmg_admin/static/src/js/row_no.js"/>
+            <link rel="stylesheet" type="text/css" href="/bmg_admin/static/src/css/list_header.css"/>
+        </xpath>
+    </template>
+</odoo>

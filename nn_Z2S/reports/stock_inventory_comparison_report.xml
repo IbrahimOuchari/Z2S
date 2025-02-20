@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+
+  <template id="report_inventory_comparison_sheet">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <!-- Header Information -->
+                            <div class="row mt-0 mb-2">
+                                <div t-if="o.date" class="col-auto mw-100 mb-2">
+                                    <strong>Date :</strong>
+                                    <p class="m-0 d-inline" t-field="o.date"/>
+                                </div>
+                            </div>
+
+                            <h2 t-field="o.name" class="text-center mt-2"/>
+
+                            <!-- Process locations with safety checks -->
+                            <t t-set="filtered_lines" t-value="o.get_filtered_inventory_lines()"/>
+                            <t t-if="filtered_lines">
+                                <t t-set="locations" t-value="filtered_lines.mapped('location_id').filtered(lambda loc: loc.display_name != 'Retour')"/>
+
+                                <t t-foreach="locations" t-as="location">
+                                    <!-- Location data -->
+                                    <h3 t-field="location.display_name" class="text-center"/>
+
+                                    <!-- Main inventory table -->
+                                    <table class="table table-sm mt-2">
+                                        <thead>
+                                            <tr>
+                                                <th>Réf Article</th>
+                                                <th>Article</th>
+                                                <th style="width: 200px;">Client</th>
+                                                <th class="text-right">Quantité Théorique</th>
+                                                <th class="text-right">Quantité Comptée</th>
+                                                <th class="text-right">Écart en Quantité</th>
+                                                <th class="text-right">% d'Écart</th>
+                                                <th class="text-right">Valeur d'Écart</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-set="location_lines" t-value="filtered_lines.filtered(lambda line: line.location_id == location)"/>
+                                            <t t-foreach="location_lines" t-as="line">
+                                                <tr>
+                                                    <td><span t-field="line.product_id.ref_product_client"/></td>
+                                                    <td><span t-field="line.product_id.name"/></td>
+                                                    <td><span t-field="line.client_id.name"/></td>
+                                                    <td class="text-right">
+                                                        <t t-set="theoretical" t-value="int(line.theoretical_qty or 0)"/>
+                                                        <span t-esc="theoretical"/>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <t t-set="counted" t-value="int(line.product_qty or 0)"/>
+                                                        <span t-esc="counted"/>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <t t-set="diff" t-value="counted - theoretical"/>
+                                                        <span t-esc="diff"/>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <t t-set="percent" t-value="(diff / theoretical * 100) if theoretical else 0"/>
+                                                        <span t-esc="int(percent)"/>%
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <t t-set="value" t-value="diff * (line.product_id.standard_price or 0)"/>
+                                                        <span t-esc="int(value)"/> €
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+
+                                    <!-- Summary table -->
+                                    <table class="table table-sm mt-4">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="8" class="text-center">
+                                                    <strong>Résumé</strong>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4">
+                                                    <strong>Nombre d'articles avec écart:</strong>
+                                                    <t t-set="diff_count" t-value="len(location_lines.filtered(lambda l: int(l.product_qty or 0) != int(l.theoretical_qty or 0)))"/>
+                                                    <span class="ml-2" t-esc="diff_count"/>
+                                                </td>
+                                                <td colspan="4" class="text-right">
+                                                    <strong>Valeur totale d'écart:</strong>
+                                                    <t t-set="total_value" t-value="sum((int(l.product_qty or 0) - int(l.theoretical_qty or 0)) * (l.product_id.standard_price or 0) for l in location_lines)"/>
+                                                    <span class="ml-2" t-esc="int(total_value)"/> €
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="8" class="text-right">
+                                                    <strong>Pourcentage total d'écart:</strong>
+                                                    <t t-set="total_theoretical" t-value="sum(int(l.theoretical_qty or 0) for l in location_lines)"/>
+                                                    <t t-set="total_counted" t-value="sum(int(l.product_qty or 0) for l in location_lines)"/>
+                                                    <t t-set="total_percent" t-value="((total_counted - total_theoretical) / total_theoretical * 100) if total_theoretical else 0"/>
+                                                    <span class="ml-2" t-esc="int(total_percent)"/>%
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <!-- Page break except for last location -->
+                                    <t t-if="not location_last">
+                                        <div style="page-break-after: always;"/>
+                                    </t>
+                                </t>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+
+        <!-- Report Action -->
+        <record id="action_report_inventory_comparison_sheet" model="ir.actions.report">
+            <field name="name">Fiche de Comparaison</field>
+            <field name="model">stock.inventory</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nn_Z2S.report_inventory_comparison_sheet</field>
+            <field name="report_file">nn_Z2S.report_inventory_comparison_sheet</field>
+            <field name="print_report_name">'Comparaison Inventaire - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_stock_inventory"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mrp_routing,access.mrp.routing,model_mrp_routing,mrp.group_mrp_user,1,1,1,1
+access_hr_affectation,access_hr_affectation,model_hr_affectation,base.group_user,1,1,1,1
+access_mrp_routing_operation,mrp.routing.operation,model_mrp_routing_operation,mrp.group_mrp_user,1,1,1,1
+
+access_wizard_cancel_reason,access_wizard_cancel_reason,model_wizard_cancel_reason,base.group_user,1,1,1,1
+
+access_mrp_operation_of,access_mrp_operation_of,model_mrp_operation_of,base.group_user,1,1,1,1
+
+

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_new_order_form" model="ir.ui.view">
+        <field name="name">view.new.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="after">
+                <field name="bc_annule" invisible="1"/>
+                    <div class="alert alert-danger text-center o_form_header" role="status"
+                         attrs="{'invisible': ['|', ('state', 'not in', ('brouillon','validation','rejete','cancel')), ('bc_annule', '=', False)]}">
+                        <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+                        <div>
+                            <strong>Raison de Refus :
+                                <field name="motif_validation_bc"/>
+                            </strong>
+                        </div>
+                    </div>
+                </xpath>
+
+            <!--    Bouton Archivage de BC-->
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="toggle_active" type="object" string="Actif"
+                        attrs="{'invisible': [('state','not in',['done','cancel', 'sale'])]}"
+                        class="oe_stat_button" icon="fa-archive">
+                    <field name="active" widget="boolean_toggle" string="Actif"
+                           options='{"terminology": "archive"}'/>
+                </button>
+            </xpath>
+
+            <!--    Ruban Facturé dans BC-->
+            <xpath expr="//form/sheet/div[@name='button_box']" position="after">
+                <widget name="web_ribbon" title="Facturé"
+                        attrs="{'invisible': [('invoice_status', '!=', 'invoiced')]}"/>
+                <widget name="web_ribbon" title="Archivé"
+                        bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+            </xpath>
+
+            <!-- modification header -->
+            <xpath expr="/form/header/field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">brouillon,validation,sale,fait</attribute>
+            </xpath>
+            <xpath expr="//form//header//button[@name='action_draft']" position="replace">
+                <button string="Remettre en Brouillon" states="cancel" name="action_draft_bc" type="object"
+                        groups="bmg_sale.valide_bc_vente"/>
+            </xpath>
+            <xpath expr="//header//button[@name='action_confirm']" position="attributes">
+                <attribute name="attrs">{'invisible': [('state', 'not in', ['accepte'])]}</attribute>
+            </xpath>
+
+            <xpath expr="//header//button[@name='action_confirm']" position="before">
+                <button name="action_save_bc"
+                        string="Envoi pour Validation" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('brouillon')])]}"/>
+            </xpath>
+
+            <xpath expr="//header//button[@name='action_confirm']" position="before">
+                <button name="action_validation_bc"
+                        string="Validation BC" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('validation')])]}"
+                        groups="bmg_sale.valide_bc_vente"/>
+            </xpath>
+
+            <xpath expr="//header//button[@name='action_confirm']" position="before">
+                <button name="action_rejet_bc"
+                        string="Rejeter BC" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('validation')])]}"
+                        groups="bmg_sale.valide_bc_vente"/>
+            </xpath>
+
+            <xpath expr="//header//button[@name='action_confirm']" position="before">
+                <button name="action_in_draft"
+                        string="Remettre en Brouillon" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('rejete')])]}"/>
+            </xpath>
+
+            <xpath expr="//header//button[@name='action_quotation_send']" position="after">
+                <button name="print_report"
+                        string="Imprimer BC" class="btn-primary" type="object"
+                        attrs="{'invisible': [('state', 'not in', [('sale')])]}"/>
+            </xpath>
+
+            <xpath expr="/form/header/field[@name='state']" position="after">
+                <field name="hide_edit" invisible="0"/>
+            </xpath>
+
+            <!-- fin -->
+
+            <!-- field template devis invisible -->
+            <xpath expr="//sheet//field[@name='sale_order_template_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- fin -->
+
+            <!--            Bouton annuler invisible pour le groupe salesman-->
+
+            <xpath expr="//button[@name='action_cancel']" position="attributes">
+                <attribute name="groups">sales_team.group_sale_manager</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_cancel']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- modification info BC -->
+            <xpath expr="//sheet//field[@name='validity_date']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//sheet//label[@for='date_order']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//sheet//field[@name='date_order']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//sheet//field[@name='date_order']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//sheet//button[@name='update_prices']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', ('show_update_pricelist', '=', False), ('state', 'in',
+                    ['fait', 'done','cancel'])]}
+                </attribute>
+            </xpath>
+            <xpath expr="//sheet//field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+            <xpath expr="//sheet//field[@name='partner_id']" position="after">
+                <field name="devis_seq"/>
+                <field name="commitment_date" string="Date de livraison prévue"/>
+            </xpath>
+            <!-- fin -->
+            <!-- modification page ligne de commande -->
+
+            <xpath expr="//sheet//notebook//page//tree//field[@name='product_id']"
+                   position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+            <!-- fin -->
+
+            <!-- modification page autre information -->
+
+            <xpath expr="//sheet//notebook//page//field[@name='user_id']"
+                   position="attributes">
+                <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+            </xpath>
+            <xpath expr="//sheet//notebook//page//field[@name='require_signature']"
+                   position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//sheet//notebook//page//field[@name='require_payment']"
+                   position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//sheet//field[@name='partner_id']"
+                   position="after">
+                <field name="client_order_ref" position="move"/>
+                <field name="tag_ids" position="move"/>
+            </xpath>
+
+
+            <!-- fin -->
+            <xpath expr="//sheet//notebook//page[@name='customer_signature']"
+                   position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_inehrite_tree_view" model="ir.ui.view">
+        <field name="name">sale.order.inehrite.tree</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+                <attribute name="string">Commercial</attribute>
+            </xpath>
+            <xpath expr="//field[@name='activity_ids']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_untaxed']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="string">Montant H.T.</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_tax']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="string">T.V.A.</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_total']" position="attributes">
+                <attribute name="string">Montant T.T.C.</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='invoice_status']" position="after">
+                <field name="state" optional="show"/>
+            </xpath>
+
+        </field>
+    </record>
+    <!-- search panel BC -->
+    <record id="bc_panneaux_recherche_sale_order_search" model="ir.ui.view">
+        <field name="name">sale.order.search (bc_panneaux_recherche)</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <search position="inside">
+                <searchpanel>
+                    <field name="state" enable_counters="1"/>
+                    <field name="invoice_status" enable_counters="1"/>
+                </searchpanel>
+                <separator/>
+                <filter string="Archivé" name="inactive"
+                        domain="[('active','=',False)]"/>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- menu item -->
+    <menuitem id="sale.report_sales_team"
+              name="Sales Teams"
+              parent="sale.sale_menu_root"
+              groups="sales_team.group_sale_manager"
+              action="sales_team.crm_team_salesteams_act"
+              sequence="6"/>
+    <menuitem id="sale.res_partner_menu"
+              parent="sale.sale_menu_root"
+              action="account.res_partner_action_customer"
+              sequence="3" groups="sales_team.group_sale_salesman"/>
+    <menuitem id="sale.menu_sale_order"
+              name="Orders"
+              action="sale.action_orders"
+              parent="sale.sale_menu_root"
+              sequence="2" groups="sales_team.group_sale_salesman"/>
+    <menuitem action="sale.product_template_action"
+              id="sale.menu_product_template_action"
+              parent="sale.sale_menu_root"
+              sequence="3"/>
+    <menuitem id="sale.menu_product_pricelist_main"
+              name="Liste de Prix"
+              parent="sale.sale_menu_root"
+              action="product.product_pricelist_action2"
+              groups="product.group_product_pricelist"
+              sequence="4"/>
+    <delete model="ir.ui.menu" id="sale.sale_order_menu"/>
+    <delete model="ir.ui.menu" id="sale.menu_sale_quotations"/>
+
+
+</odoo>
+

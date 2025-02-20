@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_account_voucher_wizard" model="ir.ui.view">
+        <field name="name">Paiement</field>
+        <field name="model">account.voucher.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Payment">
+                <group>
+                    <field name="order_id" invisible="1" />
+                    <group colspan="4" col="4">
+                        <field
+                            name="journal_id"
+                            domain="[('type','in',['bank', 'cash'])]"
+                            widget="selection"
+                            select="1"
+                            string="Journal de Paiement"
+                        />
+                        <field name="payment_type" string="Type de Paiement" />
+<!--                        <field name="journal_currency_id" string="Currency" />-->
+                        <field name="payment_ref" string="Référence"/>
+                        <field name="date" />
+                        <field name="amount_total" string="Montant de la Commande" />
+                    </group>
+                    <separator string="Opération" colspan="4" />
+                    <group colspan="4" col="4">
+                        <field name="amount_advance" string="Montant du Paiement"/>
+<!--                        <field name="currency_id" string="Order Currency" />-->
+<!--                        <field-->
+<!--                            name="currency_amount"-->
+<!--                            string="Amount in Order Currency"-->
+<!--                        />-->
+                    </group>
+                </group>
+                <footer>
+                    <button
+                        name="make_advance_payment"
+                        string="Enregistrer le Paiement"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button special="cancel" string="Annuler" class="btn-default" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_view_account_voucher_wizard" model="ir.actions.act_window">
+        <field name="name">Payment</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.voucher.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

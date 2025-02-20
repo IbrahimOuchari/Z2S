@@ -1,0 +1,54 @@
+<odoo>
+    <record id="mois_defaut_calendrier_calendar_event_calendar" model="ir.ui.view">
+        <field name="name">calendar.event.calendar (mois_defaut_calendrier)</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_calendar"/>
+        <field name="priority" eval="2"/>
+        <field name="arch" type="xml">
+            <calendar position="attributes">
+                <attribute name="mode">month</attribute>
+            </calendar>
+        </field>
+    </record>
+    <!--    Calendar compteur par jour-->
+    <data>
+        <template id="calendar_count_assets" inherit_id="web.assets_backend" name="calendar_count Assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/bmg_admin/static/src/js/calendar_count.js">
+                </script>
+            </xpath>
+        </template>
+    </data>
+
+
+    <record id="view_form_calendar_date_form" model="ir.ui.view">
+        <field name="name">view.form.calendar.date.realisation</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_form"/>
+        <field name="priority" eval="2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='allday']" position="after">
+                <field name="date_realisation" string="Date de Réalisation" class="oe_inline"/>
+            </xpath>
+
+            <xpath expr="//field[@name='start']" position="before">
+                <field name="type_visite" string="Type de Visite" class="oe_inline"/>
+            </xpath>
+        </field>
+    </record>
+
+     <record id="view_form_calendar_date_tree" model="ir.ui.view">
+        <field name="name">view.form.calendar.date.realisation.tree</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_tree"/>
+        <field name="priority" eval="2"/>
+        <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='name']" position="after">
+                <field name="type_visite" string="Type de Visite" class="oe_inline"/>
+            </xpath>
+        </field>
+     </record>
+
+
+</odoo>

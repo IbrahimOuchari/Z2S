@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_order_form_alerte" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="/form/sheet" position="before">
+                <div
+                        class="alert alert-warning"
+                        role="alert"
+                        attrs="{'invisible': [('overdue_invoice_count', '=', 0)]}"
+                >
+                    Le Contact
+                    <field
+                            name="commercial_partner_invoicing_id"
+                    />
+                    a
+                    <field name="overdue_invoice_count"/>
+                    <button
+                            string="Facture en Retard"
+                            type="object"
+                            name="jump_to_overdue_invoices"
+                            class="oe_link"
+                    />pour un montant
+                    <field name="overdue_invoice_amount"/>
+                </div>
+            </xpath>
+            <field name="currency_id" position="after">
+                <field name="company_currency_id" invisible="1"/>
+            </field>
+
+        </field>
+    </record>
+
+    <!--    Ruban bacture dans BC-->
+    <record id="ow_sale_order_paid_ribbon" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/div[@name='button_box']" position="after">
+                <widget name="web_ribbon" title="Facturé"
+                        attrs="{'invisible': [('invoice_status', '!=', 'invoiced')]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

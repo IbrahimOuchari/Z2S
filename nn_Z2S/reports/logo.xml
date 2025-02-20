@@ -1,0 +1,8 @@
+           <table style="width: 30mm !important; font-size: 8px;  margin-bottom: 15mm; margin-right:5;">
+                                    <tr>
+                                        <td style="padding-left: 5mm;padding-top:10mm;">
+                                            <img t-att-src="image_data_uri(mrp.company_id.logo)"
+                                                 style="text-align:center; width:50mm;height: 25mm;"/>
+                                        </td>
+                                    </tr>
+                                </table>

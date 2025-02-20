@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="report_etiquette_print_z2s" model="report.paperformat">
+            <field name="name">Etiquette</field>
+            <field name="default" eval="True"/>
+            <field name="format">custom</field>
+            <field name="page_height">40</field>  <!-- 4 cm = 40 mm -->
+            <field name="page_width">70</field>   <!-- 7 cm = 70 mm -->
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">2</field>
+            <field name="margin_bottom">2</field>
+            <field name="margin_left">2</field>
+            <field name="margin_right">2</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">3</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="action_template_etiquette_print" model="ir.actions.report">
+            <field name="name">Etiquette Réception</field>
+            <field name="model">mrp.production</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nn_Z2S.report_template_etiquette_print_new</field>
+            <field name="report_file">nn_Z2S.report_template_etiquette_print_new</field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="report_etiquette_print_z2s"/>
+        </record>
+
+        <template id="report_template_etiquette_print_new">
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="mrp">
+                    <t t-foreach="mrp.label_management_ids" t-as="label">
+                        <div class="page" style="page-break-after: always;">
+                            <table style="width: 50%;font-size: 8px; margin: 0; padding: 0;">
+
+                                <tr>
+
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 3px; height:20%;width: 100%;text-align: center;">
+                                        <p style="font-weight: bold;">Client :
+                                            <span t-esc="mrp.client_id.name"/>
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 1px; height:20%; width: 100%;text-align: center;">
+                                        <p style="font-weight: bold; text-align: center;">REFERENCE :
+                                            <span t-esc="mrp.ref_product_client"/>
+                                        </p>
+
+                                        <div style="margin: 5px; overflow: hidden; text-align: center;">
+                                            <t t-if="mrp.ref_product_client">
+                                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', mrp.ref_product_client, 300, 75)"
+                                                     style="width:100%;height:4rem" alt="Barcode"/>
+                                            </t>
+                                            <t t-else="">
+                                                <span style="color: red;">No reference found for barcode
+                                                    generation
+                                                </span>
+                                            </t>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 3px; width: 100%; text-align: center;">
+                                        <p style="font-weight: bold;">DESIGNATION:</p>
+                                        <span t-esc="mrp.description"/>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 3px; height:20%;width: 100%;text-align: center;">
+                                        <p style="font-weight: bold;">QUANTITÉ :
+                                            <span t-esc="label.quantity_per_batch"
+                                                  t-options='{"widget": "float", "precision": 0}'/>
+                                        </p>
+
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 3px;  width: 100%;text-align:center;">
+                                        <p style="font-weight: bold;">STATUT:</p>
+                                        <span t-esc="label.state.upper()"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 3px; width: 100%;text-align: center;">
+                                        <p style="font-weight: bold;">DATE:</p>
+                                        <span t-esc="label.date"/>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 3px; width: 100%;text-align: center;">
+                                        <p style="font-weight: bold;">N°OF:</p>
+                                        <span t-esc="mrp.name"/>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2"
+                                        style="border: 1px solid black; padding: 3px;  width: 100%;text-align: center;">
+                                        <p style="font-weight: bold;">ID-ETQ:</p>
+                                        <span t-esc="label.name"/>
+                                    </td>
+                                </tr>
+
+
+                            </table>
+                        </div>
+
+                    </t>
+
+                </t>
+            </t>
+        </template>
+
+        <record id="view_print_etiquette" model="ir.ui.view">
+            <field name="name">view.print.etiquette</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="print_etiquette" states="progress,done"
+                            string="Imprimer Etiquette" class="btn-primary" type="object"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

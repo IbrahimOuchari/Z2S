@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_lead_stage_probability_update,access_crm_lead_stage_probability_update,model_crm_lead_stage_probability_update,base.group_user,1,0,1,0
+access_crm_lead_stage_probability_update_line,access_crm_lead_stage_probability_update_line,model_crm_lead_stage_probability_update_line,base.group_user,1,0,1,0
+access_crm_lead_product,crm.lead.product,model_crm_lead_product,sales_team.group_sale_salesman,1,1,1,1
+access_crm_stage_change_history_manager,Access Crm Stage Change History Manager,model_crm_stage_change_history,base.group_user,1,1,1,1

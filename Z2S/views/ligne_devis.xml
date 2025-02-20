@@ -1,0 +1,87 @@
+<odoo>
+    <record id="view_add_devis_line" model="ir.ui.view">
+        <field name="name">add_devis_line_form</field>
+        <field name="model">sale.devis</field>
+        <field name="inherit_id" ref="bmg_sale.sale_devis_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//form//sheet//notebook//page//field//tree/field[@name='product_id']" position="before">
+                <field name="ref_product_client_id" string="Référence Client"/>
+            </xpath>
+
+             <xpath expr="//form/sheet/notebook/page/field/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="domain">[('client_id', '=', parent.partner_id), ('sale_ok', '=', True), ('state_product', '=', '1')]</attribute>
+                    <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+                </xpath>
+        </field>
+    </record>
+
+
+    <!--Ligne de Devis-->
+    <record id="view_devis_line_tree_bmg" model="ir.ui.view">
+        <field name="name">sale.devis.line.tree.bmg</field>
+        <field name="model">sale.devis.line</field>
+        <field name="arch" type="xml">
+            <tree string="État des Devis Client" create="false">
+                <field name="devis_id" string="N° Devis"/>
+                <field name="partner_id" string="Client"/>
+                <field name="ref_product_client_id" string="Référence Client"/>
+                <field name="product_id" string="Article"/>
+                <field name="name" string="Description"/>
+                <field name="qty" string="Qté"/>
+                <field name="price_unit" string="P.U. Avant Remise" optional="hide"/>
+                <field name="discount" string="Remise" optional="hide"/>
+                <field name="pu_remise" string="P.U. Après Remise"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state == 'devis'"
+                       decoration-success="state == 'confirm'"
+                       decoration-danger="state == 'expired'"
+                       decoration-warning="state == 'cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_sales_devis_line_filter_bmg" model="ir.ui.view">
+        <field name="name">sale.devis.line.select.bmg</field>
+        <field name="model">sale.devis.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Sales Devis">
+
+                <filter string="Devis" name="state"
+                        domain="[('state', '=', 'devis')]"/>
+                <filter string="Commande" name="state"
+                        domain="[('state', '=', 'confirme')]"/>
+
+                <separator/>
+
+                <field name="devis_id"/>
+                <field name="product_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="product" domain="[]" context="{'group_by':'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_devis_lines_bmg" model="ir.actions.act_window">
+        <field name="name">État des Devis Client</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.devis.line</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_id" ref="view_devis_line_tree_bmg"/>
+        <field name="search_view_id" ref="view_sales_devis_line_filter_bmg"/>
+    </record>
+
+
+    <menuitem
+            id="sale_devis_line_menu_bmg"
+            name="État des Devis Client"
+            action="action_devis_lines_bmg"
+            parent="menu_sale_line"
+            sequence="2"
+    />
+
+
+
+</odoo>

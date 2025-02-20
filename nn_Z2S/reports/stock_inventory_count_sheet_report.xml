@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_inventory_count_sheet">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <!-- Reduce top margin and spacing -->
+                            <div class="row mt-0 mb-0" id="informations"> <!-- Reduced margins -->
+                                <div t-if="o.date" class="col-auto mw-100 mb-0"> <!-- Reduced bottom margin -->
+                                    <strong>Date :</strong>
+                                    <p class="m-0 d-inline" t-field="o.date"/>
+                                </div>
+                            </div>
+
+                            <h2 t-field="o.name" class="text-center mt-1"/> <!-- Reduced top margin for the title -->
+
+                            <!-- Get filtered inventory lines -->
+                            <t t-set="filtered_lines" t-value="o.get_filtered_inventory_lines()"/>
+                            <!-- Get unique locations from filtered inventory lines -->
+                            <t t-set="locations" t-value="filtered_lines.mapped('location_id').filtered(lambda loc: loc.display_name != 'Retour')"/>
+
+                            <!-- Initialize a variable to keep track of the previous location -->
+                            <t t-set="previous_location" t-value="None"/>
+
+                            <!-- Loop through each unique location -->
+                            <t t-foreach="locations" t-as="location">
+                                <!-- Check if this location is different from the previous one -->
+                                <t t-if="previous_location != location">
+                                    <!-- Add page break only if this is not the first location -->
+                                    <t t-if="previous_location">
+                                        <div style="page-break-before: always;"></div>
+                                    </t>
+
+                                    <h4 class="text-center mt-2" t-field="location.display_name"/> <!-- Reduced top margin for location -->
+
+                                    <table class="table table-sm mt-1">
+                                        <thead>
+                                            <tr>
+                                                <th><strong>Réf Article</strong></th>
+                                                <th><strong>Article</strong></th>
+                                                <th><strong>Client</strong></th>
+                                                <th class="text-right"><strong>Quantité Comptée</strong></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="filtered_lines.filtered(lambda line: line.location_id == location)" t-as="line">
+                                                <tr t-if="line.product_id">
+                                                    <td><span t-field="line.product_id.ref_product_client"/></td>
+                                                    <td><span t-field="line.product_id.name"/></td>
+                                                    <td><span t-field="line.client_id.name" t-if="line.client_id"/></td>
+                                                    <td class="text-right"><span t-field="line.product_qty_counted" t-if="line.product_qty_counted"/></td>
+                                                </tr>
+                                                <!-- Add a horizontal line for visual separation -->
+                                                <tr>
+                                                    <td colspan="4">
+                                                        <hr style="border-top: 2px solid #000;"/> <!-- Thick Separator -->
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <!-- Update the previous location variable -->
+                                <t t-set="previous_location" t-value="location"/>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <!-- Report Action Definition -->
+        <record id="action_report_count_sheet" model="ir.actions.report">
+            <field name="name">Fiche de Comptage</field>
+            <field name="model">stock.inventory</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nn_Z2S.report_inventory_count_sheet</field>
+            <field name="report_file">nn_Z2S.report_inventory_count_sheet</field>
+            <field name="print_report_name">'Inventaire - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_stock_inventory"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,38 @@
+<odoo>
+    <record id="gcs_purchase_inherit" model="ir.ui.view">
+        <field name="name">GcsPurchaseInherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="user_id" invisible="1"/>
+                <field name="type_of_signature" invisible="1" force_save="1"/>
+                <field name="is_purchase_order" invisible="1" force_save="1"/>
+                <field name="signature_position" invisible="1" force_save="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='date_planned']" position="after">
+                    <field name="sign"></field>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="gcs_purchase_da_inherit" model="ir.ui.view">
+        <field name="name">GcsPurchaseDAInherit</field>
+        <field name="model">purchase.rfq</field>
+        <field name="inherit_id" ref="bmg_achat.purchase_rfq_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="user_id" invisible="1"/>
+                <field name="type_of_signature" invisible="1" force_save="1"/>
+                <field name="is_purchase_rfq" invisible="1" force_save="1"/>
+                <field name="signature_position" invisible="1" force_save="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='date_planned']" position="after">
+                    <field name="sign"></field>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

@@ -1,0 +1,47 @@
+<odoo>
+    <!-- Tree View for Reprise -->
+    <record id="view_reprise_tree" model="ir.ui.view">
+        <field name="name">reprise.tree</field>
+        <field name="model">reprise</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Reprise -->
+    <record id="view_reprise_form" model="ir.ui.view">
+        <field name="name">reprise.form</field>
+        <field name="model">reprise</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Reprise -->
+    <record id="action_reprise_list" model="ir.actions.act_window">
+        <field name="name">Reprises</field>
+        <field name="res_model">reprise</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_quality_control_config" name="Configuration" parent="menu_root_control_quality" sequence="20" />
+
+    <!-- Reprise Menu Item -->
+    <menuitem id="menu_reprise" name="Reprises" parent="menu_quality_control_config" sequence="10" action="action_reprise_list" />
+
+
+
+
+</odoo>

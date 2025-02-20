@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="view_product_form_inherit" model="ir.ui.view">
+            <field name="name">product.template.product.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//page[@name='general_information']/group/group[@name='group_general']/field[@name='categ_id']"
+                       position="after">
+                    <field name="ref_product_client"/>
+                    <field name="description_sale" string="Désignation"/>
+
+                </xpath>
+
+                <xpath expr="//page[@name='general_information']/group/group[@name='group_general']/field[@name='type']"
+                       position="after">
+                    <field name="client_id"
+                           options="{'no_create': True, 'no_create_edit':True}"/>
+                </xpath>
+
+                <xpath expr="//field[@name='taxes_id']" position="attributes">
+                    <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+                </xpath>
+
+                <xpath expr="//div[hasclass('oe_title')]/div" position="inside">
+                    <div class="fini_fourni">
+                        <field name="fourni"
+                               attrs="{'invisible': ['|',('purchase_ok','=',True),('sale_ok', '=', True)]}"/>
+                        <label for="fourni"
+                               attrs="{'invisible': ['|',('purchase_ok','=',True),('sale_ok', '=', True)]}"/>
+                    </div>
+
+                </xpath>
+
+                <label for="sale_ok" position="attributes">
+                    <attribute name="string">Produit Fini</attribute>
+                </label>
+
+                <field name="sale_ok" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('purchase_ok', '=', True), ('fourni', '=', True)]}
+                    </attribute>
+                </field>
+                <label for="sale_ok" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('purchase_ok', '=', True), ('fourni', '=', True)]}
+                    </attribute>
+                </label>
+
+
+                <label for="purchase_ok" position="attributes">
+                    <attribute name="string">Produit Acheté</attribute>
+                </label>
+
+                <field name="purchase_ok" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('sale_ok', '=', True), ('fourni', '=', True)]}
+                    </attribute>
+                </field>
+                <label for="purchase_ok" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('sale_ok', '=', True), ('fourni', '=', True)]}
+                    </attribute>
+                </label>
+
+                <!--             Validation du produit-->
+
+                <xpath expr="//header" position="after">
+                    <field name="produit_annule" invisible="1"/>
+                    <div class="alert alert-danger text-center o_form_header" role="status"
+                         attrs="{'invisible': ['|', ('state_product', 'not in', ('draft','0','2')), ('produit_annule', '=', False)]}">
+                        <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+                        <div>
+                            <strong>Raison de Refus :
+                                <field name="motif_validation_produit"/>
+                            </strong>
+                        </div>
+                    </div>
+                </xpath>
+
+                <header>
+                    <button name="action_verif_product"
+                            string="Envoi pour vérification" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state_product', 'not in', [('draft')])]}"/>
+                    <button name="action_confirm_product"
+                            string="Valider l'Article" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state_product', 'not in', [('2')])]}"
+                            groups="Z2S.modif_bouton_product"/>
+                    <button name="action_cancel_product"
+                            string="Article Non Valide" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state_product', 'not in', [('2'), ('1')])]}"
+                            groups="Z2S.modif_bouton_product"/>
+                    <button name="action_set_draft_product"
+                            string="Remettre en Brouillon" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state_product', 'not in', [('0')])]}"
+                            groups="Z2S.modif_bouton_product"/>
+                    <field name="hide_edit" invisible="0"/>
+                    <field name="state_product" widget="statusbar"
+                           statusbar_visible="draft, 1" nolabel="1"/>
+
+                </header>
+
+
+            </field>
+        </record>
+
+
+        <record id="view_product_search_new" model="ir.ui.view">
+            <field name="name">product.template.search</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='consumable']" position="after">
+                    <separator/>
+                    <filter string="Article Fourni" name="fourni" domain="[('fourni', '=', True)]"/>
+                    <filter string="Article Fini" name="sale_ok" domain="[('sale_ok', '=', True)]"/>
+                    <separator/>
+                    <filter string="Article Validé" name="valide" domain="[('state_product', '=', '1')]"/>
+                    <filter string="Article En cours de Valisation" name="valide"
+                            domain="[('state_product', '=', '2')]"/>
+                    <filter string="Article Non Validé" name="non_valide" domain="[('state_product', '=', '0')]"/>
+                </xpath>
+
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="ref_product_client"/>
+                    <field name="description_sale"/>
+                </xpath>
+
+            </field>
+        </record>
+
+
+        <record id="view_form_inherit_product_z2s" model="ir.ui.view">
+            <field name="name">view.form.inherit.product.z2s</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+
+                <!--            button nomenclature-->
+                <xpath expr="//button[@name='%(mrp.template_open_bom)d']" position="attributes">
+                    <attribute name="attrs">{'invisible':['|',('purchase_ok','=',True),('fourni','=',True)]}</attribute>
+                </xpath>
+                <!--type readonly-->
+<!--                <xpath expr="//field[@name='type']" position="attributes">-->
+<!--                    <attribute name="attrs">{'readonly': [('id', '!=', False)]}</attribute>-->
+<!--                </xpath>-->
+
+                <!--type readonly-->
+                <xpath expr="//field[@name='client_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('purchase_ok','=',True)],
+                        'required': ['|', ('sale_ok','=',True), ('fourni','=',True)]}
+                    </attribute>
+                </xpath>
+
+                <!--categ_id invisible-->
+<!--                <xpath expr="//field[@name='categ_id']" position="attributes">-->
+<!--                    <attribute name="attrs">{'readonly': [('id', '!=', False)]}</attribute>-->
+<!--                </xpath>-->
+
+                <!--ref_article invisible-->
+                <xpath expr="//field[@name='default_code']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='barcode']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <!--            prix de vente visible pour les produit fini-->
+                <xpath expr="//field[@name='list_price']" position="attributes">
+                    <attribute name="attrs">{'invisible':['|',('purchase_ok','=',True),('fourni','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//label[@for='list_price']" position="attributes">
+                    <attribute name="attrs">{'invisible':['|',('purchase_ok','=',True),('fourni','=',True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='taxes_id']" position="attributes">
+                    <attribute name="attrs">{'invisible':['|',('purchase_ok','=',True),('fourni','=',True)]}</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+
+        <!-- modifier vu liste des articles -->
+
+        <record id="product_template_tree_view_product" model="ir.ui.view">
+            <field name="name">product.template.product.tree</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_tree_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='responsible_id']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+<!--                <xpath expr="//field[@name='last_purchase_price']" position="attributes">-->
+<!--                    <attribute name="invisible">True</attribute>-->
+<!--                </xpath>-->
+
+
+                <field name="name" position="after">
+                    <field name="description_sale"/>
+                </field>
+
+            </field>
+        </record>
+
+
+        <!-- modification vu de recherche many2one article dans inventaire -->
+
+        <record id="view_stock_product_tree_product" model="ir.ui.view">
+            <field name="name">product.stock.tree.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="stock.view_stock_product_tree"/>
+            <field name="arch" type="xml">
+
+                <field name="name" position="after">
+                    <field name="ref_product_client"/>
+                    <field name="description_sale"/>
+                </field>
+
+                <xpath expr="//field[@name='default_code']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='lst_price']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+
+            </field>
+        </record>
+
+
+
+
+    </data>
+</odoo>

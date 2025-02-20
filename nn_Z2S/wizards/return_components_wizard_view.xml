@@ -1,0 +1,59 @@
+<odoo>
+    <!-- Return Components Wizard Form -->
+    <record id="view_return_components_wizard_form" model="ir.ui.view">
+        <field name="name">return.components.wizard.form</field>
+        <field name="model">return.components.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Retour des Composants">
+                <header>
+                    <!-- Other buttons if necessary -->
+                </header>
+                <sheet>
+                    <group>
+                        <field name="mrp_production_id" readonly="True" string="Ordre de Fabrication"/>
+<!--                        <field name="state"/>-->
+
+
+                        <!-- List of return component lines -->
+                        <field name="line_ids" widget="one2many_list" options="{'no_open': True}">
+
+                            <tree editable="bottom">
+                                <field name="product_id"/>
+                                <field name="quantity" string="Quantité à Retourner"/>
+                                <field name="quantity_left" string="Quantité Restante"/>
+
+                            </tree>
+
+                        </field>
+                    </group>
+                </sheet>
+                <footer>
+                    <!--                             <button name="action_mark_all_returned"-->
+                    <!--                            type="object"-->
+                    <!--                            string="Mark All Returned"-->
+                    <!--                            class="btn-primary"/>-->
+                    <button name="confirm" string="Confirmer" type="object" class="oe_highlight"/>
+                    <button string="Annuler" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard -->
+    <record id="action_return_components_wizard" model="ir.actions.act_window">
+        <field name="name">Return Components Wizard</field>
+        <field name="res_model">return.components.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_mrp_production_id': active_id}</field>
+    </record>
+
+
+    <record id="action_stock_picking_invoicing" model="ir.actions.act_window">
+        <field name="name">Opérations de Retour</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stock_picking_invoicing.view_bl_facturation_tree"/>
+        <field name="domain">[('picking_type_id.sequence_code', '=', 'RT'), ('state', '!=', 'done')]</field>
+    </record>
+</odoo>

@@ -1,0 +1,21 @@
+<odoo>
+    <record id="group_use_product_description_per_so_line" model="res.groups">
+        <field name="name">Utiliser la description de l'article seulement dans le BC Vente</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+    <!-- groupe multidevise pour choisir la devise par article -->
+    <record id="base.group_user" model="res.groups">
+        <field eval="[(4, ref('base.group_multi_currency'))]" name="implied_ids"/>
+    </record>
+
+    <!--    Validateur de devis -->
+    <record id="valide_devis" model="res.groups">
+        <field name="name">Validation des Devis</field>
+    </record>
+
+     <!--    Validateur de BC Vente -->
+    <record id="valide_bc_vente" model="res.groups">
+        <field name="name">Validation des BC Vente</field>
+    </record>
+</odoo>

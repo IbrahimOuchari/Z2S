@@ -1,0 +1,46 @@
+<odoo>
+<odoo>
+    <!-- Tree View for Type de Défaut -->
+    <record id="view_type_defaut_tree" model="ir.ui.view">
+        <field name="name">type.defaut.tree</field>
+        <field name="model">defect1.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Type de Défaut -->
+    <record id="view_type_defaut_form" model="ir.ui.view">
+        <field name="name">type.defaut.form</field>
+        <field name="model">defect1.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Type de Défaut -->
+    <record id="action_type_defaut_list" model="ir.actions.act_window">
+        <field name="name">Types de Défauts 1</field>
+        <field name="res_model">defect1.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_quality_control_config" name="Configuration" parent="menu_root_control_quality" sequence="20" />
+
+    <!-- Reprise Menu Item -->
+
+    <!-- Type de Défaut Menu Item -->
+    <menuitem id="menu_type_defaut" name="Types de Défauts 1" parent="menu_quality_control_config" sequence="19" action="action_type_defaut_list" />
+</odoo>

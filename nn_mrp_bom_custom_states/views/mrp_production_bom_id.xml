@@ -1,0 +1,49 @@
+<odoo>
+    <data>
+        <record id="view_mrp_production_form_inherit_bom_domain" model="ir.ui.view">
+            <field name="name">mrp.production.form.inherit.bom.domain</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='bom_id']" position="attributes">
+                    <attribute name="domain">[('product_tmpl_id', '=', product_tmpl_id)]</attribute>
+                    <attribute name="context">{'sort': 'date_validation desc'}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit the existing BOM search view and add the filter for 'date_validation' -->
+
+        <record id="view_mrp_bom_filter_inherited" model="ir.ui.view">
+            <field name="name">mrp.bom.select.inherited</field>
+            <field name="model">mrp.bom</field>
+            <field name="inherit_id" ref="mrp.view_mrp_bom_filter"/> <!-- Inheriting the existing search view -->
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <!-- Add a filter for 'date_validation' and make it default -->
+                    <filter string="Date Validation" name="date_validation_filter"
+                            domain="[('date_validation', '!=', False),('state','=','waiting_for_validation')]"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+
+
+
+<record id="ordre_fabrication_stock_move_line_extension" model="ir.ui.view">
+    <field name="name">ordre.fabrication.stock.move.line.extension</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="Z2S.ordre_fabrication_stock_move_line"/>
+    <field name="arch" type="xml">
+
+        <xpath expr="//field[@name='ref_product_client']" position="after">
+            <field name="ref_product_client_manual" string="Référence Article CLient"/>
+        </xpath>
+
+    </field>
+</record>
+
+
+    </data>
+</odoo>

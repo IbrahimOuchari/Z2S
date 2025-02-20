@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <record id="bank_charges_reconcile_model" model="account.reconcile.model.template">
+        <field name="chart_template_id" ref="l10n_tn_pcg_chart_template"/>
+        <field name="name">Frais bancaires</field>
+    </record>
+    <record id="bank_charges_reconcile_model_line" model="account.reconcile.model.line.template">
+        <field name="model_id" ref="l10n_tn.bank_charges_reconcile_model"/>
+        <field name="account_id" ref="pcg_627800"/>
+        <field name="amount_type">percentage</field>
+        <field name="amount_string">100</field>
+    </record>
+</odoo>

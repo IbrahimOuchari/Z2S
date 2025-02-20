@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report
+        id="action_standard_report"
+        model="account.report.standard.ledger"
+        string="Rapport Comptable"
+        report_type="qweb-pdf"
+        name="rapport_comptable.report_rapport_comptable"
+        file="rapport_comptable.report_rapport_comptable"
+        attachment="(object.report_id.report_name)"
+        print_report_name="(object.report_id.report_name)"
+        paperformat="rapport_comptable.paperformat_account_standard"/>
+
+    <report
+        id="action_standard_excel"
+        model="account.report.standard.ledger"
+        string="Rapport Excel"
+        report_type="xlsx"
+        name="rapport_comptable.report_account_standard_excel"
+        file="rapport_comptable.report_account_standard_excel"
+        attachment_use="False"
+        print_report_name="(object.report_id.report_name)"/>
+</odoo>

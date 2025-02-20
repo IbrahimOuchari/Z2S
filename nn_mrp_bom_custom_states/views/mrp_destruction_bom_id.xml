@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <!-- Inherit the mrp.unbuild form view -->
+        <record id="view_mrp_unbuild_form_inherit_bom_domain" model="ir.ui.view">
+            <field name="name">mrp.unbuild.form.inherit.bom.domain</field>
+            <field name="model">mrp.unbuild</field>
+            <field name="inherit_id" ref="mrp.mrp_unbuild_form_view"/>
+            <field name="arch" type="xml">
+                <!-- Modify the bom_id field to apply the domain -->
+                <xpath expr="//field[@name='bom_id']" position="attributes">
+                    <attribute name="domain">[('state', '=', 'done')]</attribute>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

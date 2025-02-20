@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- module category -->
+
+    <record id="lot_edit" model="res.groups">
+        <field name="name">bloquer/débloquer l'édition du étiquette</field>
+    </record>
+    <record id="lot_date_edit" model="res.groups">
+        <field name="name">bloquer/débloquer l'édition du date étiquette</field>
+    </record>
+    <record id="stock_inventory_validation" model="res.groups">
+        <field name="name">Validation de l'ajustement d'inventaire de stock</field>
+    </record>
+    <record id="of_cancel_confirmation" model="res.groups">
+        <field name="name">Confirmation Annulation OF</field>
+    </record>
+    <record id="of_cancel_confirmation" model="res.groups">
+        <field name="name">Confirmation Annulation OF</field>
+    </record>
+
+    <record id="of_access_to_tobe_consumed" model="res.groups">
+        <field name="name">Accès à "À consommer"</field>
+    </record>
+    <!-- Admin Group -->
+
+
+</odoo>

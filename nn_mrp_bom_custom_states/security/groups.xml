@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- module category -->
+
+    <record id="nomenclature_validation_group" model="res.groups">
+        <field name="name">Valider la nomenclature (BOM)</field>
+    </record>
+
+</odoo>

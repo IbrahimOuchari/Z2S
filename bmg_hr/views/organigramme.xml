@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="action_org_chart_overview" model="ir.actions.client">
+            <field name="name">Organigramme</field>
+            <field name="tag">hr_org_chart_overview</field>
+            <field name="target">main</field>
+        </record>
+        <menuitem
+                parent="hr.hr_menu_hr_reports"
+                name="Organigramme"
+                id="menu_org_chart_overview_report"
+                action="action_org_chart_overview"
+                sequence="1"
+        />
+
+
+        <template
+                id="assets_backend"
+                name="bmg_hr assets"
+                inherit_id="web.assets_backend"
+        >
+            <xpath expr="." position="inside">
+                <script
+                        type="text/javascript"
+                        src="/bmg_hr/static/src/js/hr_org_chart_overview.js"
+                />
+                <script
+                        type="text/javascript"
+                        src="/bmg_hr/static/src/lib/orgchart/html2canvas.min.js"
+                />
+                <script
+                        type="text/javascript"
+                        src="/bmg_hr/static/src/lib/orgchart/jspdf.min.js"
+                />
+                <script
+                        type="text/javascript"
+                        src="/bmg_hr/static/src/lib/orgchart/jquery.orgchart.js"
+                />
+                <link
+                        rel="stylesheet"
+                        type="text/css"
+                        href="/bmg_hr/static/src/lib/orgchart/jquery.orgchart.css"
+                />
+                <link
+                        rel="stylesheet"
+                        type="text/scss"
+                        href="/bmg_hr/static/src/scss/hr_org_chart_style.scss"
+                />
+            </xpath>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="tax_report" model="account.tax.report">
+        <field name="name">Tax Report</field>
+        <field name="country_id" ref="base.tn"/>
+    </record>
+
+    <record id="tax_report_montant_op_realisees" model="account.tax.report.line">
+        <field name="name">A. Montant des opérations réalisées</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_op_imposables_ht" model="account.tax.report.line">
+        <field name="name">Opérations imposables (H.T.)</field>
+        <field name="parent_id" ref="tax_report_montant_op_realisees"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_01" model="account.tax.report.line">
+        <field name="name">01 - Ventes, prestations de services</field>
+        <field name="tag_name">01</field>
+        <field name="code">box_01</field>
+        <field name="parent_id" ref="tax_report_op_imposables_ht"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="tax_report_02" model="account.tax.report.line">
+        <field name="name">02 - Autres opérations imposables</field>
+        <field name="tag_name">02</field>
+        <field name="code">box_02</field>
+        <field name="parent_id" ref="tax_report_op_imposables_ht"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+    </record>
+
+
+    <record id="tax_report_3C" model="account.tax.report.line">
+        <field name="name">3C - Régularisations</field>
+        <field name="tag_name">3C</field>
+        <field name="code">box_3C</field>
+        <field name="parent_id" ref="tax_report_op_imposables_ht"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">8</field>
+    </record>
+
+    <record id="tax_report_op_non_imposables" model="account.tax.report.line">
+        <field name="name">Opérations Non Imposables</field>
+        <field name="parent_id" ref="tax_report_montant_op_realisees"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_decompte_tva" model="account.tax.report.line">
+        <field name="name">B. Décompte de la TVA à payer</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_tva_brute" model="account.tax.report.line">
+        <field name="name">TVA Brute</field>
+        <field name="parent_id" ref="tax_report_decompte_tva"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+        <field name="formula">None</field>
+    </record>
+
+
+    <record id="tax_report_19_base" model="account.tax.report.line">
+        <field name="name">19 - Taux TVA 19 % (base)</field>
+        <field name="tag_name">19_base</field>
+        <field name="code">box_19_base</field>
+        <field name="parent_id" ref="tax_report_tva_brute"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="tax_report_19_taxe" model="account.tax.report.line">
+        <field name="name">19 - Taux TVA 19% (taxe)</field>
+        <field name="tag_name">19_taxe</field>
+        <field name="code">box_19_taxe</field>
+        <field name="parent_id" ref="tax_report_tva_brute"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="tax_report_07_base" model="account.tax.report.line">
+        <field name="name">07 - Taux TVA 7% (base)</field>
+        <field name="tag_name">07_base</field>
+        <field name="code">box_07_base</field>
+        <field name="parent_id" ref="tax_report_tva_brute"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">5</field>
+    </record>
+    <record id="tax_report_07_taxe" model="account.tax.report.line">
+        <field name="name">07 - Taux TVA 7 % (taxe)</field>
+        <field name="tag_name">07_taxe</field>
+        <field name="code">box_07_taxe</field>
+        <field name="parent_id" ref="tax_report_tva_brute"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">6</field>
+    </record>
+
+    <record id="tax_report_13_base" model="account.tax.report.line">
+        <field name="name">13 - Taux TVA 13% (base)</field>
+        <field name="tag_name">13_base</field>
+        <field name="code">box_13_base</field>
+        <field name="parent_id" ref="tax_report_tva_brute"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">7</field>
+    </record>
+    <record id="tax_report_13_taxe" model="account.tax.report.line">
+        <field name="name">13 - Taux TVA 13% (taxe)</field>
+        <field name="tag_name">13_taxe</field>
+        <field name="code">box_13_taxe</field>
+        <field name="parent_id" ref="tax_report_tva_brute"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">8</field>
+    </record>
+
+    <record id="tax_report_0" model="account.tax.report.line">
+        <field name="name">0 - TVA 0%</field>
+        <field name="tag_name">0</field>
+        <field name="code">box_0</field>
+        <field name="parent_id" ref="tax_report_op_non_imposables"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+    </record>
+
+
+    <record id="tax_report_tva_deductible" model="account.tax.report.line">
+        <field name="name">TVA Déductible</field>
+        <field name="parent_id" ref="tax_report_decompte_tva"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_19" model="account.tax.report.line">
+        <field name="name">19 - TVA déductible 19%</field>
+        <field name="tag_name">19</field>
+        <field name="code">box_19</field>
+        <field name="parent_id" ref="tax_report_tva_deductible"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="tax_report_13" model="account.tax.report.line">
+        <field name="name">13 TVA déductible 13%</field>
+        <field name="tag_name">13</field>
+        <field name="code">box_13</field>
+        <field name="parent_id" ref="tax_report_tva_deductible"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="tax_report_07" model="account.tax.report.line">
+        <field name="name">07 - TVA déductible 07%</field>
+        <field name="tag_name">07</field>
+        <field name="code">box_07</field>
+        <field name="parent_id" ref="tax_report_tva_deductible"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">3</field>
+    </record>
+
+
+    <record id="tax_report_credit" model="account.tax.report.line">
+        <field name="name">Crédit</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">3</field>
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_25" model="account.tax.report.line">
+        <field name="name">25 - Crédit de TVA</field>
+        <field name="code">box_25</field>
+        <field name="parent_id" ref="tax_report_credit"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+        <field name="formula">box_23 - box_16 if box_23 - box_16 > 0 else 0</field>
+    </record>
+
+    <record id="tax_report_26" model="account.tax.report.line">
+        <field name="name">26 - Remboursement de crédit demandé sur formulaire n°3519 joint</field>
+        <field name="tag_name">26</field>
+        <field name="code">box_26</field>
+        <field name="parent_id" ref="tax_report_credit"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="tax_report_AA" model="account.tax.report.line">
+        <field name="name">AA - Crédit de TVA transféré à la société tête de groupe sur la déclaration récapitulative
+            3310-CA3G
+        </field>
+        <field name="tag_name">AA</field>
+        <field name="code">box_AA</field>
+        <field name="parent_id" ref="tax_report_credit"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="tax_report_27" model="account.tax.report.line">
+        <field name="name">27 - Crédit à reporter</field>
+        <field name="code">box_27</field>
+        <field name="parent_id" ref="tax_report_credit"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">4</field>
+        <field name="formula">box_25 - box_26 - box_AA if box_25 - box_26 - box_AA > 0 else 0</field>
+    </record>
+
+    <record id="tax_report_taxes_a_payer" model="account.tax.report.line">
+        <field name="name">Taxe à Payer</field>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">4</field>
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_28" model="account.tax.report.line">
+        <field name="name">28 - TVA nette due</field>
+        <field name="code">box_28</field>
+        <field name="parent_id" ref="tax_report_taxes_a_payer"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">1</field>
+        <field name="formula">box_16 - box_23 if box_16 - box_23 > 0 else 0</field>
+    </record>
+
+
+    <record id="tax_report_AB" model="account.tax.report.line">
+        <field name="name">AB - Total à payer acquitté par la société tête de groupe sur la déclaration récapitulative
+            3310-CA3G
+        </field>
+        <field name="code">box_AB</field>
+        <field name="parent_id" ref="tax_report_taxes_a_payer"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">3</field>
+        <!--According to the trustee, it's very rare that a company fill this box-->
+        <field name="formula">None</field>
+    </record>
+
+    <record id="tax_report_32" model="account.tax.report.line">
+        <field name="name">32 - Total à payer</field>
+        <field name="code">box_32</field>
+        <field name="parent_id" ref="tax_report_taxes_a_payer"/>
+        <field name="report_id" ref="tax_report"/>
+        <field name="sequence">4</field>
+        <!--The real formula is "box_28 + box_29 - box_AB" but box_AB not zero is a rare edge case -->
+        <field name="formula">box_28 + box_29</field>
+    </record>
+
+</odoo>

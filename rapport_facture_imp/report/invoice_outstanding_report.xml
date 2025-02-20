@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_customer_invoice_outstanding" model="ir.actions.report">
+            <field name="name">Print Outstanding Invoices</field>
+            <field name="model">report.rapport_facture_imp.invoice_outstanding</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">rapport_facture_imp.invoice_outstanding</field>
+            <field name="report_file">rapport_facture_imp.invoice_outstanding</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_bom_form_view_inherited_new" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherited</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="before">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirm,rejected,done"
+                    />
+                    <button name="reject_bom"
+                            type="object"
+                            string="Rejeter Nomenclature"
+                            class="btn-danger"
+                            attrs="{'invisible': [('state', '!=', 'waiting_for_validation')]}"
+                            groups="nn_mrp_bom_custom_states.nomenclature_validation_group"
+                    />
+                    <button name="accept_bom"
+                            type="object"
+                            string="Valider Nomenclature"
+                            class="btn-success"
+                            attrs="{'invisible': [('state', '!=', 'waiting_for_validation')]}"
+                            groups="nn_mrp_bom_custom_states.nomenclature_validation_group"/>
+                    <button name="confirm_bom"
+                            type="object"
+                            string="Confirmer Nomenclature"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"
+                    />
+                    <button name="action_demand_validation_request"
+                            type="object"
+                            string="Demander Validation"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'confirm')]}"
+                    />
+                    <!-- Bouton Accept -->
+
+                </header>
+                <field name="bom_cancel" invisible="1"/>
+                <div class="alert alert-danger text-center o_form_header" role="status"
+                     attrs="{'invisible': [('bom_cancel', '!=', True)]}"
+                >
+                    <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+                    <div>
+                        <strong>Raison de Refus :
+                            <field name="invalidation_reason"/>
+                        </strong>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//form/sheet/group/group[1]" position="inside">
+                <field name="date_validation" attrs="{'invisible': [('state', '!=', 'waiting_for_validation')]}"/>
+
+            </xpath>
+        </field>
+    </record>
+<odoo>
+    <data>
+        <!-- Update context for the action to include default company and default filter for date_validation -->
+        <record id="mrp.mrp_bom_form_action" model="ir.actions.act_window">
+            <field name="name">Bills of Materials</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.bom</field>
+            <field name="domain">[]</field> <!-- Force empty domain -->
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="search_view_id" ref="mrp.view_mrp_bom_filter"/>
+            <field name="context">
+                {
+                    'default_company_id': allowed_company_ids[0],
+                    'search_default_date_validation_filter': 1
+                }
+            </field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No bill of materials found. Let's create one!
+                </p><p>
+                    Bills of materials allow you to define the list of required raw
+                    materials used to make a finished product; through a manufacturing
+                    order or a pack of products.
+                </p>
+            </field>
+        </record>
+        
+    </data>
+</odoo>
+
+
+</odoo>

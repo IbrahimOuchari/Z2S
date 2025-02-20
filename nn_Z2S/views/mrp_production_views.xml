@@ -1,0 +1,206 @@
+<odoo>
+    <data>
+        <record id="view_mrp_production_tree_view_inherited" model="ir.ui.view">
+            <field name="name">mrp.production.tree.inherited</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='product_qty']" position="after">
+                    <field name="control_quality_done" optional="1"/>
+                    <field name="quality_control_checked" optional="1"/>
+<!--                    <field name="trigger_operation_count" optional="1"/>-->
+
+                </xpath>
+                <xpath expr="//field[@name='cout_of']" position="attributes">
+                    <attribute name="optional">1</attribute>
+
+                </xpath>
+            </field>
+        </record>
+        <record id="view_mrp_production_form_inherited" model="ir.ui.view">
+            <field name="name">mrp.production.form.inherited</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <!--                    <attribute name="invisible">1</attribute>-->
+
+
+                <xpath expr="//header/button[@name='action_cancel'][1]" position="attributes">
+
+
+                    <attribute name="invisible">1</attribute>
+                    <attribute name="groups">nn_Z2S.of_cancel_confirmation</attribute>
+                </xpath>
+
+                <!-- Modify the second action_cancel button to show only when state is annulation_of -->
+                <xpath expr="//header/button[@name='action_cancel'][2]" position="attributes">
+                    <attribute name="attrs">{'invisible': [('quantity_left_total', '!=', True)]}</attribute>
+
+
+                    <attribute name="groups">nn_Z2S.of_cancel_confirmation</attribute>
+                </xpath>
+
+
+                <xpath expr="//header/field[@name='state']" position="replace">
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,progress,done,annulation_encours,cancel"/>
+                </xpath>
+                <xpath expr="//header/field[@name='state_of']" position="attributes">
+
+                    <attribute name="attrs">{'invisible': [('state', '=', 'cancel')]}</attribute>
+                </xpath>
+                <xpath expr="//header" position="inside">
+
+                    <field name="return_state" widget="statusbar" invisible="1"/>
+                    <field name="control_quality_done" invisible="1"/>
+<!--                    <field name="trigger_operation_count" invisible="0"/>-->
+                    <field name="quality_control_checked" invisible="1"/>
+                    <field name="quantity_left_total" invisible="1" string="nothing to return"/>
+
+                </xpath>
+                <xpath expr="//header" position="inside">
+                    <button name="action_create_lots" type="object" string="Créer lot" class="oe_highlight"
+                            states="progress,done"
+
+                    />
+                    <button name="action_demand_cancel" type="object" string="Demande Annulation" class="oe_highlight"
+                            attrs="{'invisible': [('state', 'in', ['done', 'annulation_encours','cancel'])]}"/>
+
+                    />
+
+
+                    <!--                    <button name="print_quantity_left" type="object" string="Print Quantity Left" class="btn-primary"/>-->
+                    <!--                    <button name="action_display_quantity_left"-->
+                    <!--                            type="object"-->
+                    <!--                            string="Show Quantity Left"-->
+                    <!--                            class="oe_highlight"-->
+                    <!--                    />-->
+                </xpath>
+
+                <xpath expr="//header" position="inside">
+                    <button name="action_return_components"
+                            type="object"
+                            class="oe_highlight"
+                            string="Retourner les composants"
+                            icon="fa-undo"
+                            attrs="{'invisible': [('state', '!=', 'annulation_encours')]}"/>
+
+                    <field name="control_quality_done" invisible="1"/>
+                    <button name="action_view_control_quality" type="object" string="Contrôle Qualité"
+                            class="btn-primary"
+
+                            attrs="{'invisible': [('control_quality_done', '>', 0),('state','=','done')]}"/>
+
+                </xpath>
+                <!--                <xpath expr="//header" position="inside">-->
+                <!--                    <field name="all_lines_zero" string="Test"/>-->
+                <!--                </xpath>-->
+                <!--                &lt;!&ndash;                <xpath expr="//header" position="inside">&ndash;&gt;-->
+                <!--                    <button name="check_all_lines_zero" type="object" string="Check All Lines Zero"-->
+                <!--                            class="oe_highlight"/>-->
+                <!--                </xpath>-->
+
+                <xpath expr="//sheet/div[@name='button_box']" position="inside">
+                    <button name="action_view_return_operations" type="object" class="oe_stat_button" invisible="1"
+                            icon="fa-refresh"
+                            attrs="{'invisible': [('return_count', '=', 0)]}" states="cancel">
+                        <field name="return_count" widget="statinfo" string="Opérations de Retour"/>
+                    </button>
+
+                    <button name="action_view_total_return_operations" type="object" class="oe_stat_button"
+                            icon="fa-refresh"
+                            attrs="{'invisible': [('return_count_total', '=', 0)]}" states="cancel">
+                        <field name="return_count_total" widget="statinfo" string="Opérations de Retour Totales"/>
+                    </button>
+                </xpath>
+                <xpath expr="//group[@name='group_extra_info']/field[@name='cout_of']" position="after">
+                    <field name="quantity_per_batch" string="Quantité Colisage"/>
+                </xpath>
+
+                <xpath expr="//page[@name='operation_of']/field[@name='details_operation']/tree/field[@name='duree']"
+                       position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[@name='operation_of']/field[@name='details_operation']/tree/field[@name='employee']"
+                       position="after">
+                    <field name="duree_formatted" string="Durée Réelle"/>
+                    <field name="production_id" invisible="1"/>
+
+                </xpath>
+
+                <xpath expr="//page[@name='components']//field[@name='move_raw_ids']/tree" position="inside">
+                    <field name="quantity_left" string="Quantité Restante"
+                           states="cancel"/>
+                </xpath>
+
+                <xpath expr="//field[@name='workorder_ids']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', 'in', ['cancel', 'confirmed', 'done'])]}</attribute>
+                    <attribute name="context">{'tree_view_ref': 'mrp.mrp_production_workorder_tree_editable_view',
+                        'default_product_uom_id': product_uom_id, 'default_consumption': consumption,
+                        'default_company_id': company_id, 'from_manufacturing_order': True}
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Gestion de étiquettes">
+                        <field name="is_readonly_lot" invisible="1"/> <!-- Keep this invisible in the UI -->
+
+                        <field name="label_management_ids" attrs="{'readonly': [('is_readonly_lot', '=', True)]}">
+                            <tree editable="bottom">
+                                <field name="name" string="ID-ETQ-EXP"/>
+                                <field name="quantity_per_batch"/>
+                                <field name="total_quantity_per_batch" invisible="1" string="total"/>
+                                <field name="cumule" string="Cumulé"/>
+                                <field name="date" string="Date"/>
+                                <field name="state" string="Status"/>
+                                <button name="print_label" string="Imprimer" type="object" class="btn-primary"/>
+
+                            </tree>
+                        </field>
+
+                        <!-- Block button: visible when is_readonly_lot is False -->
+                        <button name="block_lot" string="Bloquer étiquette" type="object" class="oe_highlight"
+                                groups="nn_Z2S.lot_edit" attrs="{'invisible': [('is_readonly_lot', '!=', False)]}"/>
+
+                        <!-- Unblock button: visible when is_readonly_lot is True -->
+                        <button name="unblock_lot" string="Débloquer étiquette" type="object" class="oe_highlight"
+                                groups="nn_Z2S.lot_edit" attrs="{'invisible': [('is_readonly_lot', '!=', True)]}"/>
+                    </page>
+                </xpath>
+
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Productivité">
+                        <group string="Durée Totale et Productivité"
+                               style="font-size: 1.5em;"> <!-- Adjust the size as needed -->
+                            <!-- Display the total theoretical duration -->
+                            <field name="total_duration_theoretical"
+                                   string="Durée Théorique Totale"
+                                   readonly="1"/>
+
+                            <!-- Display the total real duration -->
+                            <field name="total_duration_real"
+                                   string="Durée Réelle Totale"
+                                   readonly="1"/>
+
+                            <!-- Display the productivity percentage -->
+                            <field name="productivity"
+                                   string="Productivité (%)"
+                                   readonly="1" invisible="1"/>
+                            <field name="productivity_display"
+                                   string="Productivité (%)"
+                                   readonly="1"/>
+                        </group>
+                    </page>
+                </xpath>
+
+                <xpath expr="//page[@name='operation_of']" position="attributes">
+                    <attribute name="string">Opérations</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

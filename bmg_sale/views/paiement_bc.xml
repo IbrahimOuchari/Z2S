@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_order_form_payment" model="ir.ui.view">
+        <field name="name">sale.order.form.payment</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <button name="action_confirm" position="after">
+                <button
+                        name="%(action_view_account_voucher_wizard)d"
+                        string="Paiement"
+                        type="action"
+                        groups="account.group_account_invoice"
+                        attrs="{'invisible': [('state', 'in', ['done','cancel', 'brouillon']),
+                                ('advance_payment_status', 'in', ['paid'])]}"
+                />
+            </button>
+            <notebook position="inside">
+                <page string="Paiement Enregistré" groups="account.group_account_invoice">
+                    <field
+                            name="account_payment_ids"
+                            nolabel="1"
+                            colspan="4"
+                            context="{'form_view_ref': 'account.view_account_payment_form','tree_view_ref': 'account.view_account_payment_tree'}"
+                    />
+                </page>
+            </notebook>
+            <field name="amount_total" position="after">
+                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                    <label for="amount_residual"/>
+                </div>
+                <field
+                        name="amount_residual"
+                        nolabel="1"
+                        class="oe_subtotal_footer_separator"
+                        widget="monetary"
+                        options="{'currency_field': 'currency_id'}"
+                />
+            </field>
+            <field name="payment_term_id" position="after">
+                <field name="advance_payment_status" string="Statut Paiement"
+                       widget="badge"
+                       decoration-warning="advance_payment_status == 'not_paid'"
+                       decoration-info="advance_payment_status == 'partial'"
+                       decoration-success="advance_payment_status == 'paid'"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_order_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <field name="invoice_status" position="before">
+                <field
+                        name="advance_payment_status"
+                        decoration-success="advance_payment_status == 'paid'"
+                        decoration-info="advance_payment_status == 'partial'"
+                        decoration-warning="advance_payment_status == 'not_paid'"
+                        widget="badge"
+                        optional="hide"
+                        string="Statut Paiement"
+                />
+            </field>
+            <field name="amount_total" position="after">
+                <field
+                        name="amount_residual"
+                        widget="monetary"
+                        decoration-bf="1"
+                        optional="hide"
+                />
+            </field>
+        </field>
+    </record>
+    <record id="view_quotation_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <field name="invoice_status" position="before">
+                <field
+                        name="advance_payment_status"
+                        decoration-success="advance_payment_status == 'paid'"
+                        decoration-info="advance_payment_status == 'partial'"
+                        decoration-warning="advance_payment_status == 'not_paid'"
+                        widget="badge"
+                        optional="hide"
+                        string="Statut Paiement"
+                />
+            </field>
+            <field name="amount_total" position="after">
+                <field
+                        name="amount_residual"
+                        widget="monetary"
+                        decoration-bf="1"
+                        optional="hide"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

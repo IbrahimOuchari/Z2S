@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="rfq_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="doc">
+
+                    <div style=" text-align: center; margin-top: -5%; color: #AF0408; font-size: 200%; font-weight: bold">
+                        <span t-field="doc.name"/>
+                    </div>
+
+                    <div style=" margin-left: 8%; margin-top: 3%;">
+                        <p>
+                            <b>Fournisseur :</b>
+                            <span t-field="doc.partner_id"/>
+                        </p>
+                        <p>
+                            <b>Adresse :</b>
+                            <span t-field="doc.partner_id.street"/>
+                            -
+                            <span t-field="doc.partner_id.city"/>
+                            -
+                            <span t-field="doc.partner_id.zip"/>
+                            -
+                            <span t-field="doc.partner_id.country_id"/>
+                        </p>
+                        <p t-if="doc.partner_id.vat">
+                            <b>Matricule Fiscale :</b>
+                            <span t-field="doc.partner_id.vat"/>
+                        </p>
+                    </div>
+
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        <br></br>
+                        <div class="row" id="informations">
+                            <div t-if="doc.date_rfq" class="col-auto col-3 mw-100 mb-2">
+                                <strong>Date :</strong>
+                                <p class="m-0" t-field="doc.date_rfq"
+                                   t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                            <div t-if="doc.date_planned" class="col-auto col-3 mw-100 mb-2"
+                                 name="expiration_date">
+                                <strong>Date de Livraison Souaithée :</strong>
+                                <p class="m-0" t-field="doc.date_planned"/>
+                            </div>
+                            <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
+                                <strong>Responsable Achat :</strong>
+                                <p class="m-0" t-field="doc.user_id"/>
+                            </div>
+                        </div>
+
+                        <br></br>
+
+
+                        <table class="table table-sm o_main_table">
+                            <!-- In case we want to repeat the header, remove "display: table-row-group" -->
+                            <thead style="display: table-row-group">
+                                <tr>
+                                    <th name="th_description" class="text-center">Description</th>
+                                    <th name="th_quantity" class="text-center">Quantité</th>
+                                </tr>
+                            </thead>
+                            <tbody class="sale_tbody">
+
+
+                                <t t-foreach="doc.rfq_line" t-as="line">
+
+                                    <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                        <t t-if="not line.display_type">
+                                            <td name="td_name">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <td name="td_quantity" class="text-center">
+                                                <span t-field="line.product_qty"/>
+                                                <span t-field="line.product_uom"/>
+                                            </td>
+
+                                        </t>
+                                        <t t-if="line.display_type == 'line_section'">
+                                            <td name="td_section_line" colspan="99">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <t t-set="current_section" t-value="line"/>
+                                            <t t-set="current_subtotal" t-value="0"/>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_note'">
+                                            <td name="td_note_line" colspan="99">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+
+                                </t>
+                            </tbody>
+                        </table>
+
+
+                        <br></br>
+                        <div class="signature" style="float:right !important;width:200px;">
+                            <span style="text-decoration:underline;font-size:16px;">
+                                <b>Cachet et Signature</b>
+                            </span>
+                        </div>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+
+                        <div class="oe_structure"/>
+
+                        <p t-field="doc.notes"/>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+
+

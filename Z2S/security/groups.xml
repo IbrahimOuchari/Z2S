@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="modif_bouton_product" model="res.groups">
+        <field name="name">Validation des Articles</field>
+    </record>
+
+    <record id="annule_of" model="res.groups">
+        <field name="name">Annulation OF</field>
+    </record>
+
+    <record id="manual_of" model="res.groups">
+        <field name="name">Livraison sans OF</field>
+    </record>
+
+
+</odoo>

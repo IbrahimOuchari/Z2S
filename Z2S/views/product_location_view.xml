@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="product_location_view_stock" model="ir.ui.view">
+        <field name="name">stock.quant.tree.stock</field>
+        <field name="model">stock.quant</field>
+        <field name="priority" eval="2"/>
+
+        <field name="arch" type="xml">
+            <tree string="État de stock" create="false">
+                <field name="ref_product_client" string="Référence Article"/>
+                <field name="product_id" string="Article"/>
+
+                <field name="description_sale" string="Description"/>
+                <field name="location_id" string="Emplacement"/>
+                <field name="available_quantity" string="Quantité Disponible" optional="hide"/>
+
+                <field name="quantity" string="Quantité en Stock"/>
+                <field name="value" string="Valeur"/>
+            </tree>
+
+        </field>
+    </record>
+
+
+    <record id="view_location_search_stock" model="ir.ui.view">
+        <field name="name">stock.location.search.view</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <search string="Gestion de Stock">
+                <field name="ref_product_client" string="Référence Article"/>
+
+                <field name="product_id" string="Produit"/>
+                <field name="location_id" string="Emplacement de Stock"/>
+                <group expand="0" string="Grouper Par">
+                    <filter string="Article" name="product" domain="[]" context="{'group_by':'product_id'}"/>
+                    <filter string="Emplacement" name="emplacement" domain="[]" context="{'group_by':'location_id'}"/>
+
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_stock_location_view" model="ir.actions.act_window">
+        <field name="name">Stock Disponible</field>
+        <field name="res_model">stock.quant</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_id" ref="product_location_view_stock"/>
+        <field name="search_view_id" ref="view_location_search_stock"/>
+        <field name="domain">[('location_id.usage','=', 'internal')]</field>
+
+
+    </record>
+
+    <menuitem
+            id="stock_location_stock_view"
+            action="action_stock_location_view"
+            parent="bmg_stock.menu_gestion_stock"
+            sequence="10"/>
+
+
+</odoo>

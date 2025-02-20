@@ -1,0 +1,214 @@
+<odoo>
+
+    <template
+        id="assets_backend"
+        name="rapport_fiche_stock assets"
+        inherit_id="web.assets_backend"
+    >
+        <xpath expr="." position="inside">
+            <link
+                href="/bmg_reporting/static/src/css/report.css"
+                rel="stylesheet"
+            />
+            <script
+                type="text/javascript"
+                src="/bmg_reporting/static/src/js/stock_card_report_backend.js"
+            />
+        </xpath>
+    </template>
+
+    <template id="bmg_reporting.internal_layout">
+        <div class="article">
+            <link
+                href="/bmg_reporting/static/src/css/report.css"
+                rel="stylesheet"
+            />
+            <t t-raw="0" />
+        </div>
+        <div class="footer">
+            <div class="row">
+                <div class="col-6 custom_footer">
+                    <span
+                        t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d')"
+                    />
+                </div>
+                <div class="col-6 text-right custom_footer">
+                    <span class="page" />/<span class="topage" />
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_buttons">
+        <div class="button_row">
+            <button class="o_stock_card_reports_print btn btn-sm oe_button"><span
+                    class="fa fa-print"
+                />Imprimer</button>
+            <button class="o_stock_card_reports_export btn btn-sm oe_button"><span
+                    class="fa fa-download"
+                />Exporter</button>
+        </div>
+    </template>
+
+    <template id="report_rapport_fiche_stock_html">
+        <div class="o_rapport_fiche_stocks_page">
+            <t t-call="bmg_reporting.report_buttons" />
+            <t t-call="bmg_reporting.report_rapport_fiche_stock_base" />
+        </div>
+    </template>
+
+    <template id="bmg_reporting.report_rapport_fiche_stock_pdf">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="bmg_reporting.internal_layout">
+                    <t t-call="bmg_reporting.report_rapport_fiche_stock_base" />
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="bmg_reporting.report_rapport_fiche_stock_base">
+        <t t-foreach="o.product_ids" t-as="product">
+            <div class="page">
+                <div class="row">
+                    <t t-set="title">Rapport de Fiche de Stock - <t t-raw="product.name" /></t>
+                    <h4 class="mt0" t-esc="title" style="text-align: center;" />
+                </div>
+                <!-- Display filters -->
+                <t t-call="bmg_reporting.report_rapport_fiche_stock_filters" />
+                <!-- Display stock card table -->
+                <div class="act_as_table data_table mt4" style="width: 100%;">
+                    <!-- Display header line-->
+                    <t t-call="bmg_reporting.report_stock_card_lines_header" />
+                    <!-- Display initial lines -->
+                    <t
+                        t-set="initial"
+                        t-value="o._get_initial(o.results.filtered(lambda l: l.product_id == product and l.is_initial))"
+                    />
+                    <div class="act_as_row lines">
+                        <div class="act_as_cell" />
+                        <div class="act_as_cell">
+                            Initial
+                        </div>
+                        <div class="act_as_cell" />
+                        <div class="act_as_cell" />
+                        <div class="act_as_cell right">
+                            <t t-esc="'{0:,.3f}'.format(initial)" />
+                        </div>
+                    </div>
+                    <!-- Display each lines -->
+                    <t t-set="product_balance" t-value="initial" />
+                    <t
+                        t-foreach="o.results.filtered(lambda l: l.product_id == product and not l.is_initial)"
+                        t-as="product_line"
+                    >
+                        <t
+                            t-set="product_balance"
+                            t-value="product_balance + product_line.product_in - product_line.product_out"
+                        />
+                        <t t-call="bmg_reporting.report_stock_card_lines" />
+                    </t>
+                </div>
+                <p style="page-break-before:always;" />
+            </div>
+        </t>
+    </template>
+
+    <template id="bmg_reporting.report_rapport_fiche_stock_filters">
+        <div class="act_as_table data_table" style="width: 100%;">
+            <div class="act_as_row labels">
+                <div class="act_as_cell">Date Du</div>
+                <div class="act_as_cell">Date Au</div>
+                <div class="act_as_cell">Emplacement</div>
+            </div>
+            <div class="act_as_row">
+                <div class="act_as_cell">
+                    <span t-field="o.date_from" />
+                </div>
+                <div class="act_as_cell">
+                    <span t-field="o.date_to" />
+                </div>
+                <div class="act_as_cell">
+                    <span t-field="o.location_id" />
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="bmg_reporting.report_stock_card_lines_header">
+        <div class="act_as_thead">
+            <div class="act_as_row labels">
+                <div class="act_as_cell">Date</div>
+                <div class="act_as_cell">Référence</div>
+                <div class="act_as_cell">Entrant</div>
+                <div class="act_as_cell">Sortant</div>
+                <div class="act_as_cell">Balance</div>
+            </div>
+        </div>
+    </template>
+
+    <template id="bmg_reporting.report_stock_card_lines">
+        <div class="act_as_row lines">
+            <div class="act_as_cell left">
+                <t t-esc="product_line.date.strftime('%Y-%m-%d')" />
+            </div>
+            <div class="act_as_cell left">
+                <t t-esc="product_line.display_name" />
+            </div>
+            <div class="act_as_cell right">
+                <t t-esc="'{0:,.3f}'.format(product_line.product_in)" />
+            </div>
+            <div class="act_as_cell right">
+                <t t-esc="'{0:,.3f}'.format(product_line.product_out)" />
+            </div>
+            <div class="act_as_cell right">
+                <t t-esc="'{0:,.3f}'.format(product_balance)" />
+            </div>
+        </div>
+   </template>
+
+      <record id="paperformat_stock_card" model="report.paperformat">
+        <field name="name">Stock Card A4</field>
+        <field name="default" eval="True" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">28</field>
+        <field name="margin_bottom">28</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">24</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_rapport_fiche_stock_html" model="ir.actions.client">
+        <field name="name">Rapport de Fiche de Stock</field>
+        <field name="tag">stock_card_report_backend</field>
+        <field name="context" eval="{'active_model': 'report.stock.card.report'}" />
+    </record>
+
+    <record id="action_rapport_fiche_stock_pdf" model="ir.actions.report">
+        <field name="name">Rapport de Fiche de Stock PDF</field>
+        <field name="model">report.stock.card.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bmg_reporting.report_rapport_fiche_stock_pdf</field>
+        <field name="report_file">bmg_reporting.report_rapport_fiche_stock_pdf</field>
+        <field
+            name="print_report_name"
+        >'Rapport de Fiche de Stock - [%s]' % (object.location_id.complete_name)</field>
+        <field name="paperformat_id" ref="bmg_reporting.paperformat_stock_card" />
+    </record>
+
+    <record id="action_rapport_fiche_stock_xlsx" model="ir.actions.report">
+        <field name="name">Rapport de Fiche de Stock Excel</field>
+        <field name="model">report.stock.card.report</field>
+        <field name="report_type">xlsx</field>
+        <field
+            name="report_name"
+        >stock_card_report.report_stock_card_report_xlsx</field>
+        <field name="report_file">Rapport de Fiche de Stock</field>
+    </record>
+
+</odoo>

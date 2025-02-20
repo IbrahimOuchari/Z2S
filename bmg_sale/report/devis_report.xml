@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_devis_template" model="ir.actions.report">
+            <field name="name">Devis</field>
+            <field name="model">sale.devis</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">bmg_sale.devis_template</field>
+            <field name="report_file">bmg_sale.devis_template</field>
+            <field name="print_report_name">' - %s' % (object.name)</field>
+            <field name="binding_model_id" eval="False"/>
+
+        </record>
+
+    </data>
+</odoo>

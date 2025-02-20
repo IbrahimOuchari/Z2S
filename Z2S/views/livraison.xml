@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_livraison_inherit" model="ir.ui.view">
+            <field name="name">sale.livraison.form.view</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//button[@name='action_assign']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('picking_type_code','=','outgoing')]}</attribute>
+                </xpath>
+
+                  <xpath expr="//field[@name='origin']" position="after">
+                    <field name="of_manual" string="Livraison sans OF" widget="boolean_toggle"
+                           groups="Z2S.manual_of"  attrs="{'invisible': [('picking_type_code','!=','outgoing')]}"/>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="ref_client_id" string="N° Bon de Commande Client"/>
+                    <field name="operation_fourni" invisible="1"/>
+                    <field name="amount_total" invisible="1"/>
+                </xpath>
+                <!--        Filtre sur l'affichage du partner id        -->
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('picking_type_code','=','mrp_operation'),
+                        ('picking_type_code','=','internal'), ('operation_fourni','!=','retour')]}
+                    </attribute>
+                </xpath>
+
+
+                <xpath expr="//field[@name='ref_client_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', '|', ('picking_type_code','=','mrp_operation'),
+                        ('picking_type_code','=','internal'), ('picking_type_code','=','incoming')]}
+                    </attribute>
+                </xpath>
+
+                <!--                Ajouter quanité colis-->
+                <xpath expr="//form/sheet/notebook/page/field[@name='move_ids_without_package']/tree/field[@name='quantity_done']"
+                       position="after">
+
+                    <field name="colis" string="Quantité Colis"
+                          optional="show"/>
+                </xpath>
+
+
+                <xpath expr="//form/sheet/notebook/page/field[@name='move_ids_without_package']/tree/field[@name='product_id']"
+                       position="before">
+                    <field name="picking_type_code" invisible="1"/>
+                    <field name="operation_fourni" invisible="1"/>
+                    <field name="poste_id"
+                           attrs="{'column_invisible': [('parent.picking_type_code','!=','outgoing')]}"/>
+
+                    <field name="ref_product_client_id" string="Référence"/>
+                    <field name="description_sale_id" string="Désignation"/>
+                    <field name="price_id" invisible="1"/>
+                    <field name="discount" invisible="1"/>
+
+                    <field name="unit_price" invisible="1"/>
+                    <field name="total_ligne" invisible="1"/>
+
+                </xpath>
+
+
+                <xpath expr="//field[@name='quantity_done']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('parent.picking_type_code','=','outgoing'), ('parent.of_manual', '=', False)]}</attribute>
+                    <attribute name="string">Quantité</attribute>
+                </xpath>
+
+                <!--                <xpath expr="//field[@name='not_reserved']" position="attributes">-->
+                <!--                    <attribute name="invisible">True</attribute>-->
+                <!--                </xpath>-->
+
+                <xpath expr="//field[@name='reserved_availability']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <!--                            Domain sur l'article-->
+                <xpath expr="//form/sheet/notebook/page/field[@name='move_ids_without_package']/tree/field[@name='product_id']"
+                       position="attributes">
+                    <attribute name="domain">
+                        [('state_product', '=', '1')]
+
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='picking_type_id']" position="attributes">
+                    <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+                    <attribute name="readonly">False</attribute>
+
+                </xpath>
+
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="view_livraison_tree_inherit" model="ir.ui.view">
+            <field name="name">sale.livraison.tree.view</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="ref_client_id" string="N° Commande Client"/>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="date_done" string="Date"/>
+                </xpath>
+
+
+            </field>
+        </record>
+
+        <!-- ajout fourni dans type opération -->
+
+        <record id="view_picking_type_form_fourni" model="ir.ui.view">
+            <field name="name">stock.view_picking_type_form_fourni</field>
+            <field name="model">stock.picking.type</field>
+            <field name="inherit_id" ref="stock.view_picking_type_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='code']" position="after">
+                    <field name="operation_fourni"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <!--ajuter picking type code dans le wizar-->
+
+        <record id="view_livraison_of_picking_type" model="ir.ui.view">
+            <field name="name">sale.livraison.of.picking.type</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_stock_move_operations"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='product_id']"
+                       position="after">
+                    <field name="picking_type_code" invisible="1"/>
+
+                </xpath>
+            </field>
+        </record>
+
+        <!--        Référence OF dans les opérations détaillées de livraison -->
+
+        <record id="view_livraison_of_livraison" model="ir.ui.view">
+            <field name="name">sale.livraison.of.livraison</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_stock_move_line_operation_tree"/>
+            <field name="arch" type="xml">
+
+
+                <xpath expr="//tree/field[@name='product_uom_qty']"
+                       position="after">
+                    <field name="picking_type_code" invisible="1"/>
+
+
+                    <field name="ref_of" attrs="{'column_invisible': [('parent.picking_type_code','!=','outgoing')],
+                                                'required':[('picking_type_code','=','outgoing')]}"
+                           options="{'no_create': True, 'no_create_edit':True}"/>
+
+                    <field name="qty_of_reste"
+                           attrs="{'column_invisible': [('parent.picking_type_code','!=','outgoing')],
+                                                'required':[('picking_type_code','=','outgoing')]}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

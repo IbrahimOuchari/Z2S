@@ -1,0 +1,373 @@
+from odoo import models, fields, api
+from odoo.exceptions import UserError, ValidationError
+
+import logging
+
+# Configure logging
+_logger = logging.getLogger(__name__)
+
+
+class MrpProduction(models.Model):
+    _inherit = 'mrp.production'
+
+    date_prevue_fin_prod = fields.Date(string="Date Prévue Fin Prod", required=True)
+
+    quality_control_checked = fields.Boolean(
+        string="Contrôle Qualité Vérifié",
+        default=False,  # Default value set to False
+        store=True  # Store the field value to persist it in the database
+    )
+    # Rename "Durée Attendue" to "Durée Théorique" and control editability
+    duration_expected = fields.Float(
+        string='Durée Théorique',
+        readonly=True,  # Field is read-only by default
+        states={'draft': [('readonly', True)]}  # Editable only in 'draft' state
+    )
+
+    total_duration_real = fields.Char(
+        string='Durée Réelle Totale',
+        compute='_compute_total_duration_real'
+    )
+
+    total_duration_theoretical = fields.Char(
+        string='Durée Théorique Totale',
+        compute='_compute_total_duration_theoretical'
+    )
+    # Field to store the productivity percentage
+    productivity = fields.Float(
+        string='Productivité (%)',
+        compute='_compute_productivity',
+        digits=(16, 3))
+    # New field to display productivity with a percentage sign
+    productivity_display = fields.Char(
+        string='Productivité',
+        compute='_compute_productivity_display',  # New compute method for display
+        store=False  # Not stored in the database
+    )
+
+    @api.depends('productivity')
+    def _compute_productivity_display(self):
+        for order in self:
+            # Format the float productivity to a string with a percentage sign
+            order.productivity_display = f"{order.productivity:.2f}%" if order.productivity else "0.00%"
+
+    label_management_ids = fields.One2many(
+        'label.management',
+        'manufacturing_order_id',
+        string="Label Management",
+        readonly=True
+    )
+
+    qty_producing_stored = fields.Float(
+        string='Quantité de Production Stockée',
+        readonly=True,
+        compute='_compute_qty_producing_stored'
+    )
+    client_id = fields.Many2one('res.partner', string='Client')
+
+    quantity_per_batch = fields.Float(string="Colisage", required=True, digits=(16, 0))
+
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        """ Fetch the quantity per batch default from the product template when the product is changed """
+        if self.product_id:
+            # Accessing the product's template to fetch the default batch quantity
+            self.quantity_per_batch = self.product_id.quantity_per_batch_default
+        else:
+            # Reset the value if no product is selected
+            self.quantity_per_batch = 0.0
+
+    @api.constrains('quantity_per_batch')
+    def _check_quantity_per_batch(self):
+        """ Ensure that the quantity per batch is not zero """
+        for record in self:
+            if record.quantity_per_batch == 0.0:
+                raise ValidationError(
+                    "La quantité par colisage ne peut pas être égale à zéro. Veuillez entrer une valeur valide.")
+
+    is_readonly_lot = fields.Boolean(string="Readonly Lot", default=True)
+
+    def unblock_lot(self):
+        # Toggle the readonly status
+        for record in self:
+            record.is_readonly_lot = not record.is_readonly_lot
+
+            # # You can also change the state of related label_management_ids here if needed
+            # for label in record.label_management_ids:
+            #     label.is_readonly_lot = not label.is_readonly_lot
+
+    def block_lot(self):
+        # Toggle the readonly status
+        for record in self:
+            record.is_readonly_lot = not record.is_readonly_lot
+            # # You can also change the state of related label_management_ids here if needed
+            # for label in record.label_management_ids:
+            #     label.is_readonly_lot = not label.is_readonly_lot
+
+    def get_label_management_data(self):
+        """Method to fetch related label.management records"""
+        label_records = self.env['label.management'].search([
+            ('manufacturing_order_id', '=', self.id)
+        ])
+        return label_records
+
+    def print_label_management_report(self):
+        """Fetch related label management records and print the report."""
+        label_records = self.env['label.management'].search([
+            ('manufacturing_order_id', '=', self.id)
+        ])
+        if label_records:
+            return self.env.ref('nn_z2s.action_label_management_report').report_action(label_records)
+        else:
+            raise ValueError("No Label Management records found for this Manufacturing Order.")
+
+    @api.depends('workorder_ids.duration_expected')
+    def _compute_total_duration_theoretical(self):
+        for order in self:
+            try:
+                # Calculate the total theoretical duration (in minutes)
+                total_theoretical_duration = sum(order.workorder_ids.mapped('duration_expected'))  # This is in minutes
+                # Convert minutes to seconds for formatting
+                total_seconds = total_theoretical_duration * 60  # Convert minutes to seconds
+                formatted_string = self._format_duration(total_seconds)  # Format in H M S
+                order.total_duration_theoretical = formatted_string
+            except Exception as e:
+                _logger.error(f"Erreur lors du calcul de la durée théorique totale pour la commande {order.id}: {e}")
+                order.total_duration_theoretical = "Aucune Durée"
+
+    @api.depends('details_operation.duree_formatted')
+    def _compute_total_duration_real(self):
+        for order in self:
+            try:
+                _logger.info(
+                    f"Computing real duration for order {order.name}, details_operation: {order.details_operation}")
+
+                # Check each `duree_formatted` for the operation lines
+                for line in order.details_operation:
+                    _logger.info(f"Line {line.id} duree_formatted: {line.duree_formatted}")
+
+                total_real_duration = sum(
+                    self._extract_seconds_from_duration(line.duree_formatted) for line in order.details_operation)
+
+                _logger.info(f"Total real duration (seconds): {total_real_duration}")
+
+                formatted_string = self._format_duration(total_real_duration)
+
+                _logger.info(f"Formatted real duration: {formatted_string}")
+                order.total_duration_real = formatted_string
+            except Exception as e:
+                _logger.error(f"Error while computing total real duration for order {order.id}: {e}")
+                order.total_duration_real = "Aucune Durée"
+
+    @api.depends('total_duration_theoretical', 'total_duration_real')
+    def _compute_productivity(self):
+        for order in self:
+            try:
+                # Ensure the calculation is only done if the order state is 'done'
+                if order.state == 'done':
+                    real_seconds = self._extract_seconds_from_duration(order.total_duration_real)
+                    theoretical_seconds = self._extract_seconds_from_duration(order.total_duration_theoretical)
+
+                    if theoretical_seconds > 0:
+                        order.productivity = (theoretical_seconds / real_seconds) * 100
+                    else:
+                        order.productivity = 0.0
+                else:
+                    order.productivity = 0.0  # Default value if not 'done'
+            except Exception as e:
+                _logger.error(f"Erreur lors du calcul de la productivité pour la commande {order.id}: {e}")
+                order.productivity = 0.0
+
+    def _extract_seconds_from_duration(self, duration_str):
+        total_seconds = 0
+        if not duration_str:
+            return total_seconds
+
+        try:
+            # Split the string into components like '7H', '1M', '2S'
+            parts = duration_str.split()
+
+            # Iterate over the parts to extract hours, minutes, and seconds
+            for part in parts:
+                if 'H' in part:  # Hours
+                    hours = int(part.replace('H', '').strip())
+                    total_seconds += hours * 3600
+                elif 'M' in part:  # Minutes
+                    minutes = int(part.replace('M', '').strip())
+                    total_seconds += minutes * 60
+                elif 'S' in part:  # Seconds
+                    seconds = int(part.replace('S', '').strip())
+                    total_seconds += seconds
+        except Exception as e:
+            _logger.error(f"Erreur lors de l'extraction des secondes de la durée '{duration_str}': {e}")
+
+        return total_seconds
+
+    def _format_duration(self, total_seconds):
+        try:
+            if total_seconds <= 0:
+                return "Aucune Durée"
+
+            hours = int(total_seconds // 3600)
+            minutes = int((total_seconds % 3600) // 60)
+            seconds = int(total_seconds % 60)
+
+            # Create the formatted string, omitting zero values
+            parts = []
+            if hours > 0:
+                parts.append(f"{hours}H")
+            if minutes > 0:
+                parts.append(f"{minutes}M")
+            if seconds > 0:
+                parts.append(f"{seconds}S")
+
+            return " ".join(parts) if parts else "Aucune Durée"
+        except Exception as e:
+            _logger.error(f"Erreur lors du formatage de la durée {total_seconds}: {e}")
+            return "Aucune Durée"
+
+    @api.depends('qty_producing')
+    def _compute_qty_producing_stored(self):
+        """
+        Compute the stored quantity of production based on `qty_producing`.
+        """
+        for order in self:
+            order.qty_producing_stored = order.qty_producing
+
+    def action_create_lots(self):
+        """
+        Create lots for the manufacturing order based on the `qty_producing` value.
+        """
+        for order in self:
+            qty_producing = order.qty_producing
+            quantity_per_batch = order.quantity_per_batch
+
+            if qty_producing <= 0:
+                raise UserError("La quantité à produire doit être supérieure à zéro.")
+
+            if quantity_per_batch <= 0:
+                raise UserError("La quantité colisage doit être supérieure à zéro.")
+            if quantity_per_batch > qty_producing:
+                raise UserError("La quantité clisage ne peut pas être supérieure à la quantité à produire.")
+
+            self.env['label.management'].create_lots_for_order(order, qty_producing)
+
+    return_count = fields.Integer(string="Retour des Composants", compute="_compute_return_count")
+
+    @api.depends('name')
+    def _compute_return_count(self):
+        for production in self:
+            production.return_count = self.env['stock.picking'].search_count([
+                ('origin', '=', production.name),
+                ('picking_type_id.sequence_code', '=', 'RT'),
+                ('state', '!=', 'done')  # Exclude 'done' return operations
+            ])
+
+    control_quality_done = fields.Integer(string="Controle Qualite done", compute="_compute_control_quality_done")
+
+    @api.depends('name')
+    def _compute_control_quality_done(self):
+        for production in self:
+            # Count the number of related control quality records that are in 'done' or 'in_progress' state
+            control_count = self.env['control.quality'].search_count([
+                ('of_id', '=', production.name),
+                ('state', 'in', ['done', 'in_progress'])  # Include both 'done' and 'in_progress' states
+            ])
+
+            # Update the control_quality_done field
+            production.control_quality_done = control_count
+
+            # Update the quality_control_checked based on the count
+            production.quality_control_checked = control_count > 0  # Set to True if count is greater than 0
+
+    def action_return_components(self):
+        for production in self:
+            if production.state in ['cancel']:
+                return {
+                    'name': 'Return Components Wizard',
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'return.components.wizard',
+                    'view_mode': 'form',
+                    'view_id': self.env.ref('nn_Z2S.view_return_components_wizard_form').id,
+                    'target': 'new',
+                    'context': {'default_mrp_production_id': production.id}
+                }
+            else:
+                _logger.info(f"Production {production.name} is not in 'done' state. No return action taken.")
+
+    def action_view_return_operations(self):
+        self.ensure_one()
+        return {
+            'name': 'Retour des Composants',
+            'view_type': 'form',
+            'view_mode': 'tree,form',
+            'res_model': 'stock.picking',
+            'domain': [('origin', '=', self.name), ('picking_type_id.sequence_code', '=', 'RT'),
+                       ('state', '!=', 'done')],
+            'type': 'ir.actions.act_window',
+        }
+
+        # Add 'all_returned' state
+
+    def action_view_control_quality(self):
+        for production in self:
+            # Search for an existing control.quality record
+            control_quality = self.env['control.quality'].search([
+                ('of_id', '=', production.id),  # Use the ID of the production order (of_id)
+                ('state', '=', 'done')
+            ], limit=1)
+
+            if control_quality:
+                # Redirect to the existing quality control record
+                return {
+                    'name': 'Contrôle Qualité',
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'control.quality',
+                    'view_mode': 'form',
+                    'res_id': control_quality.id,  # Open the existing record
+                    'view_id': self.env.ref('nn_quality_control.view_quality_control_form').id,
+                    # Redirect to specific view
+                    'target': 'self'  # Open in the same window
+                }
+            else:
+                # Generate a new reference and context for creating a new control quality record
+                current_year = fields.Date.today().strftime('%y')
+                sequence = self.env['ir.sequence'].next_by_code('control.quality') or '0001'
+                reference = f"CQ - {current_year} - {sequence}"
+
+                # Return action to create a new quality control record with specific view
+                return {
+                    'name': 'Créer Contrôle Qualité',
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'control.quality',
+                    'view_mode': 'form',
+                    'view_id': self.env.ref('nn_quality_control.view_quality_control_form').id,
+                    'target': 'self',
+                    'context': {
+                        'default_of_id': production.id,
+                        'default_reference': reference,
+                        'default_client_id': production.client_id.id,
+                        'default_article_id': production.product_id.id,  # Add other fields here
+                        'default_client_reference': production.ref_product_client,
+                        'default_designation': production.description,
+                        'default_qty_producing': production.product_qty,
+                    }
+                }
+
+    @api.onchange('return_count')
+    def _onchange_return_count(self):
+        """Trigger the return components wizard with updated return_count when it changes."""
+        if self.return_count:
+            # Trigger the wizard with the updated return_count
+            return {
+                'name': 'Return Components Wizard',
+                'type': 'ir.actions.act_window',
+                'res_model': 'return.components.wizard',
+                'view_mode': 'form',
+                'view_id': self.env.ref('nn_Z2S.view_return_components_wizard_form').id,
+                'target': 'new',
+                'context': {
+                    'default_mrp_production_id': self.id,  # Pass the current production id
+                    'default_return_count': self.return_count  # Pass the updated return count
+                }
+            }

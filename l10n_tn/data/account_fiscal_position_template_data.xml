@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- To solve bug 1240265, we have to delete all fiscal position templates before each update.
+         The valid ones will be re-created later during the update.
+         /!\ This must be executed *before* loading the fiscal position templates!! -->
+    <delete model="account.fiscal.position.template" search="[('chart_template_id','=',ref('l10n_tn_pcg_chart_template'))]"/>
+
+
+    <!-- = = = = = = = = = = = = = = = -->
+    <!-- Fiscal Position Templates     -->
+    <!-- = = = = = = = = = = = = = = = -->
+
+<!-- Position Géographique du partenaire -->
+        <record id="fiscal_position_template_local" model="account.fiscal.position.template">
+            <field name="sequence">1</field>
+            <field name="name">Local - Tunisie</field>
+            <field name="chart_template_id" ref="l10n_tn_pcg_chart_template"/>
+            <field name="auto_apply" eval="True" />
+            <field name="vat_required" eval="True" />
+            <field name="country_id" ref="base.tn"></field>
+        </record>
+        <record id="fiscal_position_template_export" model="account.fiscal.position.template">
+            <field name="sequence">2</field>
+            <field name="name">Export</field>
+            <field name="chart_template_id" ref="l10n_tn_pcg_chart_template"/>
+            <field name="auto_apply" eval="True" />
+            <field name="country_group_id" ref="base.europe"></field>
+        </record>
+
+    <!-- = = = = = = = = = = = = = = = -->
+    <!-- Fiscal Position Tax Templates -->
+    <!-- = = = = = = = = = = = = = = = -->
+
+<!-- Par défaut, les produits doivent être paramétrés pour utiliser les taxes, paramétrées pour des numéro de comptes (nationaux) -->
+
+<!-- Zone Intracommunautaire B2B -->
+<!-- ventes -->
+<!-- Taux Normal -->
+        <record id="fp_tax_template_export" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_export" />
+            <field name="tax_src_id" ref="tva_vente_19" />
+            <field name="tax_dest_id" ref="tva_export_0" />
+        </record>
+
+    <record id="fp_tax_template_export" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_export" />
+            <field name="tax_src_id" ref="tva_vente_13" />
+            <field name="tax_dest_id" ref="tva_export_0" />
+        </record>
+
+    <record id="fp_tax_template_export" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_export" />
+            <field name="tax_src_id" ref="tva_vente_7" />
+            <field name="tax_dest_id" ref="tva_export_0" />
+        </record>
+
+<!-- achats -->
+<!-- Taux Normal -->
+        <record id="fp_tax_template_export" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_export" />
+            <field name="tax_src_id" ref="tva_achat_19" />
+            <field name="tax_dest_id" ref="tva_export_achat_0" />
+        </record>
+
+    <record id="fp_tax_template_export" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_export" />
+            <field name="tax_src_id" ref="tva_achat_13" />
+            <field name="tax_dest_id" ref="tva_export_achat_0" />
+        </record>
+
+    <record id="fp_tax_template_export" model="account.fiscal.position.tax.template">
+            <field name="position_id" ref="fiscal_position_template_export" />
+            <field name="tax_src_id" ref="tva_achat_7" />
+            <field name="tax_dest_id" ref="tva_export_achat_0" />
+        </record>
+
+</odoo>

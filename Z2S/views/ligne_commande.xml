@@ -1,0 +1,133 @@
+<odoo>
+    <!--Ligne de BC-->
+    <record id="view_order_line_tree_bmg" model="ir.ui.view">
+        <field name="name">sale.order.line.tree.bmg</field>
+        <field name="model">sale.order.line</field>
+        <field name="arch" type="xml">
+            <tree string="État des Commandes Client non soldé" create="false">
+                <field name="ref_client_id" string="N° BC Client"/>
+                <field name="order_partner_id" string="Client"/>
+                <field name="ref_product_client_id" string="Référence Client"/>
+                <field name="order_id" optional="hide" string="N° BC"/>
+                <field name="poste" optional="show" string="Poste"/>
+                <field name="product_id" string="Article"/>
+                <field name="name" string="Description"/>
+                <field name="product_uom_qty" string="Qté BC"/>
+                <field name="qty_delivered" string="Qté Livrée"/>
+                <field name="qty_restante" string="Qté Restante"/>
+                <field name="qty_stock" string="Stock Disponible"/>
+                <field name="qty_to_invoice" string="Qté à Facturer" optional="hide"/>
+                <field name="price_subtotal" optional="hide"/>
+                <field name="status_bc" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_sales_order_line_filter_bmg" model="ir.ui.view">
+        <field name="name">sale.order.line.select.bmg</field>
+        <field name="model">sale.order.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Sales Order">
+                <filter string="To Invoice" name="to_invoice" domain="[('qty_to_invoice','!=', 0)]"
+                        help="Sales Order Lines ready to be invoiced"/>
+                <filter string="Livraison en Cours" name="status_bc" domain="[('status_bc', '=', 'in_progress')]"/>
+                <filter string="Stock Disponible pour Livraison" name="qty_stock"
+                        domain="[('qty_stock', '!=', 0), ('status_bc', '=', 'in_progress')]"/>
+
+                <separator/>
+                <filter string="My Sales Order Lines" name="my_sales_order_lines" domain="[('salesman_id','=',uid)]"
+                        help="Sales Order Lines related to a Sales Order of mine"/>
+                <field name="order_id"/>
+                <field name="order_partner_id" operator="child_of"/>
+                <field name="product_id"/>
+                <field name="salesman_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="product" domain="[]" context="{'group_by':'product_id'}"/>
+                    <filter string="Order" name="order" domain="[]" context="{'group_by':'order_id'}"/>
+                    <filter string="Salesperson" name="salesperson" domain="[]" context="{'group_by':'salesman_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_orders_lines_bmg" model="ir.actions.act_window">
+        <field name="name">État des Commandes Client</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order.line</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_id" ref="view_order_line_tree_bmg"/>
+        <field name="search_view_id" ref="view_sales_order_line_filter_bmg"/>
+        <field name="context">{'search_default_qty_stock':1}</field>
+    </record>
+
+    <menuitem id="menu_sale_line"
+              name="Lignes de Commandes"
+              parent="sale.sale_menu_root"
+              groups="sales_team.group_sale_salesman"
+              sequence="5"/>
+
+    <menuitem
+            id="sale_order_line_menu_bmg"
+            name="État des Commandes Client non soldé"
+            action="action_orders_lines_bmg"
+            parent="menu_sale_line"
+            sequence="1"
+    />
+
+
+    <!--    liste des devis par bc-->
+
+    <record id="sale_devis_bc_tree" model="ir.ui.view">
+        <field name="name">sale.devis.bc.tree</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+
+            <tree string="Liste des Commandes par Devis">
+                <field name="devis_seq" string="N° Devis"/>
+                <field name="name" string="N° BC"/>
+                <field name="ref_client" string="N° BC Client"/>
+                <field name="partner_id" string="Client"/>
+                <field name="date_order" string="Date Commande"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_devis_bc" model="ir.actions.act_window">
+        <field name="name">Liste des Commandes par Devis</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,pivot</field>
+        <field name="context">{'group_by':'devis_seq'}</field>
+
+    </record>
+
+    <menuitem id="action_devis_bc_menu"
+              name="Liste des devis par BC"
+              action="action_devis_bc"
+              parent="menu_sale_line"
+              sequence="10"/>
+
+
+    <!--Filtre de recherch-->
+    <record id="sale_devis_bc_filter" model="ir.ui.view">
+        <field name="name">sale.order.devis.filter</field>
+        <field name="model">sale.order</field>
+        <field name="priority" eval="15"/>
+        <field name="arch" type="xml">
+            <search string="Recherche">
+                <field name="ref_client" string="N° de BC Client"/>
+                <field name="partner_id"/>
+                <field name="name" string="N° BC Interne"/>
+                <field name="devis_seq" string="N° Devis"/>
+
+                <group expand="0" string="Regrouper par">
+                    <filter string="Devis" name="devis" domain="[]" context="{'group_by': 'devis_seq'}"/>
+                    <filter name="Client" string="Client" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Date" name="order_month" domain="[]" context="{'group_by': 'date_order'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+</odoo>

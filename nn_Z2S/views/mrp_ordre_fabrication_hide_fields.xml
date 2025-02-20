@@ -1,0 +1,16 @@
+<odoo>
+    <!-- This assumes you have identified the view that renders `workorder_ids` -->
+    <record id="custom_workorder_form_view" model="ir.ui.view">
+        <field name="name">custom.mrp.workorder.form.view</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/> <!-- Replace with the actual parent view ID -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='workorder_ids']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+
+
+
+        </field>
+    </record>
+</odoo>

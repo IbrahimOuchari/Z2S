@@ -1,0 +1,45 @@
+<odoo>
+
+    <record id="view_res_partner_form_inherit" model="ir.ui.view">
+        <field name="name">view.res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form//field[@name='vat']" position="after">
+                <field name="credit" attrs="{'invisible': [('is_customer', '=', False)]}"/>
+            </xpath>
+
+            <xpath expr="//group[@name='container_row_2']" position="inside">
+                <group name="container_row_credit" attrs="{'invisible': [('is_customer', '=', False)]}">
+                    <group string="Limite de Crédit" colspan="2">
+                        <field name="credit_check" attrs="{'invisible': [('is_customer', '=', False)]}"/>
+                        <field name="credit_warning" attrs="{'invisible': [('credit_check', '=', False)]}"/>
+                        <field name="credit_blocking" attrs="{'invisible': [('credit_check', '=', False)]}"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sale_order_form_inherit" model="ir.ui.view">
+        <field name="name">view.sale.order.form.inherit.amount.du</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="after">
+                <div class="alert alert-danger text-center o_form_header" role="status"
+                     attrs="{'invisible': [('amount_due', '&lt;=', 0)]}">
+                    <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+                    <div>
+                        <strong>La valeur Montant dû par le client est
+                            <field name="amount_due"/>
+                        </strong>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="company_currency_id" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

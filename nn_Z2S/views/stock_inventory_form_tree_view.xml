@@ -1,0 +1,183 @@
+<odoo>
+    <!--<template id="assets_backend" name="empty float field assets" inherit_id="web.assets_backend">-->
+    <!--    <xpath expr="." position="inside">-->
+    <!--        <script type="text/javascript" src="/nn_Z2S/static/src/js/empty_float_field.js"></script>-->
+    <!--    </xpath>-->
+    <!--</template>-->
+    <record id="view_stock_inventory_line_tree_inherited" model="ir.ui.view">
+        <field name="name">stock.inventory.line.tree.custom</field>
+        <field name="model">stock.inventory.line</field>
+        <field name="inherit_id" ref="stock.stock_inventory_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="js_class"></attribute>
+            </xpath>
+            <xpath expr="//tree" position="inside">
+                <field name="category_id" string="Article Category"/>
+                <!--                <field name="is_counted" string="Counted?"/>-->
+                <field name="partner_id" string="Client" invisible="1"/> <!-- Change this line -->
+                <field name="is_produit_fini"
+                       string="Produit Fini"
+                       attrs="{'column_invisible': [('parent.is_produit_fini','!=',True)],
+                                                'readonly':[('is_produit_fini','!=',True)]}"/>
+                <field name="is_produit_achete"
+                       string="Produit Acheté"
+                       attrs="{'column_invisible': [('parent.is_produit_achete','!=',True)],
+                                                'readonly':[('is_produit_achete','!=',True)]}"/>
+                <field name="is_produit_fourni"
+                       string="Produit Fourni"
+                       attrs="{'column_invisible': [('parent.is_produit_fourni','!=',True)],
+                                                'readonly':[('is_produit_fourni','!=',True)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="product_ref"/>
+
+            </xpath>
+
+            <xpath expr="//field[@name='product_qty']" position="after">
+                <field name="can_edit" invisible="1"/>
+                <field name="can_edit" invisible="1"/>
+
+
+                <field name="product_qty_counted" string="Compté User"/>
+            </xpath>
+            <xpath expr="//button[@name='action_refresh_quantity']" position="attributes">
+                <attribute name="attrs">{'invisible': True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='product_qty']" position="attributes">
+                <attribute name="groups">nn_Z2S.stock_inventory_validation</attribute>
+                <attribute name="string">Compté Admin</attribute>
+                <attribute name="attrs">{'readonly':[('can_edit', '=', True)]}</attribute>
+
+            </xpath>
+            <xpath expr="//field[@name='theoretical_qty']" position="attributes">
+                <attribute name="groups">nn_Z2S.stock_inventory_validation</attribute>
+            </xpath>
+            <xpath expr="//field[@name='difference_qty']" position="attributes">
+                <attribute name="groups">nn_Z2S.stock_inventory_validation</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_inventory_form_custom" model="ir.ui.view">
+        <field name="name">stock.inventory.form.custom</field>
+        <field name="model">stock.inventory</field>
+        <field name="inherit_id" ref="stock.view_inventory_form"/>
+        <field name="arch" type="xml">
+
+
+            <xpath expr="//header" position="after">
+                <field name="inventory_cancel" invisible="1"/>
+                <div class="alert alert-danger text-center o_form_header" role="status"
+                     attrs="{'invisible': [('inventory_cancel', '!=', True)]}"
+                >
+                    <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+                    <div>
+                        <strong>Raison de Refus :
+                            <field name="invalidation_reason"/>
+                        </strong>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="reject_inventory"
+                        type="object"
+                        string="Rejeter l'Inventaire"
+                        class="btn-danger"
+                        attrs="{'invisible': [('state', '!=', 'demand_close')]}"
+                        groups="nn_Z2S.stock_inventory_validation"/>
+
+            </xpath>
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,confirm,demand_close,done</attribute>
+            </xpath>            <!-- Add fields to the form view -->
+            <xpath expr="//sheet" position="inside">
+                <group>
+                    <group string="Infos Supplémentaires">
+                        <field name="category_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="partner_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                    </group>
+                    <group string="Sélection du type de produit">
+                        <field name="is_produit_fini" string="Produit Fini"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="is_produit_achete" string="Produit Acheté"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="is_produit_fourni" string="Produit Fourni"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                    </group>
+
+
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='accounting_date']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_inventory_form_inherit" model="ir.ui.view">
+        <field name="name">inventory.form.inherit</field>
+        <field name="model">stock.inventory</field> <!-- Change this to your actual model name -->
+        <field name="inherit_id" ref="stock.view_inventory_form"/> <!-- Replace with the correct view reference -->
+        <field name="arch" type="xml">
+
+
+            <xpath expr="//button[@name='action_validate'][1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+                <!--                <attribute name="attrs">{'invisible':[('state','!=','demand_close')]}</attribute>-->
+            </xpath>
+            <xpath expr="//button[@name='action_open_inventory_lines']" position="attributes">
+                <attribute name="states">confirm,demand_close</attribute>
+                <!--                <attribute name="attrs">{'invisible':[('state','!=','demand_close')]}</attribute>-->
+            </xpath>
+            <xpath expr="//button[@name='action_cancel_draft'][2]" position="attributes">
+
+                <attribute name="attrs">{'invisible': [('state', 'in', ['done', 'draft'])]}</attribute>
+                <attribute name="groups">nn_Z2S.stock_inventory_validation</attribute>
+                <!--                <attribute name="attrs">{'invisible':[('state','!=','demand_close')]}</attribute>-->
+            </xpath>
+            <xpath expr="//button[@name='action_print']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+
+            <xpath expr="//button[@name='action_validate'][2]" position="attributes">
+                <attribute name="groups">nn_Z2S.stock_inventory_validation</attribute>
+                <attribute name="attrs">{'invisible':[('state','!=','demand_close')]}</attribute>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_demand_close"
+                        string="Demande Clôture inventaire"
+                        class="btn-primary"
+                        type="object"
+                        attrs="{'invisible': [('state', '!=', 'confirm')]}"/>
+
+            </xpath>
+
+
+        </field>
+    </record>
+
+    <record id="view_stock_inventory_form_action_trigger_demand_close" model="ir.ui.view">
+        <field name="name">stock.inventory.form.action.trigger.demand.close</field>
+        <field name="model">stock.inventory.line</field>
+        <field name="inherit_id" ref="stock.stock_inventory_line_tree"/>
+        <field name="arch" type="xml">
+            <!-- Add the button in the footer of the form -->
+            <xpath expr="//tree" position="inside">
+                <header>
+
+                    <button name="action_trigger_demand_close"
+                            string="Réconfirmer la fermeture de la demande"
+                            type="object"
+                            class="btn-danger"
+                        />
+
+                </header>
+
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>

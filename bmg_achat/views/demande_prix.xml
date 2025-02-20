@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="purchase_rfq_tree_view" model="ir.ui.view">
+        <field name="name">purchase.rfq.tree</field>
+        <field name="model">purchase.rfq</field>
+        <field name="arch" type="xml">
+
+            <tree string="Demande d'Achat">
+                <field name="name" string="Référence"/>
+                <field name="partner_id"/>
+                <field name="company_id"/>
+                <field name="date_rfq"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state == 'rfq'"
+                       decoration-success="state == 'confirme'"
+                       decoration-danger="state == 'nonvalide'"
+                       decoration-warning="state == 'validation'"/>
+
+            </tree>
+        </field>
+    </record>
+
+    <record id="purchase_rfq_form_view" model="ir.ui.view">
+        <field name="name">purchase.rfq.form</field>
+        <field name="model">purchase.rfq</field>
+        <field name="arch" type="xml">
+            <form string="Demande d'Achat">
+                <header>
+                    <field name="state" widget="statusbar" nolabel="1"
+                           statusbar_visible="rfq,validation,confirme"/>
+                    <button name="create_order"
+                            string="Créer Commande d'Achat" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state', 'not in', [('confirme'), ('commande')])]}"
+                            groups="bmg_achat.create_po"/>
+
+                    <button name="action_cancel"
+                            string="Annuler La Demande" class="btn-secondary" type="object"
+                            attrs="{'invisible': [('state', 'not in', [('rfq'), ('confirme')])]}"/>
+
+
+                    <button name="action_save_da"
+                            string="Envoi Pour Validation" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state', 'not in', [('rfq')])]}"
+                    />
+
+                    <button name="action_validation_da"
+                            string="Validation DA" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state', 'not in', [('validation')])]}"
+                            groups="bmg_achat.valide_da"/>
+
+                    <button name="action_invalidation_da"
+                            string="Rejeter DA" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state', 'not in', [('validation')])]}"
+                            groups="bmg_achat.valide_da"/>
+
+                    <button name="action_in_draft_da"
+                            string="Remettre en Brouillon" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state', 'not in', [('nonvalide')])]}"
+                    />
+
+                    <button name="print_report"
+                            string="Imprimer DA" class="btn-primary" type="object"
+                            attrs="{'invisible': [('state', 'not in', [('confirme')])]}"/>
+
+                    <field name="hide_edit" invisible="0"/>
+
+                </header>
+                <field name="da_annule" invisible="1"/>
+                <div class="alert alert-danger text-center o_form_header" role="status"
+                     attrs="{'invisible': ['|', ('state', 'not in', ('rfq','validation','nonvalide','cancel')), ('da_annule', '=', False)]}">
+                    <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+                    <div>
+                        <strong>Raison de Refus :
+                            <field name="motif_validation_da" readonly="1"/>
+                        </strong>
+                    </div>
+                </div>
+                <sheet>
+                    <div class="oe_title">
+
+                        <h1>
+                            <field name="priority" widget="priority" class="mr-3"/>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group name="rfq_header">
+                        <group name="partner" options="{'no_open':True,'no_create': True}">
+                            <field name="partner_id" options="{'no_open':True,'no_create': True}"/>
+
+                        </group>
+
+                        <group name="date">
+                            <field name="date_rfq"/>
+                            <field name="date_planned" invisible="0"/>
+                        </group>
+
+                        <group name="info_achat">
+                            <field name="user_id"/>
+                            <field name="payment_term_id"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id"/>
+                        </group>
+
+                    </group>
+                    <notebook>
+                        <page string="Lignes Demande d'Achat" name="rfq_lines">
+                            <field
+                                    name="rfq_line"
+                                    widget="section_and_note_one2many"
+                                    mode="tree,kanban"
+                                    attrs="{'readonly': [('state', 'in', 'cancel')]}">
+
+                                <tree string="Rfq Ligne" editable="bottom">
+                                    <control>
+                                        <create name="add_product_control" string="Ajouter un Article"/>
+                                        <create name="add_section_control" string="Ajouter une Section"
+                                                context="{'default_display_type': 'line_section'}"/>
+                                        <create name="add_note_control" string="Ajouter une Note"
+                                                context="{'default_display_type': 'line_note'}"/>
+                                    </control>
+
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="display_type" invisible="1"/>
+                                    <field name="product_uom_category_id" invisible="1"/>
+                                    <field name="state" invisible="1" readonly="1"/>
+                                    <field name="product_type" invisible="1"/>
+                                    <field
+                                            name="product_id"
+                                            options="{'no_open':True,'no_create': True}"
+                                            context="{'partner_id':parent.partner_id, 'quantity':product_qty,'uom':product_uom, 'company_id': parent.company_id}"
+                                            force_save="1"
+                                            domain="[('purchase_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+
+                                    <field name="name"/>
+                                    <field name="date_planned" optional="hide"
+
+                                           force_save="1"/>
+
+                                    <field name="product_qty"/>
+
+                                    <field name="product_uom" string="UdM" groups="uom.group_uom"
+                                           attrs="{
+                                            'readonly': [('state', 'in', ('confirme', 'expired', 'cancel'))],
+                                            'required': [('display_type', '=', False)]
+                                        }"
+                                           force_save="1" optional="show"/>
+                                    <field name="price_unit"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="tax_id" widget="many2many_tags"
+                                           domain="[('type_tax_use','=','purchase'), ('company_id', '=', parent.company_id)]"
+                                           context="{'default_type_tax_use': 'purchase', 'search_view_ref': 'account.account_tax_view_search'}"
+                                           options="{'no_create': True}" optional="show"/>
+
+                                    <field name="price_subtotal" widget="monetary"/>
+
+
+                                </tree>
+                            </field>
+                        </page>
+
+
+                    </notebook>
+
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="rfq_total">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="amount_untaxed" widget="monetary"
+                               options="{'currency_field': 'currency_id'}"/>
+                        <field name="amount_by_group" widget="tax-group-custom-field" nolabel="1" colspan="2"/>
+                        <!--    <field name="amount_tax" widget='monetary'
+                                   options="{'currency_field': 'currency_id'}"/>
+                                   -->
+                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                            <label for="amount_total"/>
+                        </div>
+                        <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator"
+                               widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    </group>
+
+
+                    <group name="note_group" col="6" class="mt-2 mt-md-0">
+                        <group colspan="4">
+                            <field name="notes" nolabel="1" placeholder="Termes et Conditions d'Achat"/>
+                        </group>
+
+                        <div class="oe_clear"/>
+                    </group>
+
+
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="demande_prix_search_view" model="ir.ui.view">
+        <field name="model">purchase.rfq</field>
+        <field name="arch" type="xml">
+            <search>
+                <filter name="validation" string="Attente Validation" domain="[('state', '=', 'validation')]"/>
+                <filter name="confirme" string="DA Accepté" domain="[('state', '=', 'confirme')]"/>
+                <filter name="commande" string="Commandée" domain="[('state', '=', 'commande')]"/>
+                <filter name="nonvalide" string="Rejetée" domain="[('state', '=', 'rejete')]"/>
+                <separator/>
+                <group>
+                    <filter
+                            string="Statut Bon de Commande"
+                            name="state"
+                            domain="[]"
+                            context="{'group_by': 'state'}"
+                    />
+                </group>
+            </search>
+
+        </field>
+    </record>
+
+
+    <record id="rfq_action" model="ir.actions.act_window">
+        <field name="name">Demande d'Achat</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">purchase.rfq</field>
+        <field name="view_mode">tree,form</field>
+        <!-- ,form,calendar,pivot,graph,activity -->
+        <field name="view_id" ref="purchase_rfq_tree_view"/>
+        <field name="search_view_id" ref="demande_prix_search_view"/>
+
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer une Demande d'Achat !
+            </p>
+        </field>
+    </record>
+    <menuitem id="meu_purchase_rfq"
+              name="Demande d'Achat"
+              action="rfq_action"
+              parent="purchase.menu_purchase_root"
+              sequence="5"/>
+
+    <!-- Sequences for purchase.rfq -->
+    <record id="seq_purchase_rfq" model="ir.sequence">
+        <field name="name">RFQ</field>
+        <field name="code">purchase.rfq</field>
+        <field name="prefix">Demande d'Achat - %(y)s -</field>
+        <field name="padding">3</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+
+
+</odoo>
