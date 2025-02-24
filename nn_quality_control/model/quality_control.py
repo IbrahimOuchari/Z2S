@@ -158,45 +158,55 @@ class QualityControl(models.Model):
         for record in self:
             record.ppm = record.global_defect_rate * 10000  # 1% = 10,000 PPM
 
+
+    @api.onchange('total_lines','total_lines_type1','total_lines_type2','total_lines_type3')
     def state_change(self):
         for record in self:
             print(f"Total Lines: {record.total_lines}, "
-                  f"Qty Producing: {record.qty_producing_related}, "
+                  f"Qty Producing ntest: {record.product_qty}, "
+                  f"Total lines type 1 : {record.total_lines_type1}, "
+                  f"Total lines type 2 : {record.total_lines_type2}, "
+                  f"Total lines type 3 : {record.total_lines_type3}, "
                   f"Current State: {record.state}")
 
-            # Initialize total_lines_selected to count lines for selected types
+            # Check if any types are selected and validate their quantities
+            types_valid = True
             total_lines_selected = 0
+
+            # Validate type_1
             if record.type_1:
+                if record.total_lines_type1 != record.product_qty:
+                    types_valid = False
                 total_lines_selected += record.total_lines_type1
+
+            # Validate type_2
             if record.type_2:
+                if record.total_lines_type2 != record.product_qty:
+                    types_valid = False
                 total_lines_selected += record.total_lines_type2
+
+            # Validate type_3
             if record.type_3:
+                if record.total_lines_type3 != record.product_qty:
+                    types_valid = False
                 total_lines_selected += record.total_lines_type3
 
-            # Check if all selected types exist, if not revert to draft
+            # If no types are selected, revert to draft
             if total_lines_selected == 0:
                 record.state = 'draft'
-                print("State changed to draft")
+                print("State changed to draft - no types selected")
                 continue
 
-            # Transition to in_progress
-            if record.state != 'in_progress':
+            # If any selected type's quantity doesn't match qty_producing_related,
+            # set to in_progress
+            if not types_valid:
                 record.state = 'in_progress'
-                print("State changed to in_progress")
+                print("State changed to in_progress - quantities don't match")
+                continue
 
-            # Check conditions to transition from in_progress to closed
-            selected_totals = []
-            if record.type_1:
-                selected_totals.append(record.total_lines_type1)
-            if record.type_2:
-                selected_totals.append(record.total_lines_type2)
-            if record.type_3:
-                selected_totals.append(record.total_lines_type3)
-
-            # Ensure all selected types match qty_producing
-            if all(total == record.qty_producing_related for total in selected_totals):
-                record.state = 'closed'
-                print("State changed to closed due to selected types meeting qty_producing_related")
+            # If all selected types have matching quantities, set to closed
+            record.state = 'closed'
+            print("State changed to closed - all quantities match")
 
     total_lines = fields.Integer(string='Total Lignes', compute='_compute_total_lines', readonly=True)
     # Add three fields for total lines of each type
@@ -204,14 +214,41 @@ class QualityControl(models.Model):
     total_lines_type2 = fields.Integer(string='Total Lignes Type 2', compute='_compute_total_lines_type2', store=True)
     total_lines_type3 = fields.Integer(string='Total Lignes Type 3', compute='_compute_total_lines_type3', store=True)
 
-    @api.depends('type1_line_ids', 'type2_line_ids', 'type3_line_ids')
+    @api.depends('type1_line_ids', 'type2_line_ids', 'type3_line_ids', 'type_1', 'type_2', 'type_3')
     def _compute_total_lines(self):
         for record in self:
-            total_lines = (
-                    len(record.type1_line_ids) +
-                    len(record.type2_line_ids) +
-                    len(record.type3_line_ids)
-            )
+            total_lines = 0
+
+            # Check if type1 is enabled and add its lines to the total count
+            if record.type_1:
+                total_lines += len(record.type1_line_ids)
+
+            # Check if type2 is enabled and add its lines to the total count
+            if record.type_2:
+                total_lines += len(record.type2_line_ids)
+
+            # Check if type3 is enabled and add its lines to the total count
+            if record.type_3:
+                total_lines += len(record.type3_line_ids)
+
+            record.total_lines = total_lines
+
+    def action_cal_total_lines(self):
+        for record in self:
+            total_lines = 0
+
+            # Check if type1 is enabled and add its lines to the total count
+            if record.type_1:
+                total_lines += len(record.type1_line_ids)
+
+            # Check if type2 is enabled and add its lines to the total count
+            if record.type_2:
+                total_lines += len(record.type2_line_ids)
+
+            # Check if type3 is enabled and add its lines to the total count
+            if record.type_3:
+                total_lines += len(record.type3_line_ids)
+
             record.total_lines = total_lines
 
     @api.depends('type1_line_ids')
