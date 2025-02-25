@@ -63,7 +63,7 @@
                                                     <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', mrp.product_id.barcode, 600, 100)"
                                                          style="width:100%;height:3.5rem" alt="Barcode"/>
                                                 </t>
-                                                <t t-elif="mrp.product_id.ref_product_client_manual">
+                                                <t t-elif="mrp.ref_product_client_manual">
                                                     <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', mrp.product_id.ref_product_client, 600, 100)"
                                                          style="width:100%;height:3.5rem" alt="Barcode"/>
                                                 </t>

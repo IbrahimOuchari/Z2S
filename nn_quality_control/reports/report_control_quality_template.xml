@@ -27,7 +27,7 @@
             </div>
 
             <main>
-<t t-raw="0"/>
+                <t t-raw="0"/>
             </main>
 
 
@@ -213,10 +213,19 @@
                                             style="border: 3px solid black; text-align: center;">
                                             Résultat 1
                                         </th>
+
+
                                         <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
-                                            Type de Défaut
+                                            Défaut 1
                                         </th>
+
+                                        <th class="text-center"
+                                            style="border: 3px solid black; text-align: center;">
+                                            Défaut 2
+                                        </th>
+
+
                                         <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
                                             Reprise
@@ -255,8 +264,14 @@
                                                 <span t-esc="type1_line.result1"/>
                                             </td>
                                             <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.defect_type_id.name"/>
+                                                <span t-esc="type1_line.defect1.name"/>
                                             </td>
+
+                                            <td class="text-center" style="border: 3px solid black;">
+                                                <span t-esc="type1_line.defect2.name"/>
+                                            </td>
+
+
                                             <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type1_line.reprise_id.name"/>
                                             </td>
@@ -337,10 +352,16 @@
                                             style="border: 3px solid black; text-align: center;">
                                             Résultat 1
                                         </th>
+                                 <th class="text-center"
+                                            style="border: 3px solid black; text-align: center;">
+                                            Défaut 1
+                                        </th>
+
                                         <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
-                                            Type de Défaut
+                                            Défaut 2
                                         </th>
+
                                         <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
                                             Reprise
@@ -378,9 +399,14 @@
                                             <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type2_line.result1"/>
                                             </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.defect_type_id.name"/>
+                                     <td class="text-center" style="border: 3px solid black;">
+                                                <span t-esc="type2_line.defect1.name"/>
                                             </td>
+
+                                            <td class="text-center" style="border: 3px solid black;">
+                                                <span t-esc="type2_line.defect2.name"/>
+                                            </td>
+
                                             <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type2_line.reprise_id.name"/>
                                             </td>
@@ -459,10 +485,16 @@
                                             style="border: 3px solid black; text-align: center;">
                                             Résultat 1
                                         </th>
+                                 <th class="text-center"
+                                            style="border: 3px solid black; text-align: center;">
+                                            Défaut 1
+                                        </th>
+
                                         <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
-                                            Type de Défaut
+                                            Défaut 2
                                         </th>
+
                                         <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
                                             Reprise
@@ -500,9 +532,14 @@
                                             <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type3_line.result1"/>
                                             </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.defect_type_id.name"/>
+                                      <td class="text-center" style="border: 3px solid black;">
+                                                <span t-esc="type3_line.defect1.name"/>
                                             </td>
+
+                                            <td class="text-center" style="border: 3px solid black;">
+                                                <span t-esc="type3_line.defect2.name"/>
+                                            </td>
+
                                             <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type3_line.reprise_id.name"/>
                                             </td>
