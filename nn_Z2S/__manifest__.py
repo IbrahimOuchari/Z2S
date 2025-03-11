@@ -39,6 +39,7 @@
         'views/stock_picking_lot_button.xml',
         'views/label_management_sequence.xml',
         'views/product_form_view_open_inventory_line.xml',
+        'views/location_form_view.xml',
         'wizards/return_components_wizard_view.xml',
         'wizards/inventory_cancel_wizard.xml',
 
