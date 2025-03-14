@@ -421,7 +421,9 @@ class QualityControl(models.Model):
         for record in self:
             record.barcode = record.reference if record.reference else ''
 
-
+    def action_force_closure(self):
+        for record in self:
+            record.state = 'closed'
 class QualityControlLine(models.Model):
     _name = 'control.quality.line'
     _description = 'Ligne de Contrôle Qualité'

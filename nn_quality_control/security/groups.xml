@@ -6,6 +6,15 @@
     <record id="group_quality_manager" model="res.groups">
         <field name="name">Quality Manager</field>
     </record>
+
+
+
+    <record id="group_quality_manager" model="res.groups">
+        <field name="name">Quality Manager</field>
+    </record>
+    <record id="force_closure_cq" model="res.groups">
+        <field name="name">Forcer la Clôture CQ</field>
+  </record>
     <record id="ir_ui_menu_rule_user_new" model="ir.rule">
         <field name="name">Restrict Menu from Users</field>
         <field name="model_id" ref="model_ir_ui_menu"/>
