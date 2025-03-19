@@ -58,8 +58,9 @@ class QualityControl(models.Model):
                                      default=lambda self: self.env.user)
     company = fields.Many2one('res.users', string='Contrôleur', readonly=True,
                               default=lambda self: self.env.user)
-    start_date = fields.Datetime(string='Date début', default=fields.Datetime.now)
-    end_date = fields.Datetime(string='Date fin')
+    start_date = fields.Datetime(string='Date début', compute='_compute_start_date', store=True )
+    end_date = fields.Datetime(string='Date fin', compute='_compute_end_date', store=True)
+    manual_quantity = fields.Boolean(string='Quantité Manuelle', default=False)
 
     article_id = fields.Many2one('product.product', string='Article', store=True, compute='_compute_of_id')
     client_reference = fields.Char(string='Référence Client', store=True, compute='_compute_of_id')
@@ -297,17 +298,20 @@ class QualityControl(models.Model):
             record.state = 'validated'
             record.end_date = fields.Datetime.now()
 
-    @api.model
-    def create(self, vals):
-        """Initialize created_date during record creation."""
-        vals['created_date'] = fields.Datetime.now()  # Set creation timestamp
-        return super(QualityControl, self).create(vals)
 
-    def write(self, vals):
-        """Prevent changes to created_date."""
-        if 'created_date' in vals:
-            raise exceptions.UserError(_("Vous ne pouvez pas modifier la date de création."))
-        return super(QualityControl, self).write(vals)
+
+
+    @api.onchange('type1_line_ids','type2_line_ids','type3_line_ids')
+    def _compute_start_date(self):
+        for record in self:
+            if not record.start_date and record.total_lines:
+                record.start_date= datetime.now()
+
+    @api.onchange('type1_line_ids','type2_line_ids','type3_line_ids')
+    def _compute_end_date(self):
+        for record in self:
+            if record.total_lines:
+               record.end_date= datetime.now()
 
     def name_get(self):
         result = []

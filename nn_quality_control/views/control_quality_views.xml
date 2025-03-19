@@ -44,8 +44,7 @@
                     <group>
                         <field name="controlleur_id" invisible="1"/>
                         <field name="company" invisible="1"/>
-                        <field name="start_date" invisible="1"/>
-                        <field name="end_date" invisible="1"/>
+
                         <field name="barcode" invisible="1"/>
                         <field name="reference" string="Référence" attrs="{'readonly': True}"/>
                         <field name="of_id" options="{'no_create': True}" string="Ordre de Fabrication"
@@ -55,9 +54,12 @@
                         <field name="client_id" string="Client" attrs="{'readonly': True}"/>
                         <field name="designation" attrs="{'readonly': True}"/>
                         <!--                        <field name="qty_producing_related" attrs="{'readonly': True}"/>-->
-                        <field name="product_qty" attrs="{'readonly': True}"/>
+                                                <field name="product_qty" attrs="{'readonly': True}"/>
+
                         <field name="total_lines" attrs="{'readonly': True}"/>
                         <field name="other_info"/>
+                                                <field name="start_date" invisible="0" readonly="True"/>
+                        <field name="end_date" invisible="0" readonly="True"/>
                     </group>
                     <!-- Type 1 Section -->
 
