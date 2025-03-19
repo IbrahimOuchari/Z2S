@@ -214,7 +214,7 @@ class QualityControl(models.Model):
     total_lines_type1 = fields.Integer(string='Total Lignes Type 1', compute='_compute_total_lines_type1', store=True)
     total_lines_type2 = fields.Integer(string='Total Lignes Type 2', compute='_compute_total_lines_type2', store=True)
     total_lines_type3 = fields.Integer(string='Total Lignes Type 3', compute='_compute_total_lines_type3', store=True)
-
+    forced_closure = fields.Boolean(string='Cloture Forcée', default= False)
     @api.depends('type1_line_ids', 'type2_line_ids', 'type3_line_ids', 'type_1', 'type_2', 'type_3')
     def _compute_total_lines(self):
         for record in self:
@@ -281,22 +281,23 @@ class QualityControl(models.Model):
     def action_validate(self):
         for record in self:
             # Ensure type-wise quantity matches `qty_producing`
-            if record.type_1 and record.total_lines_type1 != record.qty_producing_related:
+            if record.forced_closure:
+                record.state = 'validated'
+            if record.type_1 and record.total_lines_type1 != record.product_qty and not record.forced_closure:
                 raise exceptions.ValidationError(
                     "Erreur de validation : Le total des lignes de Type 1 doit correspondre à la quantité produite."
                 )
-            if record.type_2 and record.total_lines_type2 != record.qty_producing_related:
+            if record.type_2 and record.total_lines_type2 != record.product_qty and not record.forced_closure:
                 raise exceptions.ValidationError(
                     "Erreur de validation : Le total des lignes de Type 2 doit correspondre à la quantité produite."
                 )
-            if record.type_3 and record.total_lines_type3 != record.qty_producing_related:
+            if record.type_3 and record.total_lines_type3 != record.product_qty and not record.forced_closure:
                 raise exceptions.ValidationError(
                     "Erreur de validation : Le total des lignes de Type 3 doit correspondre à la quantité produite."
                 )
 
             # If all checks pass, change state to 'done'
             record.state = 'validated'
-            record.end_date = fields.Datetime.now()
 
 
 
@@ -428,6 +429,7 @@ class QualityControl(models.Model):
     def action_force_closure(self):
         for record in self:
             record.state = 'closed'
+            record.forced_closure = True
 class QualityControlLine(models.Model):
     _name = 'control.quality.line'
     _description = 'Ligne de Contrôle Qualité'

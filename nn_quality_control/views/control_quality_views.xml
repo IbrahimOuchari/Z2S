@@ -47,7 +47,7 @@
 
                         <field name="barcode" invisible="1"/>
                         <field name="reference" string="Référence" attrs="{'readonly': True}"/>
-                        <field name="of_id" options="{'no_create': True}" string="Ordre de Fabrication"
+                        <field name="of_id" options="{'no_create': True}" string="Ordre de Fabrication" attrs="{'readonly': [('state', 'in', ('in_progress','closed','validated'))]}"
                         />
                         <field name="article_id" attrs="{'readonly': True}"/>
                         <field name="client_reference" string="Référence Client" attrs="{'readonly': True}"/>
@@ -60,6 +60,7 @@
                         <field name="other_info"/>
                                                 <field name="start_date" invisible="0" readonly="True"/>
                         <field name="end_date" invisible="0" readonly="True"/>
+                        <field name="forced_closure" invisible="1" />
                     </group>
                     <!-- Type 1 Section -->
 
