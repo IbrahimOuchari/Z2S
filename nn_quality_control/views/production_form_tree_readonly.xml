@@ -14,7 +14,7 @@
 
     <!-- Menu Item -->
     <menuitem id="menu_manufacturing_orders_quality"
-              name="Manufacturing Orders"
+              name="Ordres de production"
               parent="menu_root_control_quality"
               action="action_manufacturing_orders_readonly"
               sequence="10"/>

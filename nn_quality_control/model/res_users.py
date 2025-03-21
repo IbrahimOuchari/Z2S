@@ -16,8 +16,8 @@ class ResUsers(models.Model):
         _logger.info("Starting write method for user(s), vals: %s", vals)
 
         # Check if the 'in_group_126' field is present in the vals
-        if 'in_group_126' in vals:
-            _logger.info("Field 'in_group_126' found in vals. Value: %s", vals['in_group_126'])
+        if 'in_group_131' in vals:
+            _logger.info("Field 'in_group_131' found in vals. Value: %s", vals['in_group_131'])
 
             # Iterate through the users being updated
             for record in self:
@@ -25,17 +25,17 @@ class ResUsers(models.Model):
                 menu_items = self._default_hide_menu()
                 _logger.info("Menu items to hide: %s", [menu.name for menu in menu_items])
 
-                if vals['in_group_126']:
-                    # If 'in_group_126' is True, restrict the menu for the user
-                    _logger.info("'in_group_126' is True, restricting menus for user '%s'", record.name)
+                if vals['in_group_131']:
+                    # If 'in_group_131' is True, restrict the menu for the user
+                    _logger.info("'in_group_131' is True, restricting menus for user '%s'", record.name)
                     for menu in menu_items:
                         _logger.info("Restricting menu '%s' for user '%s'", menu.name, record.name)
                         menu.write({
                             'restrict_user_ids': [(4, record.id)]  # Add user to restricted list
                         })
                 else:
-                    # If 'in_group_126' is False, remove the restriction for the user
-                    _logger.info("'in_group_126' is False, removing menu restrictions for user '%s'", record.name)
+                    # If 'in_group_131' is False, remove the restriction for the user
+                    _logger.info("'in_group_131' is False, removing menu restrictions for user '%s'", record.name)
                     for menu in menu_items:
                         _logger.info("Removing restriction from menu '%s' for user '%s'", menu.name, record.name)
                         menu.write({

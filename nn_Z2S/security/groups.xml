@@ -14,9 +14,6 @@
     <record id="of_cancel_confirmation" model="res.groups">
         <field name="name">Confirmation Annulation OF</field>
     </record>
-    <record id="of_cancel_confirmation" model="res.groups">
-        <field name="name">Confirmation Annulation OF</field>
-    </record>
 
     <record id="of_access_to_tobe_consumed" model="res.groups">
         <field name="name">Accès à "À consommer"</field>

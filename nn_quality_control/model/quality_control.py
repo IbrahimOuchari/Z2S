@@ -430,6 +430,26 @@ class QualityControl(models.Model):
         for record in self:
             record.state = 'closed'
             record.forced_closure = True
+
+        # New fields to create
+    original_product_qty = fields.Float(string='Original Quantity', copy=False)
+    product_qty_percentage = fields.Float(string='Quantity Percentage (%)', default=100.0)
+
+    @api.onchange('manual_quantity', 'product_qty_percentage', 'original_product_qty')
+    def _onchange_quantity_fields(self):
+        for record in self:
+            # When manual_quantity is toggled to True, store original value
+            if record.manual_quantity and not record.original_product_qty:
+                record.original_product_qty = record.product_qty
+
+            # When manual_quantity is True, calculate product_qty based on percentage
+            if record.manual_quantity and record.original_product_qty:
+                record.product_qty = record.original_product_qty * (record.product_qty_percentage / 100.0)
+
+            # When manual_quantity is toggled back to False, restore original value
+            if not record.manual_quantity and record.original_product_qty:
+                record.product_qty = record.original_product_qty
+                record.product_qty_percentage = 100.0
 class QualityControlLine(models.Model):
     _name = 'control.quality.line'
     _description = 'Ligne de Contrôle Qualité'
