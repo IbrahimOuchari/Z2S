@@ -1,0 +1,12 @@
+<odoo>
+    <record id="mrp_production_search_filter_inherit" model="ir.ui.view">
+        <field name="name">mrp.production.search.filter.inherited</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='filter_cancel']" position="before">
+                <filter string="Annulation en cours" name="filter_state_annulation_encours" domain="[('state', '=', 'annulation_encours')]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
