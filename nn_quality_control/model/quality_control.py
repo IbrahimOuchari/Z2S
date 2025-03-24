@@ -70,8 +70,11 @@ class QualityControl(models.Model):
 
     qty_producing_related = fields.Float(related='of_id.qty_producing', string='Quantité Produite', store=True,
                                          )  # New field for quantity produced
-    product_qty = fields.Float(related='of_id.product_qty', string='Quantité Produite', store=True,
+    product_qty_related = fields.Float(related='of_id.product_qty', string='Quantité Produite',
                                          )  # New field for quantity produced
+    product_qty = fields.Float(string='Quantité Produite',store=True  )  # New field for quantity produced
+
+
     qty_producing = fields.Float(string='Quantité Produite', store=True,
                                  compute='_compute_of_id')  # New field for quantity produced
 
@@ -336,7 +339,8 @@ class QualityControl(models.Model):
             self.article_id = self.of_id.product_id.id
             self.client_reference = self.of_id.ref_product_client
             self.designation = self.of_id.description
-            self.qty_producing = self.of_id.product_qty
+            self.product_qty = self.of_id.product_qty
+            self.original_product_qty = self.of_id.product_qty
             self.client_id = self.of_id.client_id
         else:
             # Reset values if of_id is cleared
@@ -432,7 +436,7 @@ class QualityControl(models.Model):
             record.forced_closure = True
 
         # New fields to create
-    original_product_qty = fields.Float(string='Original Quantity', copy=False)
+    original_product_qty = fields.Float(string='Original Quantity')
     product_qty_percentage = fields.Float(string='Quantity Percentage (%)', default=100.0)
 
     @api.onchange('manual_quantity', 'product_qty_percentage', 'original_product_qty')
@@ -450,6 +454,25 @@ class QualityControl(models.Model):
             if not record.manual_quantity and record.original_product_qty:
                 record.product_qty = record.original_product_qty
                 record.product_qty_percentage = 100.0
+
+    def write(self, vals):
+        for record in self:
+            # If updating the percentage and manual_quantity is enabled
+            if 'product_qty_percentage' in vals and record.manual_quantity:
+                percentage = vals.get('product_qty_percentage')
+                if record.original_product_qty:
+                    vals['product_qty'] = record.original_product_qty * (percentage / 100.0)
+
+            # If enabling manual_quantity
+            if 'manual_quantity' in vals and vals['manual_quantity'] and not record.original_product_qty:
+                vals['original_product_qty'] = record.product_qty
+
+            # If disabling manual_quantity
+            if 'manual_quantity' in vals and not vals['manual_quantity'] and record.original_product_qty:
+                vals['product_qty'] = record.original_product_qty
+                vals['product_qty_percentage'] = 100.0
+
+        return super(QualityControl, self).write(vals)
 class QualityControlLine(models.Model):
     _name = 'control.quality.line'
     _description = 'Ligne de Contrôle Qualité'

@@ -57,7 +57,7 @@
                         <!--                        <field name="qty_producing_related" attrs="{'readonly': True}"/>-->
                         <field name="product_qty" attrs="{'readonly': True}"/>
                         <field name="original_product_qty" attrs="{'invisible': [('manual_quantity', '=', False)]}"
-                               groups="nn_quality_control.group_manual_quantity_management"/>
+                               readonly="1" Dgroups="nn_quality_control.group_manual_quantity_management"/>
                         <field name="product_qty_percentage" attrs="{'invisible': [('manual_quantity', '!=', True)]}"
                                groups="nn_quality_control.group_manual_quantity_management"/>
 
