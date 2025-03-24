@@ -58,6 +58,7 @@ class ReturnComponentsWizard(models.TransientModel):
 
         return res
 
+
     @api.onchange('stock_picking_id')
     def _onchange_stock_picking_id(self):
         """Track the state of the stock.picking."""
@@ -124,7 +125,8 @@ class ReturnComponentsWizard(models.TransientModel):
             return False
 
         src_location = self.env['stock.location'].search([('usage', '=', 'production')], limit=1)
-        dest_location = self.env['stock.location'].search([('usage', '=', 'internal')], limit=1)
+        picking_type = self.env['stock.picking.type'].search([('sequence_code', '=', 'RT')], limit=1)
+        dest_location = picking_type.default_location_dest_id if picking_type else False
 
         if not src_location or not dest_location:
             _logger.error(_("Source ou destination de localisation non trouvée. Veuillez vérifier les emplacements."))
