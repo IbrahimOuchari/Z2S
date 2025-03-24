@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
 import logging
@@ -279,6 +279,32 @@ class MrpProduction(models.Model):
 
     def action_return_components(self):
         for production in self:
+            # Check if there are any components not consumed
+            not_consumed_components = False
+
+            # Get move lines for components (raw moves)
+            for move in production.move_raw_ids:
+                # Check if any quantity remains to be consumed
+                if move.product_uom_qty > move.quantity_done:
+                    not_consumed_components = True
+                    break
+
+            # If no unconsumed components, show warning in French and change state to cancel
+            if not not_consumed_components:
+                production.write({'state': 'cancel'})
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Pas de composants à retourner'),
+                        'message': _(
+                            'Tous les composants ont été entièrement consommés. Il n\'y a pas de composants à retourner. L\'état de la production va changer à "Annulé" lors du rechargement de la page.'),
+                        'sticky': True,
+                        'type': 'warning',
+                    }
+                }
+
+            # If there are unconsumed components, open the wizard
             return {
                 'name': 'Return Components Wizard',
                 'type': 'ir.actions.act_window',
@@ -288,6 +314,9 @@ class MrpProduction(models.Model):
                 'target': 'new',
                 'context': {'default_mrp_production_id': production.id}
             }
+
+
+
 
     def action_view_return_operations(self):
         self.ensure_one()
