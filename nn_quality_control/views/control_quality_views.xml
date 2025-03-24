@@ -296,6 +296,9 @@
         <field name="model">control.quality</field>
         <field name="arch" type="xml">
             <search>
+                <field name="of_id"/>
+                <field name="article_id"/>
+                <field name="client_reference"/>
                 <field name="state"/>
                 <!-- Default filter, automatically applied when the view loads -->
                 <filter name="default_in_progress_draft"
