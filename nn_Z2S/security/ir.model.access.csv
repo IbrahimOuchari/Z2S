@@ -8,3 +8,4 @@ access_return_components_line_wizard,access_return_components_line_wizard,model_
 access_stock_inventory,access_stock_inventory,model_stock_inventory,,1,1,1,1
 access_return_lines,access_return_lines,model_return_lines,,1,1,1,1
 access_wizard_cancel_inventory,access_wizard_cancel_inventory,model_wizard_cancel_inventory,,1,1,1,1
+access_devis_perdu_inventory,access_wizard_devis_perdu,model_devis_perdu_wizard,,1,1,1,1

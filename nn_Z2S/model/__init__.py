@@ -34,3 +34,4 @@ from . import mrp_production_trigger_productivity
 from . import account_move_line_pu
 from . import mrp_production_control_quality
 from . import mrp_production_tree_productivity
+from . import sale_devis
