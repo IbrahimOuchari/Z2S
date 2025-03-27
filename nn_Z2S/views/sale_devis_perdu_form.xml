@@ -6,21 +6,50 @@
         <field name="inherit_id" ref="bmg_sale.sale_devis_form_view"/>
         <field name="arch" type="xml">
             <!-- Add invisible devis_cancel field -->
+<xpath expr="//header" position="inside">
+    <button name="action_confirm_cancellation"
+            type="object"
+            string="Confirmer l'annulation"
+            class="btn-primary"
+            groups="nn_Z2S.group_annulation_validation"
+            attrs="{'invisible':[('state','!=','pending_cancellation')]}"/>
 
+    <button name="action_reject_cancellation"
+            type="object"
+            string="Rejeter l'annulation"
+            class="btn-danger"
+            groups="nn_Z2S.group_annulation_validation"
+            attrs="{'invisible':[('state','!=','pending_cancellation')]}"/>
+</xpath>
             <!-- Add alert div with conditional visibility -->
-            <xpath expr="//form/sheet" position="before">
-                                <field name="devis_cancel" invisible="1"/>
+<xpath expr="//form/sheet" position="before">
+    <field name="devis_cancel" invisible="1"/>
+    <field name="devis_cancel_show_div" invisible="1"/>
 
-                <div class="alert alert-danger text-center o_form_header" role="status"
-                     attrs="{'invisible': [('devis_cancel', '!=', True)]}">
-                    <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
-                    <div>
-                        <strong>Raison du devis non concrétisé :
-                            <field name="invalidation_reason"/>
-                        </strong>
-                    </div>
-                </div>
-            </xpath>
+    <div class="alert alert-danger text-center o_form_header" role="status"
+         groups="nn_Z2S.group_annulation_validation"
+         attrs="{'invisible': [('devis_cancel_show_div', '!=', True)]}">
+
+        <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+        <div>
+            <strong>Raison du devis non concrétisé :
+                <field name="invalidation_reason"/>
+            </strong>
+        </div>
+    </div>
+
+    <div class="alert alert-danger text-center o_form_header" role="status"
+         attrs="{'invisible': [('state', '!=', 'cancel')]}">
+
+        <a class="close" data-dismiss="alert" href="#" aria-label="Close">x</a>
+        <div>
+            <strong>Raison du devis non concrétisé :
+                <field name="invalidation_reason"/>
+            </strong>
+        </div>
+    </div>
+</xpath>
+
         </field>
     </record>
 </odoo>

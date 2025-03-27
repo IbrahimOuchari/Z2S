@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 import logging
 
@@ -8,6 +8,55 @@ _logger = logging.getLogger(__name__)
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
+
+    def action_cancel_forced(self):
+        pass
+
+    def action_delete_quants(self):
+        """
+        Directly delete stock quants created by this picking
+        """
+        for picking in self:
+            # Ensure picking is in done state
+            if picking.state != 'done':
+                raise UserError(_("Only completed transfers can have quants deleted."))
+
+            # Find all move lines for this picking
+            move_lines = picking.move_line_ids
+
+            # Search and delete corresponding quants
+            quants_to_delete = self.env['stock.quant'].search([
+                ('picking_id', '=', picking.id)
+            ])
+
+            if not quants_to_delete:
+                # If no quants found directly by picking, try by product and location
+                for move_line in move_lines:
+                    quants_to_delete |= self.env['stock.quant'].search([
+                        ('product_id', '=', move_line.product_id.id),
+                        ('location_id', '=', move_line.location_dest_id.id),
+                        ('quantity', '=', move_line.qty_done)
+                    ])
+
+            # Delete the quants
+            if quants_to_delete:
+                quants_to_delete.unlink()
+
+                # Cancel all moves
+                picking.move_lines._action_cancel()
+
+                # Remove move lines
+                picking.move_line_ids.unlink()
+
+                # Set picking state to cancelled
+                picking.state = 'cancel'
+
+                # Post a message about quant deletion
+                picking.message_post(body="Quants deleted. Transfer operation cancelled.")
+            else:
+                raise UserError(_("No corresponding quants found to delete."))
+
+        return True
 
     # Relation to label.management (for managing lots related to stock moves)
     label_management = fields.Many2one('label.management', string="Label Management")

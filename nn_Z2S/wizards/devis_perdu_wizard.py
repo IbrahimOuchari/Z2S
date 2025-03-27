@@ -18,7 +18,8 @@ class SaleDevissCancelWizard(models.Model):
         # update BoM fields
         self.sale_devis_id.write({
             'devis_cancel': True,
-            'state': 'cancel',
+            'devis_cancel_show_div': True,
+            'state': 'pending_cancellation',
             'invalidation_reason': self.invalidation_reason,
 
         })

@@ -339,7 +339,7 @@ class QualityControl(models.Model):
             self.article_id = self.of_id.product_id.id
             self.client_reference = self.of_id.ref_product_client
             self.designation = self.of_id.description
-            self.product_qty = self.of_id.product_qty
+            self.product_qty = self.of_id.product_qtyc
             self.original_product_qty = self.of_id.product_qty
             self.client_id = self.of_id.client_id
         else:

@@ -20,5 +20,8 @@
     </record>
     <!-- Admin Group -->
 
+    <record id="group_annulation_validation" model="res.groups">
+        <field name="name">Validation/Rejet des annulations de devis</field>
+    </record>
 
 </odoo>
