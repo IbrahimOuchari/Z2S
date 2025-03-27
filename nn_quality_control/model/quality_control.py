@@ -335,20 +335,26 @@ class QualityControl(models.Model):
 
     @api.depends('of_id')
     def _compute_of_id(self):
-        if self.of_id:
-            self.article_id = self.of_id.product_id.id
-            self.client_reference = self.of_id.ref_product_client
-            self.designation = self.of_id.description
-            self.product_qty = self.of_id.product_qtyc
-            self.original_product_qty = self.of_id.product_qty
-            self.client_id = self.of_id.client_id
-        else:
-            # Reset values if of_id is cleared
-            self.article_id = False
-            self.client_reference = False
-            self.designation = False
-            self.qty_producing = False
-            self.client_id = False
+        for record in self:
+            if record.of_id:
+                record.article_id = record.of_id.product_id.id
+                record.client_reference = record.of_id.ref_product_client
+                record.designation = record.of_id.description
+
+                if not record.product_qty:
+                    record.product_qty = record.of_id.product_qty
+
+                if not record.original_product_qty:  # Fixed this condition
+                    record.original_product_qty = record.of_id.product_qty
+
+                record.client_id = record.of_id.client_id
+            else:
+                # Reset values if of_id is cleared
+                record.article_id = False
+                record.client_reference = False
+                record.designation = False
+                record.qty_producing = False
+                record.client_id = False
 
     @api.depends('type1_line_ids.result1')
     def _compute_conform_non_conform_type1(self):
