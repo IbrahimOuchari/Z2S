@@ -1,0 +1,218 @@
+<odoo>
+    <!-- Nouvelle Vue Liste -->
+    <record id="view_maintenance_curative_form" model="ir.ui.view">
+        <field name="name">maintenance.curative.form</field>
+        <field name="model">maintenance.curative</field>
+        <field name="arch" type="xml">
+            <form string="Fiche d'Intervention Curative">
+                <header>
+                    <field name="state" widget="statusbar" readonly="True"/>
+
+                </header>
+                <sheet>
+                    <group>
+                        <field name="demandeur_hr" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="equipment_id" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="reference_interne" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="reference_centre" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="declaration_date" readonly="1"
+                               attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="problem_description" string="Problem Description"
+                               attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="date_effective" string="Date Effective"
+                               attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                    </group>
+
+                    <!-- Phase 2: Diagnostic & Planification -->
+                    <!-- Phase 2: Diagnostic & Planification -->
+                    <group>
+                        <field name="nom_intervenant"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="diagnostic_date"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="heure_debut"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="heure_fin"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="rapport_diagnostique"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="type_intervention"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="besoin"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="besoin_description"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic'), ('besoin', '=', False)]}"/>
+                        <field name="objet_intervention"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <field name="date_prevue"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'diagnostic')]}"/>
+                    </group>
+
+                    <!-- Phase 3: Réalisation -->
+                    <group>
+                        <field name="intervenant"
+                               attrs="{'readonly': [('state', '!=', 'realisation')],
+                   'invisible': [('state', '!=', 'realisation')]}"/>
+                        <field name="realisation_date"
+                               attrs="{'readonly': [('state', '!=', 'realisation')],
+                   'invisible': [('state', '!=', 'realisation')]}"/>
+                        <field name="constat"
+                               attrs="{'readonly': [('state', '!=', 'realisation')],
+                   'invisible': [('state', '!=', 'realisation')]}"/>
+                        <field name="description_intervention"
+                               attrs="{'readonly': [('state', '!=', 'realisation')],
+                   'invisible': [('state', '!=', 'realisation')]}"/>
+                        <field name="action_corrective"
+                               attrs="{'readonly': [('state', '!=', 'realisation')],
+                   'invisible': [('state', '!=', 'realisation')]}"/>
+                        <field name="action_corrective_description"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
+                   'invisible': [('state', '!=', 'realisation'), ('action_corrective', '=', False)]}"/>
+                        <field name="validation_responsable"
+                               attrs="{'readonly': [('state', '!=', 'realisation')],
+                   'invisible': [('state', '!=', 'realisation')]}"/>
+                        <field name="raison_non_validation"
+                               attrs="{'readonly': [('state', '!=', 'realisation')],
+                   'invisible': [('state', '!=', 'realisation')]}"/>
+                    </group>
+
+                    <!-- Phase 4: Efficacité -->
+                    <group>
+                        <field name="intervention_efficace"
+                               attrs="{'readonly': [('state', '!=', 'efficacy')],
+                   'invisible': [('state', '!=', 'efficacy')]}"/>
+                        <field name="efficacy_date"
+                               attrs="{'readonly': [('state', '!=', 'efficacy')],
+                   'invisible': [('state', '!=', 'efficacy')]}"/>
+                        <field name="intervention_commentaire"
+                               attrs="{'readonly': [('state', '!=', 'efficacy')],
+                   'invisible': [('state', '!=', 'efficacy')]}"/>
+                    </group>
+
+                    <!-- Phase 5: Clôture -->
+                    <group>
+                        <field name="responsable_intervention"
+                               attrs="{'readonly': [('state', '!=', 'cloture')],
+                   'invisible': [('state', '!=', 'cloture')]}"/>
+                        <field name="cloture_date"
+                               attrs="{'readonly': [('state', '!=', 'cloture')],
+                   'invisible': [('state', '!=', 'cloture')]}"/>
+                    </group>
+
+                    <!-- Buttons to move between phases -->
+                    <footer>
+                        <button name="move_to_diagnostic" string="Passer à Diagnostic" type="object"
+                                attrs="{'invisible': [('state', '!=', 'declaration')]}"/>
+                        <button name="move_to_realisation" string="Passer à Réalisation" type="object"
+                                attrs="{'invisible': [('state', '!=', 'diagnostic')]}"/>
+                        <button name="move_to_efficacy" string="Passer à Efficacité" type="object"
+                                attrs="{'invisible': [('state', '!=', 'realisation')]}"/>
+                        <button name="move_to_cloture" string="Passer à Clôture" type="object"
+                                attrs="{'invisible': [('state', '!=', 'efficacy')]}"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_maintenance_curative_list" model="ir.ui.view">
+        <field name="name">maintenance.curative.list</field>
+        <field name="model">maintenance.curative</field>
+        <field name="arch" type="xml">
+            <tree string="Fiche d'Intervention Curative">
+                <!-- Phase 1: Déclaration de la Demande -->
+                <field name="demandeur_hr" string="Demandeur HR"/>
+                <field name="equipment_id" string="Équipement"/>
+                <field name="reference_interne" string="Référence Interne"/>
+                <field name="reference_centre" string="Référence Centre"/>
+                <field name="declaration_date" string="Date Déclaration"/>
+
+                <!-- Phase 2: Diagnostic & Planification -->
+                <field name="nom_intervenant" string="Nom et Prénom de l'Intervenant"/>
+                <field name="diagnostic_date" string="Date Diagnostic"/>
+                <field name="heure_debut" string="Date et Heure de Début"/>
+                <field name="heure_fin" string="Date et Heure de Fin"/>
+                <field name="rapport_diagnostique" string="Rapport Diagnostique"/>
+                <field name="type_intervention" string="Type d'Intervention"/>
+                <field name="besoin" string="Besoin"/>
+                <field name="besoin_description" string="Détails du Besoin"
+                       attrs="{'invisible': [('besoin', '=', False)]}"/>
+
+                <field name="objet_intervention" string="Objet de l'Intervention"/>
+                <field name="date_prevue" string="Date Prévue"/>
+
+                <!-- Phase 3: Réalisation -->
+                <field name="intervenant" string="Intervenant"/>
+                <field name="realisation_date" string="Date Réalisation"/>
+                <field name="constat" string="Constat"/>
+                <field name="description_intervention" string="Description de l'Intervention"/>
+                <field name="action_corrective" string="Action Corrective Nécessaire ?"/>
+                <field name="action_corrective_description" string="Détails de l'Action Corrective"/>
+                <field name="validation_responsable" string="Validation Responsable"/>
+                <field name="raison_non_validation" string="Raison de Non-Validation"/>
+
+                <!-- Phase 4: Efficacité -->
+                <field name="intervention_efficace" string="Intervention Efficace ?"/>
+                <field name="efficacy_date" string="Date Efficacité"/>
+                <field name="intervention_commentaire" string="Commentaire"/>
+
+                <!-- Phase 5: Clôture -->
+                <field name="responsable_intervention" string="Responsable de l'Intervention"/>
+                <field name="cloture_date" string="Date et Heure de Clôture"/>
+
+                <!-- Additional Fields -->
+                <field name="name" string="Fiche d'Intervention"/>
+                <field name="date_intervention_souhaitee" string="Date Intervention Souhaitée"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- Nouvelle Vue Calendrier -->
+    <record id="view_maintenance_curative_calendar" model="ir.ui.view">
+        <field name="name">maintenance.curative.calendar</field>
+        <field name="model">maintenance.curative</field>
+        <field name="arch" type="xml">
+            <calendar string="Fiche d'Intervention Curative" date_start="date_intervention_souhaitee">
+                <field name="name"/>
+                <field name="demandeur_hr"/>
+                <field name="equipment_id"/>
+                <field name="date_intervention_souhaitee"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Action to Open List View -->
+    <record id="action_maintenance_curative_list" model="ir.actions.act_window">
+        <field name="name">Fiches d'Intervention Curative</field>
+        <field name="res_model">maintenance.curative</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_maintenance_curative_list"/>
+    </record>
+
+    <!-- Action to Open Calendar View -->
+    <record id="action_maintenance_curative_calendar" model="ir.actions.act_window">
+        <field name="name">Fiches d'Intervention Curative - Calendrier</field>
+        <field name="res_model">maintenance.curative</field>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="view_maintenance_curative_calendar"/>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_maintenance_curative" name="Maintenance Curative" sequence="10"
+              parent="maintenance.menu_maintenance_title"/>
+    <menuitem id="menu_maintenance_curative_list" name="Liste des Fiches" parent="menu_maintenance_curative"
+              action="action_maintenance_curative_list"/>
+    <menuitem id="menu_maintenance_curative_calendar" name="Calendrier des Fiches" parent="menu_maintenance_curative"
+              action="action_maintenance_curative_calendar"/>
+</odoo>
