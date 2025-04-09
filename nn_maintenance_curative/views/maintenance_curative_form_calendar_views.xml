@@ -46,7 +46,10 @@
                                attrs="{'readonly': [('state', '!=', 'diagnostic')],
                    'invisible': [('state', '=', 'declaration')]}"/>
                         <field name="besoin"
-                               attrs="{'readonly': [('state', '!=', 'diagnostic')]}"/>
+                               attrs="{
+                           'readonly': [('state', '!=', 'diagnostic')],
+                           'invisible': [('state', '=', 'declaration')]
+                       }"/>
 
                         <field name="besoin_description"
                                attrs="{'invisible': [('besoin', '=', False)]}"/>
@@ -74,11 +77,17 @@
                                attrs="{'readonly': [('state', '!=', 'realisation')],
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
                         <field name="action_corrective"
-                               attrs="{'readonly': [('state', '!=', 'realisation')],
-                   'invisible': [('state', 'in', ['declaration', 'diagnostic']),('action_corrective','!=','True')]}"/>
+                               attrs="{
+           'readonly': [('state', '!=', 'realisation')],
+           'invisible': [('state', 'in', ['declaration', 'diagnostic'])]
+       }"/>
+
                         <field name="action_corrective_description"
-                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
-                   'invisible': [('state', 'in', ['declaration', 'diagnostic']), ('action_corrective', '=', False)]}"/>
+                               attrs="{
+           'readonly': [('state', '!=', 'realisation')],
+           'invisible': [('action_corrective', '=', False)]
+       }"/>
+
                         <field name="validation_responsable"
                                attrs="{'readonly': [('state', '!=', 'realisation')],
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
@@ -92,14 +101,16 @@
                         <field name="intervention_efficace"
                                attrs="{'readonly': [('state', '!=', 'efficacy')],
                    'invisible': [('state', 'not in', ['efficacy', 'cloture'])]}"/>
+                        <field name="intervention_commentaire"
+                               attrs="{'readonly': [('state', '!=', 'efficacy')],
+                   'invisible': [('intervention_efficace', '=', False)]
+       }"/>
                         <field name="efficacy_date"
                                attrs="{'readonly': [('state', '!=', 'efficacy')],
                    'invisible': [('state', 'not in', ['efficacy', 'cloture'])]}"/>
-                        <field name="intervention_commentaire"
-                               attrs="{'readonly': [('state', '!=', 'efficacy')],
-                   'invisible': [('state', 'not in', ['efficacy', 'cloture'])]}"/>
+
                     </group>
-                    >
+
 
                     <!-- Phase 5: Clôture -->
                     <group>
