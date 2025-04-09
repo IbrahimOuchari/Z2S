@@ -4,16 +4,23 @@ from odoo import models, fields, api
 class CurativeMaintenanceRequest(models.Model):
     _name = 'maintenance.curative'
     _description = "Fiche d'Intervention Curative"
+    name = fields.Char(string="Fiche d'Intervention", readonly=True, copy=False, default=lambda self: 'Nouveau')
 
     # Phase 1 : Déclaration de la Demande
     demandeur_hr = fields.Many2one('hr.employee', string="Demandeur HR", required=True)
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", required=True)
-    reference_interne = fields.Char(related='equipment_id.reference_interne', string="Référence Interne",
-                                    required=True, store=True)
+    reference_interne = fields.Char(
+        string="Référence Interne",
+        related='equipment_id.reference_interne',
+        store=True,
+        readonly=True
+    )
     reference_centre = fields.Char(string="Référence Centre", required=True)
     declaration_date = fields.Date(string="Date Déclaration", readonly=True)
     problem_description = fields.Text(string="Problem Description", required=True)
     date_effective = fields.Date(string="Date Effective", required=True)
+    date_intervention_souhaitee = fields.Date(string="Date Intervention Souhaitée")
+
     # Phase 2 : Diagnostic & Planification
     nom_intervenant = fields.Char(string="Nom & Prénom de l'Intervenant")
     diagnostic_date = fields.Date(string="Date Diagnostic")
@@ -33,7 +40,6 @@ class CurativeMaintenanceRequest(models.Model):
     intervenant = fields.Char(string="Intervenant")
     realisation_date = fields.Date(string="Date Réalisation")
     constat = fields.Text(string="Constat")
-
     pieces_rechange_ids = fields.One2many('maintenance.curative.piece', 'maintenance_id', string="Pièces de Rechange")
     description_intervention = fields.Text(string="Description de l'Intervention")
     action_corrective = fields.Boolean(string="Action Corrective Nécessaire ?")
@@ -53,10 +59,7 @@ class CurativeMaintenanceRequest(models.Model):
     responsable_intervention = fields.Char(string="Responsable de l'Intervention", default="Bassem")
     cloture_date = fields.Datetime(string="Date et Heure de Clôture")
 
-    # Exigences Supplémentaires
-    name = fields.Char(string="Fiche d'Intervention", readonly=True, copy=False, default=lambda self: 'Nouveau')
-    date_intervention_souhaitee = fields.Date(string="Date Intervention Souhaitée")
-
+    # State field
     state = fields.Selection([
         ('declaration', 'Déclaration de la Demande'),
         ('diagnostic', 'Diagnostic & Planification'),
@@ -67,7 +70,7 @@ class CurativeMaintenanceRequest(models.Model):
 
     @api.model
     def create(self, vals):
-        if vals.get('name', 'Nouveau') == 'Nouveau':
+        if not vals.get('name') or vals.get('name') == 'Nouveau':
             vals['name'] = self.env['ir.sequence'].next_by_code('maintenance.curative') or 'Nouveau'
         return super(CurativeMaintenanceRequest, self).create(vals)
 
@@ -79,11 +82,14 @@ class CurativeMaintenanceRequest(models.Model):
                 record.declaration_date = fields.Date.today()
             elif record.state == 'diagnostic':
                 record.diagnostic_date = fields.Date.today()
+            elif record.state == 'realisation':
+                record.realisation_date = fields.Date.today()
             elif record.state == 'efficacy':
                 record.efficacy_date = fields.Date.today()
+            elif record.state == 'cloture':
+                record.cloture_date = fields.Datetime.now()
 
     # State changes Button Group
-    # Methods for state transitions
     def move_to_diagnostic(self):
         self.state = 'diagnostic'
 
@@ -108,7 +114,6 @@ class MaintenanceCurativePiece(models.Model):
 
 class MaintenanceEquipment(models.Model):
     _inherit = 'maintenance.equipment'
-    _description = "Pièce de Rechange"
+    _description = "Équipement de Maintenance"
 
-    reference_interne = fields.Char(string="Référence Interne",
-                                    required=True, store=True)
+    reference_interne = fields.Char(string="Référence Interne", store=True)

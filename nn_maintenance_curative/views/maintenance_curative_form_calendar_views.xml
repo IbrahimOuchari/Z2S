@@ -13,7 +13,8 @@
                     <group>
                         <field name="demandeur_hr" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="equipment_id" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
-                        <field name="reference_interne" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="reference_interne" required="1"
+                               attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="reference_centre" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="declaration_date" readonly="1"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
