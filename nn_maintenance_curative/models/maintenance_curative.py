@@ -87,6 +87,30 @@ class CurativeMaintenanceRequest(models.Model):
                 }
             }
 
+    @api.onchange('diagnostic_date')
+    def _onchange_diagnostic_date(self):
+        today = fields.Date.today()
+        if self.diagnostic_date and self.diagnostic_date < today:
+            self.diagnostic_date = today
+            return {
+                'warning': {
+                    'title': "Date incorrecte",
+                    'message': "La date Diagnostic ne peut pas être antérieure à aujourd'hui. Elle a été mise à jour automatiquement."
+                }
+            }
+
+    @api.onchange('date_prevu')
+    def _onchange_date_prevu(self):
+        today = fields.Date.today()
+        if self.date_prevu and self.date_prevu < today:
+            self.date_prevu = today
+            return {
+                'warning': {
+                    'title': "Date incorrecte",
+                    'message': "La date prévu ne peut pas être antérieure à aujourd'hui. Elle a été mise à jour automatiquement."
+                }
+            }
+
     @api.onchange('equipment_id')
     def _onchange_reference_interne(self):
         for record in self:
@@ -94,6 +118,18 @@ class CurativeMaintenanceRequest(models.Model):
                 record.reference_interne = record.equipment_id.reference_interne
             else:
                 record.reference_interne = False
+
+    @api.onchange('heure_debut', 'heure_fin')
+    def _onchange_date_heure_date_fin(self):
+        for record in self:
+            if record.heure_debut and record.heure_fin:
+                if record.heure_debut >= record.heure_fin:
+                    return {
+                        'warning': {
+                            'title': "Attention",
+                            'message': "L'heure de début doit être inférieure à l'heure de fin."
+                        }
+                    }
 
     # ===================================================================================================================
 
