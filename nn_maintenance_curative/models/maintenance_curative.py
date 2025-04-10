@@ -131,6 +131,42 @@ class CurativeMaintenanceRequest(models.Model):
                         }
                     }
 
+    @api.onchange('realisation_date')
+    def _onchange_realisation_date(self):
+        today = fields.Date.today()
+        if self.realisation_date and self.realisation_date < today:
+            self.realisation_date = today
+            return {
+                'warning': {
+                    'title': "Date incorrecte",
+                    'message': "La date Réalisation ne peut pas être antérieure à aujourd'hui. Elle a été mise à jour automatiquement."
+                }
+            }
+
+    @api.onchange('efficacy_date')
+    def _onchange_efficacy_date(self):
+        today = fields.Date.today()
+        if self.efficacy_date and self.efficacy_date < today:
+            self.efficacy_date = today
+            return {
+                'warning': {
+                    'title': "Date incorrecte",
+                    'message': "La date Efficacité ne peut pas être antérieure à aujourd'hui. Elle a été mise à jour automatiquement."
+                }
+            }
+
+    @api.onchange('cloture_date')
+    def _onchange_cloture_date(self):
+        today = fields.Date.today()
+        if self.cloture_date and self.cloture_date < today:
+            self.cloture_date = today
+            return {
+                'warning': {
+                    'title': "Date incorrecte",
+                    'message': "La date Clôture ne peut pas être antérieure à aujourd'hui. Elle a été mise à jour automatiquement."
+                }
+            }
+
     # ===================================================================================================================
 
     @api.model
