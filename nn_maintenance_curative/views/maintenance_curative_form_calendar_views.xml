@@ -16,7 +16,7 @@
                         <field name="reference_interne" required="1"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="reference_centre" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
-                        <field name="declaration_date" readonly="1"
+                        <field name="declaration_date"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="problem_description" string="Problem Description"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>

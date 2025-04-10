@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class CurativeMaintenanceRequest(models.Model):
@@ -8,15 +9,14 @@ class CurativeMaintenanceRequest(models.Model):
 
     # Phase 1 : Déclaration de la Demande
     demandeur_hr = fields.Many2one('hr.employee', string="Demandeur HR", required=True)
-    equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", required=True)
+    equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", required=True, store=True)
     reference_interne = fields.Char(
         string="Référence Interne",
-        related='equipment_id.reference_interne',
         store=True,
         readonly=True
     )
     reference_centre = fields.Char(string="Référence Centre", required=True)
-    declaration_date = fields.Date(string="Date Déclaration", readonly=True)
+    declaration_date = fields.Date(string="Date Déclaration", required=True, readonly=True)
     problem_description = fields.Text(string="Problem Description", required=True)
     date_effective = fields.Date(string="Date Effective", required=True)
     date_intervention_souhaitee = fields.Date(string="Date Intervention Souhaitée")
@@ -56,7 +56,12 @@ class CurativeMaintenanceRequest(models.Model):
     intervention_commentaire = fields.Text(string="Commentaire")
 
     # Phase 5 : Clôture
-    responsable_intervention = fields.Char(string="Responsable de l'Intervention", default="Bassem")
+    responsable_intervention = fields.Many2one(
+        'res.users',
+        string="Responsable de l'Intervention",
+        default=lambda self: self.env['res.users'].search([('name', '=', 'Bassem Zouari')], limit=1).id
+    )
+
     cloture_date = fields.Datetime(string="Date et Heure de Clôture")
 
     # State field
@@ -67,6 +72,30 @@ class CurativeMaintenanceRequest(models.Model):
         ('efficacy', 'Efficacité'),
         ('cloture', 'Clôture')
     ], string="État", default='declaration', tracking=True)
+
+    # Function on change or depends
+
+    @api.onchange('date_effective')
+    def _onchange_date_effective(self):
+        today = fields.Date.today()
+        if self.date_effective and self.date_effective < today:
+            self.date_effective = today
+            return {
+                'warning': {
+                    'title': "Date incorrecte",
+                    'message': "La date effective ne peut pas être antérieure à aujourd'hui. Elle a été mise à jour automatiquement."
+                }
+            }
+
+    @api.onchange('equipment_id')
+    def _onchange_reference_interne(self):
+        for record in self:
+            if record.equipment_id and record.equipment_id.reference_interne:
+                record.reference_interne = record.equipment_id.reference_interne
+            else:
+                record.reference_interne = False
+
+    # ===================================================================================================================
 
     @api.model
     def create(self, vals):
@@ -116,4 +145,4 @@ class MaintenanceEquipment(models.Model):
     _inherit = 'maintenance.equipment'
     _description = "Équipement de Maintenance"
 
-    reference_interne = fields.Char(string="Référence Interne", store=True)
+    reference_interne = fields.Char(string="Référence Interne")
