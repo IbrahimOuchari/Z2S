@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report
+            id="action_report_maintenance_curative"
+            model="maintenance.curative"
+            string="Curative Maintenance Report"
+            report_type="qweb-pdf"
+            name="nn_maintenance_curative.report_maintenance_curative_document"
+            file="nn_maintenance_curative.report_maintenance_curative_document"
+            print_report_name="'Curative_Maintenance_Report_%s' % (object.name)"
+    />
+
+    <template id="report_maintenance_curative_document">
+        <t t-call="web.html_container">
+            <t t-set="doc" t-value="docs"/>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <!-- Header -->
+                    <div class="text-center">
+                        <h2 style="margin: 0;">Fiche d'Intervention Curative</h2>
+                        <p style="margin: 0;">Réf :
+                            <strong>
+                                <t t-esc="doc.name"/>
+                            </strong>
+                        </p>
+                        <p>Date:
+                            <t t-esc="doc.create_date.strftime('%d/%m/%Y')"/>
+                        </p>
+                    </div>
+                    <t t-if="doc.state in ['draft', 'diagnostic', 'realisation', 'efficacite', 'cloture']">
+
+                        <!-- PHASE 1 -->
+                        <h3>Phase 1 : Déclaration de la Demande</h3>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>
+                                    <strong>Demandeur HR:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.demandeur_hr.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Équipement:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.equipment_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Référence Interne:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.reference_interne"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Référence Centre:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.reference_centre"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date Déclaration:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.declaration_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Problème:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.problem_description"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date Effective:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.date_effective"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date Souhaitée:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.date_intervention_souhaitee"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </t>
+                    <!-- PHASE 2 -->
+
+                    <t t-if="doc.state in ['diagnostic', 'realisation', 'efficacite', 'cloture']">
+
+                        <h3>Phase 2 : Diagnostic et Planification</h3>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>
+                                    <strong>Intervenant:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.nom_intervenant"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date Diagnostic:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.diagnostic_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Heure Début:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.heure_debut"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Heure Fin:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.heure_fin"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Rapport Diagnostique:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.rapport_diagnostique"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Type Intervention:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="dict(doc._fields['type_intervention'].selection).get(doc.type_intervention)"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Besoin:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.besoin and 'Oui' or 'Non'"/>
+                                </td>
+                            </tr>
+                            <tr t-if="doc.besoin">
+                                <td>
+                                    <strong>Détails Besoin:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.besoin_description"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Objet Intervention:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.objet_intervention"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date Prévue:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.date_prevue"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </t>
+
+
+                    <!-- PHASE 3 -->
+                    <t t-if="doc.state in ['realisation', 'efficacite', 'cloture']">
+
+                        <h3>Phase 3 : Réalisation</h3>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>
+                                    <strong>Intervenant:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.intervenant"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date Réalisation:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.realisation_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Constat:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.constat"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Description:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.description_intervention"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Action Corrective:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.action_corrective and 'Oui' or 'Non'"/>
+                                </td>
+                            </tr>
+                            <tr t-if="doc.action_corrective">
+                                <td>
+                                    <strong>Détails Action:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.action_corrective_description"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Validation:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="dict(doc._fields['validation_responsable'].selection).get(doc.validation_responsable)"/>
+                                </td>
+                            </tr>
+                            <tr t-if="doc.validation_responsable == 'non_valide'">
+                                <td>
+                                    <strong>Raison:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.raison_non_validation"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h4>Pièces de Rechange</h4>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Pièce</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.pieces_rechange_ids" t-as="piece">
+                                    <td>
+                                        <t t-esc="piece.reference_piece"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="piece.piece_rechange"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                    <!-- PHASE 4 -->
+                    <t t-if="doc.state in ['efficacite', 'cloture']">
+
+                        <h3>Phase 4 : Efficacité</h3>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>
+                                    <strong>Efficace:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.intervention_efficace and 'Oui' or 'Non'"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.efficacy_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Commentaire:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.intervention_commentaire"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </t>
+                    <!-- PHASE 5 -->
+                    <t t-if="doc.state == 'cloture'">
+
+                        <h3>Phase 5 : Clôture</h3>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>
+                                    <strong>Responsable:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.responsable_intervention.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date Clôture:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.cloture_date"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </t>
+                    <!-- Footer -->
+                    <div class="text-center mt-5">
+                        <p style="font-size: 12px;">Document généré automatiquement depuis Odoo</p>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

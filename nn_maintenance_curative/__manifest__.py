@@ -20,6 +20,7 @@
         'data/maintenance_curative_sequence.xml',
         'views/maintenance_curative_form_calendar_views.xml',
         'views/maintenance_equipment_form_view.xml',
+        'report/maintenance_curative_report.xml',
         # Ajoutez ici les fichiers XML (vues, actions, séquences, etc.)
     ],
     'installable': True,
