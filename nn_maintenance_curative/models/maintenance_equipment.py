@@ -26,7 +26,7 @@ class MaintenanceEquipment(models.Model):
         compute="_compute_start_maintenance_date",
         store=True
     )
-    
+
     next_maintenance_date = fields.Date(
         string="Prochaine maintenance",
         compute="_compute_next_maintenance_date",
@@ -147,12 +147,7 @@ class MaintenanceEquipment(models.Model):
             else:
                 record.start_maintenance_date = False
 
-
-class MaintenanceFutureDate(models.Model):
-    _name = 'maintenance.future.date'
-    _description = 'Future Maintenance Date'
-
-    equipment_id = fields.Many2one('maintenance.equipment', string='Equipment')
-    date = fields.Date(string='Date')
-    frequency = fields.Selection(
-        [('1', 'Frequency 1'), ('2', 'Frequency 2'), ('3', 'Frequency 3'), ('4', 'Frequency 4')], string='Frequency')
+    @api.depends('start_maintenance_date')
+    def _compute_next_maintenance_date(self):
+        for record in self:
+            record.next_maintenance_date = record.start_maintenance_date
