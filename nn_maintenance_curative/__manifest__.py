@@ -13,7 +13,7 @@
     'author': "Votre Nom",
     'website': "Votre Site Web",
     'category': 'Maintenance',
-    'depends': ['base', 'maintenance', 'hr'],
+    'depends': ['base', 'maintenance', 'hr', 'bmg_sale'],
     'data': [
         'security/security_rules_and_groups.xml',
         'security/ir.model.access.csv',
@@ -21,6 +21,10 @@
         'views/maintenance_curative_form_calendar_views.xml',
         'views/maintenance_equipment_form_view.xml',
         'report/maintenance_curative_report.xml',
+        'views/maintenance_operation_frequente_view.xml',
+        'views/sale_devis_button_fix.xml',
+        'views/maintenance_operation_frequente_view.xml',
+        'views/maintenance_calendar_view.xml',
         # Ajoutez ici les fichiers XML (vues, actions, séquences, etc.)
     ],
     'installable': True,

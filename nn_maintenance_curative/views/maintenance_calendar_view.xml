@@ -1,0 +1,31 @@
+<odoo>
+    <!-- Define the calendar view for maintenance.equipment -->
+    <record id="view_maintenance_equipment_calendar" model="ir.ui.view">
+        <field name="name">maintenance.equipment.calendar</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="arch" type="xml">
+            <calendar date_start="next_maintenance_date">
+                <field name="name"/>
+                <field name="next_maintenance_date"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Inherit the existing action to include the calendar view -->
+    <record id="maintenance.hr_equipment_action" model="ir.actions.act_window">
+        <field name="name">Equipments</field>
+        <field name="res_model">maintenance.equipment</field>
+        <field name="view_mode">kanban,tree,form,calendar</field>
+        <field name="view_ids"
+               eval="[(5, 0, 0), (0, 0, {'view_mode': 'calendar', 'view_id': ref('view_maintenance_equipment_calendar')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a new equipment
+            </p>
+            <p>
+                Track equipments and link it to an employee or department.
+                You will be able to manage allocations, issues and maintenance of your equipment.
+            </p>
+        </field>
+    </record>
+</odoo>

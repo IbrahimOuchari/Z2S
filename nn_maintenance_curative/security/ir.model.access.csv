@@ -1,3 +1,10 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_maintenance_curative,maintenance.curative,model_maintenance_curative,,1,1,1,1
 access_maintenance_curative_piece,maintenance.curative.piece,model_maintenance_curative_piece,,1,1,1,1
+access_maintenance_operation_frequente,access_maintenance_operation_frequente,model_maintenance_operation_frequente,,1,1,1,1
+access_maintenance_intervention_ligne1,access_maintenance_intervention_ligne1,model_maintenance_intervention_line1,,1,1,1,1
+access_maintenance_intervention_ligne2,access_maintenance_intervention_ligne2,model_maintenance_intervention_line2,,1,1,1,1
+access_maintenance_intervention_ligne3,access_maintenance_intervention_ligne3,model_maintenance_intervention_line3,,1,1,1,1
+access_maintenance_intervention_ligne4,access_maintenance_intervention_ligne4,model_maintenance_intervention_line4,,1,1,1,1
+
+

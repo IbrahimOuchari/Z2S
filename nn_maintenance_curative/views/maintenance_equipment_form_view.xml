@@ -1,17 +1,281 @@
 <odoo>
     <data>
-        <!-- Inherit the maintenance.hr_equipment_view_form view -->
         <record id="view_maintenance_equipment_form_custom" model="ir.ui.view">
             <field name="name">maintenance.hr.equipment.view.form.custom</field>
             <field name="model">maintenance.equipment</field>
             <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
             <field name="arch" type="xml">
-                <!-- Add the new page with the necessary fields -->
+                <xpath expr="//page[@name='maintenance']/group" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <xpath expr="//page[@name='product_information']//field[@name='partner_ref']" position="after">
                     <field name="reference_interne" string="Référence Interne"/>
+                </xpath>
+                <xpath expr="//page[@name='maintenance']" position="inside">
 
+                    <group name="frequency_control" class="o_col_4" style="width:30%;">
+                        <field name="period_count" string="Nombre de fréquences"/>
+                    </group>
+                    <div style="width:70%;">
+                        <group name="frequency_control" class="o_col_4" style="width:80%;">
+
+                            <field name="period_1_frequency" string="Période 1 (en jours)" style="width:30%;"/>
+                        </group>
+                        <group style="margin-left:200px;">
+                            <group>
+                                <field name="reference_intervention"/>
+                                <field name="poste"/>
+                            </group>
+                            <group>
+                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_fin"/>
+                            </group>
+                        </group>
+
+                        <field name="intervention_ligne_ids_1" style="margin-left:200px;">
+                            <tree editable="bottom">
+                                <field name="numero" readonly="1"/>
+                                <field name="operation_id" readonly="1"/>
+                                <field name="frequency_name" readonly="1"/>
+                                <field name="ok"/>
+                                <field name="nok"/>
+                                <field name="observations"/>
+                            </tree>
+                            <div>
+
+                            </div>
+                        </field>
+                    </div>
+                    <!-- Fréquence 2 -->
+                    <div style="width:70%;" attrs="{'invisible': [('period_count', 'not in', ['2', '3', '4'])]}">
+                        <group name="frequency_control_2" class="o_col_4" style="width:80%;">
+                            <field name="period_2_frequency" string="Période 2 (en jours)" style="width:30%;"/>
+                        </group>
+                        <group style="margin-left:200px;">
+                            <group>
+                                <field name="reference_intervention"/>
+                                <field name="poste"/>
+                            </group>
+                            <group>
+                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_fin"/>
+                            </group>
+                        </group>
+
+                        <field name="intervention_ligne_ids_2" style="margin-left:200px;">
+                            <tree editable="bottom">
+                                <field name="numero" readonly="1"/>
+                                <field name="operation_id" readonly="1"/>
+                                <field name="frequency_name" readonly="1"/>
+                                <field name="ok"/>
+                                <field name="nok"/>
+                                <field name="observations"/>
+                            </tree>
+                            <div></div>
+                        </field>
+                    </div>
+
+                    <!-- Fréquence 3 -->
+                    <div style="width:70%;" attrs="{'invisible': [('period_count', 'not in', ['3', '4'])]}">
+                        <group name="frequency_control_3" class="o_col_4" style="width:80%;">
+                            <field name="period_3_frequency" string="Période 3 (en jours)" style="width:30%;"/>
+                        </group>
+                        <group style="margin-left:200px;">
+                            <group>
+                                <field name="reference_intervention"/>
+                                <field name="poste"/>
+                            </group>
+                            <group>
+                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_fin"/>
+                            </group>
+                        </group>
+
+                        <field name="intervention_ligne_ids_3" style="margin-left:200px;">
+                            <tree editable="bottom">
+                                <field name="numero" readonly="1"/>
+                                <field name="operation_id" readonly="1"/>
+                                <field name="frequency_name" readonly="1"/>
+                                <field name="ok"/>
+                                <field name="nok"/>
+                                <field name="observations"/>
+                            </tree>
+                            <div></div>
+                        </field>
+                    </div>
+
+                    <!-- Fréquence 4 -->
+                    <div style="width:70%;" attrs="{'invisible': [('period_count', '!=', '4')]}">
+                        <group name="frequency_control_4" class="o_col_4" style="width:80%;">
+                            <field name="period_4_frequency" string="Période 4 (en jours)" style="width:30%;"/>
+                        </group>
+                        <group style="margin-left:200px;">
+                            <group>
+                                <field name="reference_intervention"/>
+                                <field name="poste"/>
+                            </group>
+                            <group>
+                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_fin"/>
+                            </group>
+                        </group>
+
+                        <field name="intervention_ligne_ids_4" style="margin-left:200px;">
+                            <tree editable="bottom">
+                                <field name="numero" readonly="1"/>
+                                <field name="operation_id" readonly="1"/>
+                                <field name="frequency_name" readonly="1"/>
+                                <field name="ok"/>
+                                <field name="nok"/>
+                                <field name="observations"/>
+                            </tree>
+                            <div></div>
+                        </field>
+                    </div>
+                    <xpath expr="//page[@name='maintenance']" position="inside">
+                        <group string="Planification de la maintenance préventive">
+                            <field name="effective_date"/>
+                            <field name="start_maintenance_date"/>
+                            <field name="next_maintenance_date" readonly="False"/>
+                        </group>
+
+                    </xpath>
                 </xpath>
             </field>
         </record>
+        <!-- Inherit the maintenance.hr_equipment_view_form view -->
+        <!--        <record id="view_maintenance_equipment_form_custom" model="ir.ui.view">-->
+        <!--            <field name="name">maintenance.hr.equipment.view.form.custom</field>-->
+        <!--            <field name="model">maintenance.equipment</field>-->
+        <!--            <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                &lt;!&ndash; Add the new page with the necessary fields &ndash;&gt;-->
+        <!--                <xpath expr="//page[@name='product_information']//field[@name='partner_ref']" position="after">-->
+        <!--                    <field name="reference_interne" string="Référence Interne"/>-->
+
+        <!--                </xpath>-->
+        <!--                <xpath expr="//page[@name='maintenance']//div[1]" position="after">-->
+        <!--                    &lt;!&ndash; Frequency selection &ndash;&gt;-->
+        <!--                    <field name="period_count" string="Nombre de fréquences"/>-->
+        <!--                    <field name="period_1_frequency" string="Période 1 (en jours)"/>-->
+
+        <!--                    &lt;!&ndash; Frequency 1 Section &ndash;&gt;-->
+        <!--                    <div attrs="{'invisible': [('period_count', '!=', '1')]}"-->
+        <!--                         style="display: flex; justify-content: center; align-items: center;">-->
+        <!--                        <div>-->
+        <!--                            <div>-->
+        <!--                                <group>-->
+        <!--                                    <group>-->
+        <!--                                        <field name="reference_intervention"/>-->
+        <!--                                        <field name="poste"/>-->
+        <!--                                    </group>-->
+        <!--                                    <group>-->
+        <!--                                        <field name="date_heure_debut" readonly="1"/>-->
+        <!--                                        <field name="date_heure_fin"/>-->
+        <!--                                    </group>-->
+        <!--                                </group>-->
+
+        <!--                            </div>-->
+        <!--                            <div>-->
+        <!--                                <field name="intervention_ligne_ids_1"-->
+        <!--                                       attrs="{'invisible': [('period_count', '!=', '1')]}">-->
+        <!--                                    <tree editable="bottom">-->
+        <!--                                        <field name="numero" readonly="1"/>-->
+        <!--                                        <field name="operation_id" readonly="1"/>-->
+        <!--                                        <field name="frequency_name" readonly="1"/>-->
+        <!--                                        <field name="ok"/>-->
+        <!--                                        <field name="nok"/>-->
+        <!--                                        <field name="observations"/>-->
+        <!--                                    </tree>-->
+        <!--                                </field>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
+
+
+        <!--                    </div>-->
+
+
+        <!--                    &lt;!&ndash; Frequency 2 Section &ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    <group attrs="{'invisible': [('period_count', '!=', '2')]}">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="period_2_frequency" string="Période 2 (en jours)"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="reference_intervention"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="poste"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="date_heure_debut" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="date_heure_fin"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    </group>&ndash;&gt;-->
+
+        <!--                    &lt;!&ndash;                    <field name="intervention_ligne_ids_2" attrs="{'invisible': [('period_count', '!=', '2')]}">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <tree editable="bottom">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="numero" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="operation_id" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="frequency_name" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="ok"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="nok"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="observations"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </tree>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    </field>&ndash;&gt;-->
+
+        <!--                    &lt;!&ndash;                    &lt;!&ndash; Frequency 3 Section &ndash;&gt;&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    <group attrs="{'invisible': [('period_count', '!=', '3')]}">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="period_3_frequency" string="Période 3 (en jours)"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="reference_intervention"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="poste"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="date_heure_debut" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="date_heure_fin"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    </group>&ndash;&gt;-->
+
+        <!--                    &lt;!&ndash;                    <field name="intervention_ligne_ids_3" attrs="{'invisible': [('period_count', '!=', '3')]}">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <tree editable="bottom">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="numero" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="operation_id" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="frequency_name" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="ok"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="nok"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="observations"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </tree>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    </field>&ndash;&gt;-->
+
+        <!--                    &lt;!&ndash;                    &lt;!&ndash; Frequency 4 Section &ndash;&gt;&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    <group attrs="{'invisible': [('period_count', '!=', '4')]}">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="period_4_frequency" string="Période 4 (en jours)"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="reference_intervention"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="poste"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="date_heure_debut" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="date_heure_fin"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </group>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    </group>&ndash;&gt;-->
+
+        <!--                    &lt;!&ndash;                    <field name="intervention_ligne_ids_4" attrs="{'invisible': [('period_count', '!=', '4')]}">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        <tree editable="bottom">&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="numero" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="operation_id" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="frequency_name" readonly="1"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="ok"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="nok"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                            <field name="observations"/>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                        </tree>&ndash;&gt;-->
+        <!--                    &lt;!&ndash;                    </field>&ndash;&gt;-->
+        <!--                </xpath>-->
+
+        <!--        </record>-->
+
     </data>
+
 </odoo>
