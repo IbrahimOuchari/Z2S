@@ -60,7 +60,13 @@ class MaintenanceEquipment(models.Model):
 
     @api.onchange('period_count')
     def _onchange_period_count(self):
+        """Update UI when period_count changes"""
         _logger.info("Entering _onchange_period_count with period_count: %s", self.period_count)
+        self._create_intervention_lines()
+
+    def _create_intervention_lines(self):
+        """Create intervention lines based on period_count"""
+        _logger.info("Creating intervention lines with period_count: %s", self.period_count)
 
         if not self.period_count:
             _logger.warning("period_count is not set, exiting function.")
@@ -91,30 +97,35 @@ class MaintenanceEquipment(models.Model):
                 line_1.append((0, 0, {
                     'frequency': '1',
                     'frequency_name': op.name,
-                    'operation_id': op.id,  # Set the operation_id field
+                    'operation_id': op.id,
+                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))
                 _logger.info("Added operation_id %s to line_1", op.id)
             elif str(op.frequency_name) == '2':
                 line_2.append((0, 0, {
                     'frequency': '2',
                     'frequency_name': op.name,
-                    'operation_id': op.id,  # Set the operation_id field
+                    'operation_id': op.id,
+                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))
                 _logger.info("Added operation_id %s to line_2", op.id)
             elif str(op.frequency_name) == '3':
                 line_3.append((0, 0, {
                     'frequency': '3',
                     'frequency_name': op.name,
-                    'operation_id': op.id,  # Set the operation_id field
+                    'operation_id': op.id,
+                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))
                 _logger.info("Added operation_id %s to line_3", op.id)
             elif str(op.frequency_name) == '4':
                 line_4.append((0, 0, {
                     'frequency': '4',
                     'frequency_name': op.name,
-                    'operation_id': op.id,  # Set the operation_id field
+                    'operation_id': op.id,
+                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))
                 _logger.info("Added operation_id %s to line_4", op.id)
+
         # Assign the collected lines to the respective intervention fields
         self.intervention_ligne_ids_1 = line_1
         self.intervention_ligne_ids_2 = line_2
@@ -126,6 +137,22 @@ class MaintenanceEquipment(models.Model):
         _logger.info("Content of intervention_ligne_ids_2 (frequency '2'): %s", line_2)
         _logger.info("Content of intervention_ligne_ids_3 (frequency '3'): %s", line_3)
         _logger.info("Content of intervention_ligne_ids_4 (frequency '4'): %s", line_4)
+
+    @api.model
+    def create(self, vals):
+        """Override create to ensure intervention lines are created on record creation"""
+        record = super(MaintenanceEquipment, self).create(vals)
+        if vals.get('period_count'):
+            record._create_intervention_lines()
+        return record
+
+    def write(self, vals):
+        """Override write to ensure intervention lines are updated when period_count changes"""
+        result = super(MaintenanceEquipment, self).write(vals)
+        if 'period_count' in vals:
+            for record in self:
+                record._create_intervention_lines()
+        return result
 
     @api.depends('effective_date', 'period_1_frequency', 'period_2_frequency', 'period_3_frequency',
                  'period_4_frequency')
