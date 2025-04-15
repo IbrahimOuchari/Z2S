@@ -1,5 +1,5 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import models, fields, api
 
@@ -44,19 +44,20 @@ class MaintenanceEquipment(models.Model):
 
     reference_intervention = fields.Char(string="Référence")
     poste = fields.Char(string="Poste")
-    date_heure_debut = fields.Datetime(string="Date et heure début", compute="_compute_date_debut", store=True)
+    date_heure_debut_1 = fields.Datetime(string="Date début fréquence 1", compute="_compute_date_debut", store=True)
+    date_heure_debut_2 = fields.Datetime(string="Date début fréquence 2", compute="_compute_date_debut", store=True)
+    date_heure_debut_3 = fields.Datetime(string="Date début fréquence 3", compute="_compute_date_debut", store=True)
+    date_heure_debut_4 = fields.Datetime(string="Date début fréquence 4", compute="_compute_date_debut", store=True)
     date_heure_fin = fields.Datetime(string="Date et heure fin")
 
     @api.depends('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency')
     def _compute_date_debut(self):
         for rec in self:
-            dates = list(filter(None, [
-                rec.period_1_frequency and rec.date_intervention_1,
-                rec.period_2_frequency and rec.date_intervention_2,
-                rec.period_3_frequency and rec.date_intervention_3,
-                rec.period_4_frequency and rec.date_intervention_4,
-            ]))
-            rec.date_heure_debut = min(dates) if dates else False
+            today = datetime.today()
+            rec.date_heure_debut_1 = today + timedelta(days=rec.period_1_frequency) if rec.period_1_frequency else False
+            rec.date_heure_debut_2 = today + timedelta(days=rec.period_2_frequency) if rec.period_2_frequency else False
+            rec.date_heure_debut_3 = today + timedelta(days=rec.period_3_frequency) if rec.period_3_frequency else False
+            rec.date_heure_debut_4 = today + timedelta(days=rec.period_4_frequency) if rec.period_4_frequency else False
 
     @api.onchange('period_count')
     def _onchange_period_count(self):
@@ -174,7 +175,13 @@ class MaintenanceEquipment(models.Model):
             else:
                 record.start_maintenance_date = False
 
-    @api.depends('start_maintenance_date')
+    @api.depends('date_heure_debut_1', 'date_heure_debut_2', 'date_heure_debut_3', 'date_heure_debut_4')
     def _compute_next_maintenance_date(self):
-        for record in self:
-            record.next_maintenance_date = record.start_maintenance_date
+        for rec in self:
+            all_dates = list(filter(None, [
+                rec.date_heure_debut_1,
+                rec.date_heure_debut_2,
+                rec.date_heure_debut_3,
+                rec.date_heure_debut_4,
+            ]))
+            rec.next_maintenance_date = min(all_dates).date() if all_dates else False

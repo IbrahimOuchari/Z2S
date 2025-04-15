@@ -1,5 +1,6 @@
-from odoo import models, fields, api
 import logging
+
+from odoo import models, fields, api
 
 _logger = logging.getLogger(__name__)
 
@@ -36,9 +37,8 @@ class MrpProduction(models.Model):
     control_quality_state = fields.Selection(
         related='quality_control_id.state',
         store=True,
-        readonly= True
+        readonly=True
     )
-
 
     # @api.onchange('quality_control_checked')
     # def _onchange_quality_control_checked(self):
@@ -67,28 +67,27 @@ class MrpProduction(models.Model):
 
                 control_count = self.env['control.quality'].search([
                     ('of_id', '=', record.id),
-                ])
+                ], limit=1)  # <- Fix here
 
-                _logger.info(
-                    f"Search Results - Found ID: {control_count.id if control_count else 'Not Found'}, Name: {control_count.reference if control_count else 'Not Found'}")
-
-                record.quality_control_id = control_count.id
-                _logger.info(f"Updated Record {record.id} - quality_control_id set to {record.quality_control_id}")
+                if control_count:
+                    _logger.info(f"Search Results - Found ID: {control_count.id}, Name: {control_count.reference}")
+                    record.quality_control_id = control_count.id
+                    _logger.info(f"Updated Record {record.id} - quality_control_id set to {record.quality_control_id}")
+                else:
+                    _logger.warning(f"No quality control record found for Production ID {record.id}")
+                    record.quality_control_id = False
             else:
                 record.quality_control_id = False
                 _logger.info(f"Cleared quality_control_id for Record {record.id}")
 
-
-
     def action_call_for_productivity(self):
-        for record in self :
+        for record in self:
             if record.workorder_ids:
                 record.workorder_ids.action_re_calculate_productivity()
 
+
 class MrpWorkorder(models.Model):
     _inherit = 'mrp.workorder'
-
-
 
     def action_re_calculate_productivity(self):
         for order in self:

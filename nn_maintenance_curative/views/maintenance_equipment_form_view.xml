@@ -27,7 +27,7 @@
                                 <field name="poste"/>
                             </group>
                             <group>
-                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_debut_1" readonly="1"/>
                                 <field name="date_heure_fin"/>
                             </group>
                         </group>
@@ -57,7 +57,7 @@
                                 <field name="poste"/>
                             </group>
                             <group>
-                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_debut_2" readonly="1"/>
                                 <field name="date_heure_fin"/>
                             </group>
                         </group>
@@ -86,7 +86,7 @@
                                 <field name="poste"/>
                             </group>
                             <group>
-                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_debut_3" readonly="1"/>
                                 <field name="date_heure_fin"/>
                             </group>
                         </group>
@@ -115,7 +115,7 @@
                                 <field name="poste"/>
                             </group>
                             <group>
-                                <field name="date_heure_debut" readonly="1"/>
+                                <field name="date_heure_debut_4" readonly="1"/>
                                 <field name="date_heure_fin"/>
                             </group>
                         </group>
