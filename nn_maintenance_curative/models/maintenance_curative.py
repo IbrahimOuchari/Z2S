@@ -39,8 +39,16 @@ class CurativeMaintenanceRequest(models.Model):
 
     # Phase 3 : Réalisation
     intervenant = fields.Char(string="Intervenant")
+    existing_intervenant_realisation = fields.Boolean(string="Intervenant Existe")
+    intervenant_hr_realisation = fields.Many2one('hr.employee', string="Nom & Prénom de l'Intervenant", )
     realisation_date = fields.Date(string="Date Réalisation")
-    constat = fields.Text(string="Constat")
+    constat = fields.Text(string="Constaté")
+    spare_part_ids = fields.One2many(
+        'maintenance.curative.spare.part',
+        'curative_id',
+        string='Pièces de rechange'
+    )
+
     pieces_rechange_ids = fields.One2many('maintenance.curative.piece', 'maintenance_id', string="Pièces de Rechange")
     description_intervention = fields.Text(string="Description de l'Intervention")
     action_corrective = fields.Boolean(string="Action Corrective Nécessaire ?")

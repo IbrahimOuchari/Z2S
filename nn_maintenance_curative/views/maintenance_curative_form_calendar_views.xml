@@ -27,15 +27,21 @@
                     <!-- Phase 2: Diagnostic & Planification -->
                     <!-- Phase 2: Diagnostic & Planification -->
                     <group>
-                        <field name="existing_intervenant" string="Intervenant Existe"/>
+                        <field name="existing_intervenant" string="Intervenant Existe"
+                               attrs="{'readonly': [('state', '!=', 'diagnostic')]}"
 
+                        />
                         <field name="intervenant_hr"
-                               attrs="{'invisible': [('existing_intervenant', '=', False)]}"
+                               attrs="{
+           'readonly': [('state', '!=', 'diagnostic')],
+           'invisible': ['|', ('state', '=', 'declaration'), ('existing_intervenant', '=', False)]
+       }"
                                string="Nom et Prénom de l'Intervenant"/>
-
                         <field name="nom_intervenant"
-                               attrs="{'invisible': [('existing_intervenant', '=', True)]}"
-                               string="Nom et Prénom de l'Intervenant (Manuel)"/>
+                               attrs="{
+           'readonly': [('state', '!=', 'diagnostic')],
+           'invisible': ['|', ('state', '=', 'declaration'), ('existing_intervenant', '=', True)]
+       }"/>
 
                         <field name="heure_debut"
                                attrs="{'readonly': [('state', '!=', 'diagnostic')],
@@ -68,15 +74,36 @@
 
                     <!-- Phase 3: Réalisation -->
                     <group>
+                        <field name="existing_intervenant_realisation" string="Intervenant Existe"
+                               attrs="{'readonly': [('state', '!=', 'realisation')]}"/>
+
+                        <field name="intervenant_hr_realisation"
+                               string="Nom et Prénom de l'Intervenant"
+                               attrs="{
+           'readonly': [('state', '!=', 'realisation')],
+           'invisible': [('existing_intervenant_realisation', '=', False)]
+       }"/>
                         <field name="intervenant"
-                               attrs="{'readonly': [('state', '!=', 'realisation')],
-                   'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
+                               string="Nom et Prénom de l'Intervenant (Manuel)"
+                               attrs="{
+           'readonly': [('state', '!=', 'realisation')],
+           'invisible': [('existing_intervenant_realisation', '=', True)]
+       }"/>
                         <field name="realisation_date"
                                attrs="{'readonly': [('state', '!=', 'realisation')],
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
                         <field name="constat"
                                attrs="{'readonly': [('state', '!=', 'realisation')],
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
+
+                        <field name="spare_part_ids" string="Pièces de rechange">
+                            <tree editable="bottom">
+                                <field name="product_id"/>
+                                <field name="name"/>
+                                <field name="quantity"/>
+                            </tree>
+                        </field>
+
                         <field name="description_intervention"
                                attrs="{'readonly': [('state', '!=', 'realisation')],
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
