@@ -15,7 +15,7 @@ class CurativeMaintenanceRequest(models.Model):
         store=True,
         readonly=True
     )
-    reference_centre = fields.Char(string="Référence Centre", required=True)
+    sn = fields.Char(string="SN", required=True)
     declaration_date = fields.Date(string="Date Déclaration", required=True, readonly=True)
     problem_description = fields.Text(string="Problem Description", required=True)
     date_effective = fields.Date(string="Date Effective", required=True)
@@ -23,6 +23,8 @@ class CurativeMaintenanceRequest(models.Model):
 
     # Phase 2 : Diagnostic & Planification
     nom_intervenant = fields.Char(string="Nom & Prénom de l'Intervenant")
+    existing_intervenant = fields.Boolean(string="Intervenant Existe")
+    intervenant_hr = fields.Many2one('hr.employee', string="Nom & Prénom de l'Intervenant", )
     diagnostic_date = fields.Date(string="Date Diagnostic")
     heure_debut = fields.Datetime(string="Date et Heure de Début")
     heure_fin = fields.Datetime(string="Date et Heure de Fin")

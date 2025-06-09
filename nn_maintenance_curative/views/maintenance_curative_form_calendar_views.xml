@@ -15,7 +15,7 @@
                         <field name="equipment_id" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="reference_interne" required="1"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
-                        <field name="reference_centre" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="sn" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="declaration_date"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="problem_description" string="Problem Description"
@@ -27,9 +27,15 @@
                     <!-- Phase 2: Diagnostic & Planification -->
                     <!-- Phase 2: Diagnostic & Planification -->
                     <group>
+                        <field name="existing_intervenant" string="Intervenant Existe"/>
+
+                        <field name="intervenant_hr"
+                               attrs="{'invisible': [('existing_intervenant', '=', False)]}"
+                               string="Nom et Prénom de l'Intervenant"/>
+
                         <field name="nom_intervenant"
-                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
-                   'invisible': [('state', '=', 'declaration')]}"/>
+                               attrs="{'invisible': [('existing_intervenant', '=', True)]}"
+                               string="Nom et Prénom de l'Intervenant (Manuel)"/>
                         <field name="diagnostic_date"
                                attrs="{'readonly': [('state', '!=', 'diagnostic')],
                    'invisible': [('state', '=', 'declaration')]}"/>
@@ -146,7 +152,7 @@
                 <field name="demandeur_hr" string="Demandeur HR"/>
                 <field name="equipment_id" string="Équipement"/>
                 <field name="reference_interne" string="Référence Interne"/>
-                <field name="reference_centre" string="Référence Centre"/>
+                <field name="sn" string="SN"/>
                 <field name="declaration_date" string="Date Déclaration"/>
 
                 <!-- Phase 2: Diagnostic & Planification -->
