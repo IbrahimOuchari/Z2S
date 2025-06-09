@@ -36,9 +36,7 @@
                         <field name="nom_intervenant"
                                attrs="{'invisible': [('existing_intervenant', '=', True)]}"
                                string="Nom et Prénom de l'Intervenant (Manuel)"/>
-                        <field name="diagnostic_date"
-                               attrs="{'readonly': [('state', '!=', 'diagnostic')],
-                   'invisible': [('state', '=', 'declaration')]}"/>
+
                         <field name="heure_debut"
                                attrs="{'readonly': [('state', '!=', 'diagnostic')],
                    'invisible': [('state', '=', 'declaration')]}"/>
@@ -157,7 +155,6 @@
 
                 <!-- Phase 2: Diagnostic & Planification -->
                 <field name="nom_intervenant" string="Nom et Prénom de l'Intervenant"/>
-                <field name="diagnostic_date" string="Date Diagnostic"/>
                 <field name="heure_debut" string="Date et Heure de Début"/>
                 <field name="heure_fin" string="Date et Heure de Fin"/>
                 <field name="rapport_diagnostique" string="Rapport Diagnostique"/>

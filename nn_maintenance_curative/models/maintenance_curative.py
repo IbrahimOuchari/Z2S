@@ -25,7 +25,6 @@ class CurativeMaintenanceRequest(models.Model):
     nom_intervenant = fields.Char(string="Nom & Prénom de l'Intervenant")
     existing_intervenant = fields.Boolean(string="Intervenant Existe")
     intervenant_hr = fields.Many2one('hr.employee', string="Nom & Prénom de l'Intervenant", )
-    diagnostic_date = fields.Date(string="Date Diagnostic")
     heure_debut = fields.Datetime(string="Date et Heure de Début")
     heure_fin = fields.Datetime(string="Date et Heure de Fin")
     rapport_diagnostique = fields.Text(string="Rapport Diagnostique")
@@ -36,7 +35,7 @@ class CurativeMaintenanceRequest(models.Model):
     besoin = fields.Boolean(string="Besoin ?")
     besoin_description = fields.Text(string="Détails du Besoin")
     objet_intervention = fields.Text(string="Objet de l'Intervention")
-    date_prevue = fields.Date(string="Date Prévue")
+    date_prevue = fields.Date(string="Date Prévue de l'intervention")
 
     # Phase 3 : Réalisation
     intervenant = fields.Char(string="Intervenant")
