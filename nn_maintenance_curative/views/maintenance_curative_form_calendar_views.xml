@@ -96,7 +96,8 @@
                                attrs="{'readonly': [('state', '!=', 'realisation')],
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
 
-                        <field name="spare_part_ids" string="Pièces de rechange">
+                        <field name="spare_part_ids" string="Pièces de rechange"
+                               attrs="{'readonly': [('state', '!=', 'realisation')]}">
                             <tree editable="bottom">
                                 <field name="product_id"/>
                                 <field name="name"/>

@@ -30,10 +30,10 @@
                     <t t-if="doc.state in ['draft', 'diagnostic', 'realisation', 'efficacite', 'cloture']">
 
                         <!-- PHASE 1 -->
-                        <h3>Phase 1 : Déclaration de la Demande</h3>
+                        <h3>Déclaration de la Demande</h3>
                         <table class="table table-sm">
                             <tr>
-                                <td>
+                                <td style="width:150mm;">
                                     <strong>Demandeur HR:</strong>
                                 </td>
                                 <td>
@@ -58,10 +58,10 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>Référence Centre:</strong>
+                                    <strong>SN:</strong>
                                 </td>
                                 <td>
-                                    <t t-esc="doc.reference_centre"/>
+                                    <t t-esc="doc.sn"/>
                                 </td>
                             </tr>
                             <tr>
@@ -102,24 +102,17 @@
 
                     <t t-if="doc.state in ['diagnostic', 'realisation', 'efficacite', 'cloture']">
 
-                        <h3>Phase 2 : Diagnostic et Planification</h3>
+                        <h3>Diagnostic et Planification</h3>
                         <table class="table table-sm">
                             <tr>
-                                <td>
+                                <td style="width:150mm;">
                                     <strong>Intervenant:</strong>
                                 </td>
                                 <td>
                                     <t t-esc="doc.nom_intervenant"/>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <strong>Date Diagnostic:</strong>
-                                </td>
-                                <td>
-                                    <t t-esc="doc.diagnostic_date"/>
-                                </td>
-                            </tr>
+
                             <tr>
                                 <td>
                                     <strong>Heure Début:</strong>
@@ -191,10 +184,10 @@
                     <!-- PHASE 3 -->
                     <t t-if="doc.state in ['realisation', 'efficacite', 'cloture']">
 
-                        <h3>Phase 3 : Réalisation</h3>
+                        <h3>Réalisation</h3>
                         <table class="table table-sm">
                             <tr>
-                                <td>
+                                <td style="width:150mm;">
                                     <strong>Intervenant:</strong>
                                 </td>
                                 <td>
@@ -260,21 +253,28 @@
                         </table>
 
                         <h4>Pièces de Rechange</h4>
-                        <table class="table table-sm table-bordered">
+                        <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Référence</th>
-                                    <th>Pièce</th>
+                                    <th>Produit</th>
+                                    <th>Nom</th>
+                                    <th>Quantité</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr t-foreach="doc.pieces_rechange_ids" t-as="piece">
+                                <tr t-foreach="doc.spare_part_ids" t-as="part">
                                     <td>
-                                        <t t-esc="piece.reference_piece"/>
+                                        <t t-esc="part.product_id.name or ''"/>
                                     </td>
                                     <td>
-                                        <t t-esc="piece.piece_rechange"/>
+                                        <t t-esc="part.name or ''"/>
                                     </td>
+                                    <td>
+                                        <t t-esc="part.quantity or 0"/>
+                                    </td>
+                                </tr>
+                                <tr t-if="not doc.spare_part_ids">
+                                    <td colspan="3" class="text-center">Aucune pièce de rechange</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -282,10 +282,10 @@
                     <!-- PHASE 4 -->
                     <t t-if="doc.state in ['efficacite', 'cloture']">
 
-                        <h3>Phase 4 : Efficacité</h3>
+                        <h3>Efficacité</h3>
                         <table class="table table-sm">
                             <tr>
-                                <td>
+                                <td style="width:150mm;">
                                     <strong>Efficace:</strong>
                                 </td>
                                 <td>
@@ -313,10 +313,10 @@
                     <!-- PHASE 5 -->
                     <t t-if="doc.state == 'cloture'">
 
-                        <h3>Phase 5 : Clôture</h3>
+                        <h3>Clôture</h3>
                         <table class="table table-sm">
                             <tr>
-                                <td>
+                                <td style="width:150mm;">
                                     <strong>Responsable:</strong>
                                 </td>
                                 <td>
