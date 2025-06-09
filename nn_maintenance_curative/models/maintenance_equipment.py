@@ -10,8 +10,14 @@ class MaintenanceEquipment(models.Model):
     _inherit = 'maintenance.equipment'
 
     period_count = fields.Selection(
-        selection=[('1', '1 fréquence'), ('2', '2 fréquences'), ('3', '3 fréquences'), ('4', '4 fréquences')],
-        string="Nombre de fréquences", default='1',
+        selection=[
+            ('1', 'Mensuelle'),
+            ('2', 'Trimestrielle'),
+            ('3', 'Semestrielle'),
+            ('4', 'Annuelle'),
+        ],
+        string="Fréquence",
+        default='1',
     )
     period_1_frequency = fields.Integer("Période 1 (en jours)")
     period_2_frequency = fields.Integer("Période 2 (en jours)")
@@ -42,7 +48,13 @@ class MaintenanceEquipment(models.Model):
     intervention_ligne_ids_4 = fields.One2many('maintenance.intervention.line4', 'equipment_id',
                                                string="Intervention fréquence 4", domain=[('frequency', '=', '4')])
 
-    reference_intervention = fields.Char(string="Référence")
+    reference_intervention = fields.Char(string="Référence", compute='_compute_reference_intervention', readonly=False)
+
+    @api.onchange('period_count')
+    def _compute_reference_intervention(self):
+        for rec in self:
+            rec.reference_intervention = rec.reference_interne
+
     poste = fields.Char(string="Poste")
     date_heure_debut_1 = fields.Datetime(string="Date début fréquence 1", compute="_compute_date_debut", store=True)
     date_heure_debut_2 = fields.Datetime(string="Date début fréquence 2", compute="_compute_date_debut", store=True)
@@ -77,8 +89,8 @@ class MaintenanceEquipment(models.Model):
         _logger.info("Converted period_count to integer: %d", freq_number)
 
         # Fetch all operations
-        operations = self.env['maintenance.operation.frequente'].search([])
-        _logger.info("Fetched %d operations from maintenance.operation.frequente", len(operations))
+        operations = self.env['maintenance.operation.list'].search([('equipment_id', '=', self.id)])
+        _logger.info("Fetched %d operations ", len(operations))
 
         # Clear existing lines before populating new ones
         self.intervention_ligne_ids_1 = [(5, 0, 0)]
@@ -94,34 +106,31 @@ class MaintenanceEquipment(models.Model):
 
         # Iterate through operations and collect names based on frequency
         for op in operations:
-            if str(op.frequency_name) == '1':
+            if op.equipment_id.id == self.id:
                 line_1.append((0, 0, {
                     'frequency': '1',
-                    'frequency_name': op.name,
+                    'operation_name': op.name,
                     'operation_id': op.id,
                     'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))
                 _logger.info("Added operation_id %s to line_1", op.id)
-            elif str(op.frequency_name) == '2':
                 line_2.append((0, 0, {
                     'frequency': '2',
-                    'frequency_name': op.name,
+                    'operation_name': op.name,
                     'operation_id': op.id,
                     'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))
                 _logger.info("Added operation_id %s to line_2", op.id)
-            elif str(op.frequency_name) == '3':
                 line_3.append((0, 0, {
                     'frequency': '3',
-                    'frequency_name': op.name,
+                    'operation_name': op.name,
                     'operation_id': op.id,
                     'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))
                 _logger.info("Added operation_id %s to line_3", op.id)
-            elif str(op.frequency_name) == '4':
                 line_4.append((0, 0, {
                     'frequency': '4',
-                    'frequency_name': op.name,
+                    'operation_name': op.name,
                     'operation_id': op.id,
                     'equipment_id': self.id,  # Explicitly set the parent equipment_id
                 }))

@@ -1,16 +1,17 @@
 from odoo import models, fields, api
 
 
-class MaintenanceOperationFrequente(models.Model):
-    _name = 'maintenance.operation.frequente'
-    _description = 'Opérations par fréquence'
+class MaintenanceOperationList(models.Model):
+    _name = 'maintenance.operation.list'
+    _description = 'Opérations par équipement'
 
     name = fields.Char("Nom de l'opération", required=True)
+    equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
     frequency_name = fields.Selection([
-        ('1', 'Fréquence 1'),
-        ('2', 'Fréquence 2'),
-        ('3', 'Fréquence 3'),
-        ('4', 'Fréquence 4'),
+        ('1', 'Mensuelle'),
+        ('2', 'Trimestrielle'),
+        ('3', 'Semestrielle'),
+        ('4', 'Annuelle'),
     ], string="Fréquence associée", required=True)
 
 
@@ -18,17 +19,18 @@ class MaintenanceInterventionLine1(models.Model):
     _name = 'maintenance.intervention.line1'
     _description = 'Lignes d\'intervention maintenance'
 
+    sequence = fields.Char(string="sequence")
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
     operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
     frequency = fields.Selection([
-        ('1', 'Fréquence 1'),
-        ('2', 'Fréquence 2'),
-        ('3', 'Fréquence 3'),
-        ('4', 'Fréquence 4'),
+        ('1', 'Mensuelle'),
+        ('2', 'Trimestrielle'),
+        ('3', 'Semestrielle'),
+        ('4', 'Annuelle'),
     ], string="Fréquence", default='1')
     ""
-    frequency_name = fields.Char("Nom de la fréquence", readonly=True)
+    operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
     observations = fields.Text("Observations")
@@ -48,12 +50,12 @@ class MaintenanceInterventionLine2(models.Model):
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
     operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
     frequency = fields.Selection([
-        ('1', 'Fréquence 1'),
-        ('2', 'Fréquence 2'),
-        ('3', 'Fréquence 3'),
-        ('4', 'Fréquence 4'),
+        ('1', 'Mensuelle'),
+        ('2', 'Trimestrielle'),
+        ('3', 'Semestrielle'),
+        ('4', 'Annuelle'),
     ], string="Fréquence", default='1')
-    frequency_name = fields.Char("Nom de la fréquence", readonly=True)
+    operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
     observations = fields.Text("Observations")
@@ -73,12 +75,12 @@ class MaintenanceInterventionLine3(models.Model):
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
     operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
     frequency = fields.Selection([
-        ('1', 'Fréquence 1'),
-        ('2', 'Fréquence 2'),
-        ('3', 'Fréquence 3'),
-        ('4', 'Fréquence 4'),
+        ('1', 'Mensuelle'),
+        ('2', 'Trimestrielle'),
+        ('3', 'Semestrielle'),
+        ('4', 'Annuelle'),
     ], string="Fréquence", default='1')
-    frequency_name = fields.Char("Nom de la fréquence", readonly=True)
+    operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
     observations = fields.Text("Observations")
@@ -98,12 +100,12 @@ class MaintenanceInterventionLine4(models.Model):
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
     operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
     frequency = fields.Selection([
-        ('1', 'Fréquence 1'),
-        ('2', 'Fréquence 2'),
-        ('3', 'Fréquence 3'),
-        ('4', 'Fréquence 4'),
+        ('1', 'Mensuelle'),
+        ('2', 'Trimestrielle'),
+        ('3', 'Semestrielle'),
+        ('4', 'Annuelle'),
     ], string="Fréquence", default='1')
-    frequency_name = fields.Char("Nom de la fréquence", readonly=True)
+    operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
     observations = fields.Text("Observations")
@@ -128,7 +130,7 @@ class MaintenanceInterventionLine(models.Model):
         ('3', 'Fréquence 3'),
         ('4', 'Fréquence 4'),
     ], string="Fréquence", default='1')
-    frequency_name = fields.Char("Nom de la fréquence", readonly=True)
+    operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
     observations = fields.Text("Observations")

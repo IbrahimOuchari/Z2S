@@ -12,7 +12,7 @@
             <field name="name">Allow Maintenance Manager to Edit</field>
             <field name="model_id" ref="model_maintenance_curative"/>
             <field name="domain_force">[('state', '!=', 'declaration')]</field>
-            <field name="groups" eval="[(4, ref('nn_maintenance_curative.group_maintenance_manager'))]"/>
+            <field name="groups" eval="[(4, ref('nn_maintenance_curative.'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>

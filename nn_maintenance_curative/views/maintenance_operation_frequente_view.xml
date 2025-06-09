@@ -1,48 +1,45 @@
 <odoo>
     <data>
-        <!-- Create a form view for the maintenance.operation.frequente model -->
-        <record id="view_maintenance_operation_frequente_form" model="ir.ui.view">
-            <field name="name">maintenance.operation.frequente.form</field>
-            <field name="model">maintenance.operation.frequente</field>
+        <!-- Form View -->
+        <record id="view_maintenance_operation_list_form" model="ir.ui.view">
+            <field name="name">maintenance.operation.list.form</field>
+            <field name="model">maintenance.operation.list</field>
             <field name="arch" type="xml">
-                <form string="Opérations par fréquence">
+                <form string="Opérations par équipement">
                     <sheet>
                         <group>
-                            <group>
-                                <field name="name" string="Nom de l'opération"/>
-                                <field name="frequency_name" string="Fréquence associée"/>
-                            </group>
+                            <field name="name" string="Nom de l'opération"/>
+                            <field name="equipment_id" string="Équipement"/>
                         </group>
-
                     </sheet>
                 </form>
             </field>
         </record>
 
-        <!-- Create a tree view for listing the maintenance operations per frequency -->
-        <record id="view_maintenance_operation_frequente_tree" model="ir.ui.view">
-            <field name="name">maintenance.operation.frequente.tree</field>
-            <field name="model">maintenance.operation.frequente</field>
+        <!-- Tree View -->
+        <record id="view_maintenance_operation_list_tree" model="ir.ui.view">
+            <field name="name">maintenance.operation.list.tree</field>
+            <field name="model">maintenance.operation.list</field>
             <field name="arch" type="xml">
-                <tree string="Opérations par fréquence">
+                <tree string="Opérations par équipement">
                     <field name="name"/>
-                    <field name="frequency_name"/>
+                    <field name="equipment_id"/>
                 </tree>
             </field>
         </record>
 
-        <!-- Add an action to open the configuration view -->
-        <record id="action_maintenance_operation_frequente" model="ir.actions.act_window">
-            <field name="name">Opérations par fréquence</field>
-            <field name="res_model">maintenance.operation.frequente</field>
+        <!-- Action -->
+        <record id="action_maintenance_operation_list" model="ir.actions.act_window">
+            <field name="name">Opérations par équipement</field>
+            <field name="res_model">maintenance.operation.list</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="view_maintenance_operation_frequente_tree"/>
+            <field name="view_id" ref="view_maintenance_operation_list_tree"/>
         </record>
 
-        <!-- Add a menu item to access the configuration view -->
-        <menuitem id="menu_maintenance_operation_frequente_config"
-                  name="Opérations par fréquence"
+        <!-- Menu Item -->
+        <menuitem id="menu_maintenance_operation_list"
+                  name="Opérations par équipement"
                   parent="maintenance.menu_maintenance_configuration"
-                  action="action_maintenance_operation_frequente"/>
+                  action="action_maintenance_operation_list"/>
     </data>
 </odoo>

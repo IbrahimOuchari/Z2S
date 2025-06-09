@@ -25,9 +25,13 @@
         'views/sale_devis_button_fix.xml',
         'views/maintenance_operation_frequente_view.xml',
         'views/maintenance_calendar_view.xml',
+        'views/maintenance_request_form.xml'
+
         # Ajoutez ici les fichiers XML (vues, actions, séquences, etc.)
     ],
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
+    'post_init_hook': 'remove_old_model_maintenance_operation_frequente',
+
 }

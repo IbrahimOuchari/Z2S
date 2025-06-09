@@ -34,9 +34,12 @@
 
                         <field name="intervention_ligne_ids_1" style="margin-left:200px;">
                             <tree editable="bottom">
+                                <field name="id" invisible="1" readonly="1"/>
                                 <field name="numero" readonly="1"/>
-                                <field name="operation_id" readonly="1"/>
-                                <field name="frequency_name" readonly="1"/>
+                                <field name="operation_id" readonly="1" invisible="1"/>
+                                <field name="operation_name" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
+
                                 <field name="ok"/>
                                 <field name="nok"/>
                                 <field name="observations"/>
@@ -65,8 +68,10 @@
                         <field name="intervention_ligne_ids_2" style="margin-left:200px;">
                             <tree editable="bottom">
                                 <field name="numero" readonly="1"/>
-                                <field name="operation_id" readonly="1"/>
-                                <field name="frequency_name" readonly="1"/>
+                                <field name="operation_id" readonly="1" invisible="1"/>
+                                <field name="operation_name" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
+
                                 <field name="ok"/>
                                 <field name="nok"/>
                                 <field name="observations"/>
@@ -94,8 +99,10 @@
                         <field name="intervention_ligne_ids_3" style="margin-left:200px;">
                             <tree editable="bottom">
                                 <field name="numero" readonly="1"/>
-                                <field name="operation_id" readonly="1"/>
-                                <field name="frequency_name" readonly="1"/>
+                                <field name="operation_id" readonly="1" invisible="1"/>
+                                <field name="operation_name" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
+
                                 <field name="ok"/>
                                 <field name="nok"/>
                                 <field name="observations"/>
@@ -123,8 +130,9 @@
                         <field name="intervention_ligne_ids_4" style="margin-left:200px;">
                             <tree editable="bottom">
                                 <field name="numero" readonly="1"/>
-                                <field name="operation_id" readonly="1"/>
-                                <field name="frequency_name" readonly="1"/>
+                                <field name="operation_id" readonly="1" invisible="1"/>
+                                <field name="operation_name" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
                                 <field name="ok"/>
                                 <field name="nok"/>
                                 <field name="observations"/>

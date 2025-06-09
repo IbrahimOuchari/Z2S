@@ -1,0 +1,14 @@
+<odoo>
+    <record id="maintenance_request_tree_view_inherit" model="ir.ui.view">
+        <field name="name">maintenance.request.tree.inherit.view</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="serial_no"/>
+
+            </xpath>
+        </field>
+
+    </record>
+</odoo>
