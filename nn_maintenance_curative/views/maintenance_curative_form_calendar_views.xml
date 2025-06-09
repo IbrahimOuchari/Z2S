@@ -130,15 +130,22 @@
                     <!-- Phase 4: Efficacité -->
                     <group>
                         <field name="intervention_efficace"
-                               attrs="{'readonly': [('state', '!=', 'efficacy')],
-                   'invisible': [('state', 'not in', ['efficacy', 'cloture'])]}"/>
-                        <field name="intervention_commentaire"
-                               attrs="{'readonly': [('state', '!=', 'efficacy')],
-                   'invisible': [('intervention_efficace', '=', False)]
+                               attrs="{
+           'readonly': [('state', '!=', 'efficacy')],
+           'invisible': [('state', 'not in', ['efficacy', 'cloture'])]
        }"/>
+
+                        <field name="intervention_commentaire"
+                               attrs="{
+           'readonly': [('state', '!=', 'efficacy')],
+           'invisible': ['|', ('state', 'not in', ['efficacy', 'cloture']), ('intervention_efficace', '=', True)]
+       }"/>
+
                         <field name="efficacy_date"
-                               attrs="{'readonly': [('state', '!=', 'efficacy')],
-                   'invisible': [('state', 'not in', ['efficacy', 'cloture'])]}"/>
+                               attrs="{
+           'readonly': [('state', '!=', 'efficacy')],
+           'invisible': ['|', ('state', 'not in', ['efficacy', 'cloture']), ('intervention_efficace', '=', False)]
+       }"/>
 
                     </group>
 

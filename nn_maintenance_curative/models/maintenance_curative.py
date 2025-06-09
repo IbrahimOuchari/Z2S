@@ -62,7 +62,7 @@ class CurativeMaintenanceRequest(models.Model):
     # Phase 4 : Efficacité
     intervention_efficace = fields.Boolean(string="Intervention Efficace ?")
     efficacy_date = fields.Date(string="Date Efficacité")
-    intervention_commentaire = fields.Text(string="Commentaire")
+    intervention_commentaire = fields.Text(string="Nouvelle Fiche d'intervention")
 
     # Phase 5 : Clôture
     responsable_intervention = fields.Many2one(
