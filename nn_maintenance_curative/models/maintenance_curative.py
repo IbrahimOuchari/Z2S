@@ -19,6 +19,7 @@ class CurativeMaintenanceRequest(models.Model):
     declaration_date = fields.Date(string="Date Déclaration", required=True, readonly=True)
     problem_description = fields.Text(string="Problem Description", required=True)
     date_effective = fields.Date(string="Date Effective", required=True)
+    date_intervention = fields.Date(string="Date Intervention")
     date_intervention_souhaitee = fields.Date(string="Date Intervention Souhaitée")
 
     # Phase 2 : Diagnostic & Planification

@@ -22,6 +22,8 @@
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="date_effective" string="Date Effective"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
+                        <field name="date_intervention"
+                               attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                     </group>
 
                     <!-- Phase 2: Diagnostic & Planification -->
@@ -181,48 +183,46 @@
         <field name="model">maintenance.curative</field>
         <field name="arch" type="xml">
             <tree string="Fiche d'Intervention Curative">
-                <!-- Phase 1: Déclaration de la Demande -->
-                <field name="demandeur_hr" string="Demandeur HR"/>
+                <!-- Always visible fields -->
+                <field name="name" string="Séquence"/>
                 <field name="equipment_id" string="Équipement"/>
-                <field name="reference_interne" string="Référence Interne"/>
-                <field name="sn" string="SN"/>
+                <field name="demandeur_hr" string="Demandeur HR"/>
                 <field name="declaration_date" string="Date Déclaration"/>
 
-                <!-- Phase 2: Diagnostic & Planification -->
-                <field name="nom_intervenant" string="Nom et Prénom de l'Intervenant"/>
-                <field name="heure_debut" string="Date et Heure de Début"/>
-                <field name="heure_fin" string="Date et Heure de Fin"/>
-                <field name="rapport_diagnostique" string="Rapport Diagnostique"/>
-                <field name="type_intervention" string="Type d'Intervention"/>
-                <field name="besoin" string="Besoin"/>
+                <!-- Optional hidden fields -->
+                <field name="reference_interne" string="Référence Interne" optional="hide"/>
+                <field name="sn" string="SN" optional="hide"/>
+
+                <field name="nom_intervenant" string="Nom et Prénom de l'Intervenant" optional="hide"/>
+                <field name="heure_debut" string="Date et Heure de Début" optional="hide"/>
+                <field name="heure_fin" string="Date et Heure de Fin" optional="hide"/>
+                <field name="rapport_diagnostique" string="Rapport Diagnostique" optional="hide"/>
+                <field name="type_intervention" string="Type d'Intervention" optional="hide"/>
+                <field name="besoin" string="Besoin" optional="hide"/>
                 <field name="besoin_description" string="Détails du Besoin"
-                       attrs="{'invisible': [('besoin', '=', False)]}"/>
+                       attrs="{'invisible': [('besoin', '=', False)]}" optional="hide"/>
 
-                <field name="objet_intervention" string="Objet de l'Intervention"/>
-                <field name="date_prevue" string="Date Prévue"/>
+                <field name="objet_intervention" string="Objet de l'Intervention" optional="hide"/>
+                <field name="date_prevue" string="Date Prévue" optional="hide"/>
 
-                <!-- Phase 3: Réalisation -->
-                <field name="intervenant" string="Intervenant"/>
-                <field name="realisation_date" string="Date Réalisation"/>
-                <field name="constat" string="Constat"/>
-                <field name="description_intervention" string="Description de l'Intervention"/>
-                <field name="action_corrective" string="Action Corrective Nécessaire ?"/>
-                <field name="action_corrective_description" string="Détails de l'Action Corrective"/>
-                <field name="validation_responsable" string="Validation Responsable"/>
-                <field name="raison_non_validation" string="Raison de Non-Validation"/>
+                <field name="intervenant" string="Intervenant" optional="hide"/>
+                <field name="realisation_date" string="Date Réalisation" optional="hide"/>
+                <field name="constat" string="Constat" optional="hide"/>
+                <field name="description_intervention" string="Description de l'Intervention" optional="hide"/>
+                <field name="action_corrective" string="Action Corrective Nécessaire ?" optional="hide"/>
+                <field name="action_corrective_description" string="Détails de l'Action Corrective" optional="hide"/>
+                <field name="validation_responsable" string="Validation Responsable" optional="hide"/>
+                <field name="raison_non_validation" string="Raison de Non-Validation" optional="hide"/>
 
-                <!-- Phase 4: Efficacité -->
-                <field name="intervention_efficace" string="Intervention Efficace ?"/>
-                <field name="efficacy_date" string="Date Efficacité"/>
-                <field name="intervention_commentaire" string="Commentaire"/>
+                <field name="intervention_efficace" string="Intervention Efficace ?" optional="hide"/>
+                <field name="efficacy_date" string="Date Efficacité" optional="hide"/>
+                <field name="intervention_commentaire" string="Commentaire" optional="hide"/>
 
-                <!-- Phase 5: Clôture -->
-                <field name="responsable_intervention" string="Responsable de l'Intervention"/>
-                <field name="cloture_date" string="Date et Heure de Clôture"/>
+                <field name="responsable_intervention" string="Responsable de l'Intervention" optional="hide"/>
+                <field name="cloture_date" string="Date et Heure de Clôture" optional="hide"/>
 
-                <!-- Additional Fields -->
-                <field name="name" string="Fiche d'Intervention"/>
-                <field name="date_intervention_souhaitee" string="Date Intervention Souhaitée"/>
+                <field name="name" string="Fiche d'Intervention" optional="hide"/>
+                <field name="date_intervention_souhaitee" string="Date Intervention Souhaitée" optional="hide"/>
             </tree>
         </field>
     </record>
