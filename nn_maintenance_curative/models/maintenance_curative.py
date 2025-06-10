@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -19,46 +21,56 @@ class CurativeMaintenanceRequest(models.Model):
     declaration_date = fields.Date(string="Date Déclaration", required=True, readonly=True)
     problem_description = fields.Text(string="Problem Description", required=True)
     date_effective = fields.Date(string="Date Effective", required=True)
-    date_intervention = fields.Date(string="Date Intervention")
+    date_intervention = fields.Date(string="Date Intervention", required=True)
+    color = fields.Integer(string='Couleur', compute='_compute_color')
+
+    @api.depends('date_intervention')
+    def _compute_color(self):
+        for rec in self:
+            if rec.date_intervention == date.today() + timedelta(days=1):
+                rec.color = 1  # Red (index 1)
+            else:
+                rec.color = 0  # Default (grey)
+
     date_intervention_souhaitee = fields.Date(string="Date Intervention Souhaitée")
 
     # Phase 2 : Diagnostic & Planification
     nom_intervenant = fields.Char(string="Nom & Prénom de l'Intervenant")
     existing_intervenant = fields.Boolean(string="Intervenant Existe")
     intervenant_hr = fields.Many2one('hr.employee', string="Nom & Prénom de l'Intervenant", )
-    heure_debut = fields.Datetime(string="Date et Heure de Début")
-    heure_fin = fields.Datetime(string="Date et Heure de Fin")
-    rapport_diagnostique = fields.Text(string="Rapport Diagnostique")
+    heure_debut = fields.Datetime(string="Date et Heure de Début", required=True)
+    heure_fin = fields.Datetime(string="Date et Heure de Fin", required=True)
+    rapport_diagnostique = fields.Text(string="Rapport Diagnostique", required=True)
     type_intervention = fields.Selection([
         ('interne', 'Interne'),
         ('externe', 'Externe')
-    ], string="Type d'Intervention")
+    ], string="Type d'Intervention", required=True)
     besoin = fields.Boolean(string="Besoin ?")
     besoin_description = fields.Text(string="Détails du Besoin")
-    objet_intervention = fields.Text(string="Objet de l'Intervention")
-    date_prevue = fields.Date(string="Date Prévue de l'intervention")
+    objet_intervention = fields.Text(string="Objet de l'Intervention", required=True)
+    date_prevue = fields.Date(string="Date Prévue de l'intervention", required=True)
 
     # Phase 3 : Réalisation
     intervenant = fields.Char(string="Intervenant")
     existing_intervenant_realisation = fields.Boolean(string="Intervenant Existe")
     intervenant_hr_realisation = fields.Many2one('hr.employee', string="Nom & Prénom de l'Intervenant", )
-    realisation_date = fields.Date(string="Date Réalisation")
-    constat = fields.Text(string="Constaté")
+    realisation_date = fields.Date(string="Date Réalisation", required=True)
+    constat = fields.Text(string="Constaté", required=True)
     spare_part_ids = fields.One2many(
         'maintenance.curative.spare.part',
         'curative_id',
-        string='Pièces de rechange'
+        string='Pièces de rechange', required=True
     )
 
     pieces_rechange_ids = fields.One2many('maintenance.curative.piece', 'maintenance_id', string="Pièces de Rechange")
-    description_intervention = fields.Text(string="Description de l'Intervention")
+    description_intervention = fields.Text(string="Description de l'Intervention", required=True)
     action_corrective = fields.Boolean(string="Action Corrective Nécessaire ?")
     action_corrective_description = fields.Text(string="Détails de l'Action Corrective")
     validation_responsable = fields.Selection([
         ('valide', 'Validé'),
         ('non_valide', 'Non Validé')
-    ], string="Validation Responsable")
-    raison_non_validation = fields.Text(string="Raison de Non-Validation")
+    ], string="Validation Responsable", required=True)
+    raison_non_validation = fields.Text(string="Raison de Non-Validation", )
 
     # Phase 4 : Efficacité
     intervention_efficace = fields.Boolean(string="Intervention Efficace ?")

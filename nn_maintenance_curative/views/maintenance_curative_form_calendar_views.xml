@@ -30,9 +30,11 @@
                     <!-- Phase 2: Diagnostic & Planification -->
                     <group>
                         <field name="existing_intervenant" string="Intervenant Existe"
-                               attrs="{'readonly': [('state', '!=', 'diagnostic')]}"
+                               attrs="{
+           'readonly': [('state', '!=', 'diagnostic')],
+           'invisible': [('state', 'not in', [ 'diagnostic', 'realisation', 'efficacy', 'cloture'])]
+       }"/>
 
-                        />
                         <field name="intervenant_hr"
                                attrs="{
            'readonly': [('state', '!=', 'diagnostic')],
@@ -77,19 +79,23 @@
                     <!-- Phase 3: Réalisation -->
                     <group>
                         <field name="existing_intervenant_realisation" string="Intervenant Existe"
-                               attrs="{'readonly': [('state', '!=', 'realisation')]}"/>
+                               attrs="{
+           'readonly': [('state', '!=', 'realisation')],
+           'invisible': [('state', 'not in', ['realisation', 'efficacy', 'cloture'])]
+       }"/>
 
                         <field name="intervenant_hr_realisation"
                                string="Nom et Prénom de l'Intervenant"
                                attrs="{
            'readonly': [('state', '!=', 'realisation')],
-           'invisible': [('existing_intervenant_realisation', '=', False)]
+           'invisible': ['|', ('state', 'in', ['declaration', 'diagnostic']), ('existing_intervenant_realisation', '=', False)]
        }"/>
+
                         <field name="intervenant"
                                string="Nom et Prénom de l'Intervenant (Manuel)"
                                attrs="{
            'readonly': [('state', '!=', 'realisation')],
-           'invisible': [('existing_intervenant_realisation', '=', True)]
+           'invisible': ['|',('state', 'in', ['declaration', 'diagnostic']),('existing_intervenant_realisation', '=', True)]
        }"/>
                         <field name="realisation_date"
                                attrs="{'readonly': [('state', '!=', 'realisation')],
@@ -99,7 +105,10 @@
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
 
                         <field name="spare_part_ids" string="Pièces de rechange"
-                               attrs="{'readonly': [('state', '!=', 'realisation')]}">
+                               attrs="{
+           'readonly': [('state', '!=', 'realisation')],
+           'invisible': [('state', '!=', 'realisation')]
+       }">
                             <tree editable="bottom">
                                 <field name="product_id"/>
                                 <field name="name"/>
@@ -126,8 +135,12 @@
                                attrs="{'readonly': [('state', '!=', 'realisation')],
                    'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
                         <field name="raison_non_validation"
-                               attrs="{'readonly': [('state', '!=', 'realisation')],
-                   'invisible': [('state', 'in', ['declaration', 'diagnostic'])]}"/>
+                               attrs="{
+           'readonly': [('state', '!=', 'realisation')],
+           'invisible': ['|', ('state', 'in', ['declaration', 'diagnostic']), ('validation_responsable', '=', 'valide')],
+           'required': [('validation_responsable', '=', 'non_valide')]
+       }"/>
+
                     </group>
 
                     <!-- Phase 4: Efficacité -->
@@ -233,7 +246,9 @@
         <field name="name">maintenance.curative.calendar</field>
         <field name="model">maintenance.curative</field>
         <field name="arch" type="xml">
-            <calendar string="Fiche d'Intervention Curative" date_start="date_intervention_souhaitee">
+            <calendar string="Fiche d'Intervention Curative"
+                      date_start="date_intervention_souhaitee"
+                      color="color">
                 <field name="name"/>
                 <field name="demandeur_hr"/>
                 <field name="equipment_id"/>

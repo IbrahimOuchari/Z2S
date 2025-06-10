@@ -30,7 +30,8 @@ class MaintenanceEquipment(models.Model):
     start_maintenance_date = fields.Date(
         string="Date début maintenance",
         compute="_compute_start_maintenance_date",
-        store=True
+        store=True,
+        readonly=False,
     )
 
     next_maintenance_date = fields.Date(
