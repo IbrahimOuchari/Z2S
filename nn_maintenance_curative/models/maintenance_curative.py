@@ -38,39 +38,39 @@ class CurativeMaintenanceRequest(models.Model):
     nom_intervenant = fields.Char(string="Nom & Prénom de l'Intervenant")
     existing_intervenant = fields.Boolean(string="Intervenant Existe")
     intervenant_hr = fields.Many2one('hr.employee', string="Nom & Prénom de l'Intervenant", )
-    heure_debut = fields.Datetime(string="Date et Heure de Début", required=True)
-    heure_fin = fields.Datetime(string="Date et Heure de Fin", required=True)
-    rapport_diagnostique = fields.Text(string="Rapport Diagnostique", required=True)
+    heure_debut = fields.Datetime(string="Date et Heure de Début")
+    heure_fin = fields.Datetime(string="Date et Heure de Fin")
+    rapport_diagnostique = fields.Text(string="Rapport Diagnostique")
     type_intervention = fields.Selection([
         ('interne', 'Interne'),
         ('externe', 'Externe')
-    ], string="Type d'Intervention", required=True)
+    ], string="Type d'Intervention")
     besoin = fields.Boolean(string="Besoin ?")
     besoin_description = fields.Text(string="Détails du Besoin")
-    objet_intervention = fields.Text(string="Objet de l'Intervention", required=True)
-    date_prevue = fields.Date(string="Date Prévue de l'intervention", required=True)
+    objet_intervention = fields.Text(string="Objet de l'Intervention")
+    date_prevue = fields.Date(string="Date Prévue de l'intervention")
 
     # Phase 3 : Réalisation
     intervenant = fields.Char(string="Intervenant")
     existing_intervenant_realisation = fields.Boolean(string="Intervenant Existe")
     intervenant_hr_realisation = fields.Many2one('hr.employee', string="Nom & Prénom de l'Intervenant", )
-    realisation_date = fields.Date(string="Date Réalisation", required=True)
-    constat = fields.Text(string="Constaté", required=True)
+    realisation_date = fields.Date(string="Date Réalisation")
+    constat = fields.Text(string="Constaté")
     spare_part_ids = fields.One2many(
         'maintenance.curative.spare.part',
         'curative_id',
-        string='Pièces de rechange', required=True
+        string='Pièces de rechange'
     )
 
     pieces_rechange_ids = fields.One2many('maintenance.curative.piece', 'maintenance_id', string="Pièces de Rechange")
-    description_intervention = fields.Text(string="Description de l'Intervention", required=True)
+    description_intervention = fields.Text(string="Description de l'Intervention")
     action_corrective = fields.Boolean(string="Action Corrective Nécessaire ?")
     action_corrective_description = fields.Text(string="Détails de l'Action Corrective")
     validation_responsable = fields.Selection([
         ('valide', 'Validé'),
         ('non_valide', 'Non Validé')
-    ], string="Validation Responsable", required=True)
-    raison_non_validation = fields.Text(string="Raison de Non-Validation", )
+    ], string="Validation Responsable")
+    raison_non_validation = fields.Text(string="Raison de Non-Validation")
 
     # Phase 4 : Efficacité
     intervention_efficace = fields.Boolean(string="Intervention Efficace ?")
