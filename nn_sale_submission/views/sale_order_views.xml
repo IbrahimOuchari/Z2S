@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_submission_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.submission.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="before">
+                <group string="Soumission">
+                    <field name="numero_submission" style="width:47.5%;"/>
+
+                    <label for="date_submission_start" string="Période de soumission" width="50%"/>
+                    <div class="d-flex">
+                        <field name="date_submission_start"
+                               force_save="1"
+                               placeholder="Date début"
+                               class="oe_inline"/>
+
+                        <span class="o_form_label mx-3 oe_edit_only">jusqu’à</span>
+
+                        <field name="date_submission_end"
+                               force_save="1"
+                               placeholder="Date fin"
+                               class="oe_inline"/>
+                    </div>
+
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

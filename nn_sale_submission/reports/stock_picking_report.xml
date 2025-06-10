@@ -1,0 +1,44 @@
+<odoo>
+
+    <template id="custom_report_delivery_document_inherit" inherit_id="stock.report_delivery_document">
+        <xpath expr="//div[@class='row mt32 mb32']" position="replace">
+            <div class="row mt32 mb32">
+                <!-- Origin -->
+                <div class="col-6">
+                    <div t-if="o.origin" class="col-auto" name="div_origin">
+                        <strong>Order:</strong>
+                        <p t-field="o.origin"/>
+                    </div>
+
+                    <!-- Shipping Date -->
+                    <div t-if="o.state" class="col-auto" name="div_sched_date">
+                        <strong>Date d'expédition :</strong>
+                        <t t-if="o.state == 'done'">
+                            <p t-field="o.date_done"/>
+                        </t>
+                        <t t-if="o.state != 'done'">
+                            <p t-field="o.scheduled_date"/>
+                        </t>
+                    </div>
+
+                </div>
+
+
+                <!-- Période de soumission -->
+                <t t-if="o.sale_id">
+                    <div class="col-6">
+                        <div class="col-auto" name="div_submission_start">
+                            <strong>Date début de soumission :</strong>
+                            <p t-field="o.sale_id.date_submission_start"/>
+                        </div>
+                        <div class="col-auto" name="div_submission_end">
+                            <strong>Date fin de soumission :</strong>
+                            <p t-field="o.sale_id.date_submission_end"/>
+                        </div>
+                    </div>
+
+                </t>
+            </div>
+        </xpath>
+    </template>
+</odoo>
