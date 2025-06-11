@@ -10,6 +10,13 @@
                         <group>
                             <field name="name" string="Nom de l'opération"/>
                             <field name="equipment_id" string="Équipement"/>
+                            <group string="Période associée">
+                                <field name="is_mensuelle"/>
+                                <field name="is_trimestrielle"/>
+                                <field name="is_semestrielle"/>
+                                <field name="is_annuelle"/>
+                            </group>
+
                         </group>
                     </sheet>
                 </form>

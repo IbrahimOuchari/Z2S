@@ -108,33 +108,37 @@ class MaintenanceEquipment(models.Model):
         # Iterate through operations and collect names based on frequency
         for op in operations:
             if op.equipment_id.id == self.id:
-                line_1.append((0, 0, {
-                    'frequency': '1',
-                    'operation_name': op.name,
-                    'operation_id': op.id,
-                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
-                }))
+                if op.is_mensuelle:
+                    line_1.append((0, 0, {
+                        'frequency': '1',
+                        'operation_name': op.name,
+                        'operation_id': op.id,
+                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                    }))
                 _logger.info("Added operation_id %s to line_1", op.id)
-                line_2.append((0, 0, {
-                    'frequency': '2',
-                    'operation_name': op.name,
-                    'operation_id': op.id,
-                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
-                }))
+                if op.is_trimestrielle:
+                    line_2.append((0, 0, {
+                        'frequency': '2',
+                        'operation_name': op.name,
+                        'operation_id': op.id,
+                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                    }))
                 _logger.info("Added operation_id %s to line_2", op.id)
-                line_3.append((0, 0, {
-                    'frequency': '3',
-                    'operation_name': op.name,
-                    'operation_id': op.id,
-                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
-                }))
+                if op.is_semestrielle:
+                    line_3.append((0, 0, {
+                        'frequency': '3',
+                        'operation_name': op.name,
+                        'operation_id': op.id,
+                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                    }))
                 _logger.info("Added operation_id %s to line_3", op.id)
-                line_4.append((0, 0, {
-                    'frequency': '4',
-                    'operation_name': op.name,
-                    'operation_id': op.id,
-                    'equipment_id': self.id,  # Explicitly set the parent equipment_id
-                }))
+                if op.is_annuelle:
+                    line_4.append((0, 0, {
+                        'frequency': '4',
+                        'operation_name': op.name,
+                        'operation_id': op.id,
+                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                    }))
                 _logger.info("Added operation_id %s to line_4", op.id)
 
         # Assign the collected lines to the respective intervention fields

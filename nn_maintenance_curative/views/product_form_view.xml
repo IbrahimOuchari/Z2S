@@ -1,0 +1,20 @@
+<!-- File: my_module/views/product_template_inherit.xml -->
+<odoo>
+    <record id="view_maintenance_product_template_form_inherit" model="ir.ui.view">
+        <field name="name">product.maintenance.template.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Exemple : ajouter un champ après le champ name -->
+            <xpath expr="//sheet/notebook" position="before">
+
+                <div attrs="{'invisible':[('fourni','=',False),('purchase_ok','=',False)]}">
+                    <field name="is_spare_part"/>
+                    <label for="is_spare_part" string="Pièce de réchange"/>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -115,7 +115,7 @@
                     <filter string="Article Fini" name="sale_ok" domain="[('sale_ok', '=', True)]"/>
                     <separator/>
                     <filter string="Article Validé" name="valide" domain="[('state_product', '=', '1')]"/>
-                    <filter string="Article En cours de Valisation" name="valide"
+                    <filter string="Article En cours de Validation" name="valide"
                             domain="[('state_product', '=', '2')]"/>
                     <filter string="Article Non Validé" name="non_valide" domain="[('state_product', '=', '0')]"/>
                 </xpath>
@@ -140,9 +140,9 @@
                     <attribute name="attrs">{'invisible':['|',('purchase_ok','=',True),('fourni','=',True)]}</attribute>
                 </xpath>
                 <!--type readonly-->
-<!--                <xpath expr="//field[@name='type']" position="attributes">-->
-<!--                    <attribute name="attrs">{'readonly': [('id', '!=', False)]}</attribute>-->
-<!--                </xpath>-->
+                <!--                <xpath expr="//field[@name='type']" position="attributes">-->
+                <!--                    <attribute name="attrs">{'readonly': [('id', '!=', False)]}</attribute>-->
+                <!--                </xpath>-->
 
                 <!--type readonly-->
                 <xpath expr="//field[@name='client_id']" position="attributes">
@@ -152,9 +152,9 @@
                 </xpath>
 
                 <!--categ_id invisible-->
-<!--                <xpath expr="//field[@name='categ_id']" position="attributes">-->
-<!--                    <attribute name="attrs">{'readonly': [('id', '!=', False)]}</attribute>-->
-<!--                </xpath>-->
+                <!--                <xpath expr="//field[@name='categ_id']" position="attributes">-->
+                <!--                    <attribute name="attrs">{'readonly': [('id', '!=', False)]}</attribute>-->
+                <!--                </xpath>-->
 
                 <!--ref_article invisible-->
                 <xpath expr="//field[@name='default_code']" position="attributes">
@@ -192,9 +192,9 @@
                     <attribute name="invisible">True</attribute>
                 </xpath>
 
-<!--                <xpath expr="//field[@name='last_purchase_price']" position="attributes">-->
-<!--                    <attribute name="invisible">True</attribute>-->
-<!--                </xpath>-->
+                <!--                <xpath expr="//field[@name='last_purchase_price']" position="attributes">-->
+                <!--                    <attribute name="invisible">True</attribute>-->
+                <!--                </xpath>-->
 
 
                 <field name="name" position="after">
@@ -233,8 +233,6 @@
 
             </field>
         </record>
-
-
 
 
     </data>

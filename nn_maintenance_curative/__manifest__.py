@@ -13,7 +13,7 @@
     'author': "Votre Nom",
     'website': "Votre Site Web",
     'category': 'Maintenance',
-    'depends': ['base', 'maintenance', 'hr', 'bmg_sale'],
+    'depends': ['base', 'maintenance', 'hr', 'bmg_sale', 'Z2S'],
     'data': [
         'security/security_rules_and_groups.xml',
         'security/ir.model.access.csv',
@@ -25,7 +25,8 @@
         'views/sale_devis_button_fix.xml',
         'views/maintenance_operation_frequente_view.xml',
         'views/maintenance_calendar_view.xml',
-        'views/maintenance_request_form.xml'
+        'views/maintenance_request_form.xml',
+        'views/product_form_view.xml'
 
         # Ajoutez ici les fichiers XML (vues, actions, séquences, etc.)
     ],

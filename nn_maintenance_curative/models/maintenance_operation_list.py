@@ -14,6 +14,11 @@ class MaintenanceOperationList(models.Model):
         ('4', 'Annuelle'),
     ], string="Fréquence associée", required=True)
 
+    is_mensuelle = fields.Boolean(string="Mensuelle", store=True)
+    is_trimestrielle = fields.Boolean(string="Trimestrielle", store=True)
+    is_semestrielle = fields.Boolean(string="Semestrielle", store=True)
+    is_annuelle = fields.Boolean(string="Annuelle", store=True)
+
 
 class MaintenanceInterventionLine1(models.Model):
     _name = 'maintenance.intervention.line1'
