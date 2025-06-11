@@ -11,6 +11,7 @@
                 <xpath expr="//page[@name='product_information']//field[@name='partner_ref']" position="after">
                     <field name="reference_interne" string="Référence Interne"/>
                 </xpath>
+
                 <xpath expr="//page[@name='maintenance']" position="inside">
 
                     <group name="frequency_control" class="o_col_4" style="width:30%;">
@@ -20,6 +21,9 @@
                         <group name="frequency_control" class="o_col_4" style="width:80%;">
 
                             <field name="period_1_frequency" string="Période 1 (en jours)" style="width:30%;"/>
+                            <div class="oe_sticky_warning" t-if="period_1_warning">
+                                <field name="period_1_warning" readonly="1" nolabel="1"/>
+                            </div>
                         </group>
                         <group style="margin-left:200px;">
                             <group>
@@ -53,6 +57,9 @@
                     <div style="width:70%;" attrs="{'invisible': [('period_count', 'not in', ['2', '3', '4'])]}">
                         <group name="frequency_control_2" class="o_col_4" style="width:80%;">
                             <field name="period_2_frequency" string="Période 2 (en jours)" style="width:30%;"/>
+                            <div class="oe_sticky_warning" t-if="period_2_warning">
+                                <field name="period_2_warning" readonly="1" nolabel="1"/>
+                            </div>
                         </group>
                         <group style="margin-left:200px;">
                             <group>
@@ -84,6 +91,9 @@
                     <div style="width:70%;" attrs="{'invisible': [('period_count', 'not in', ['3', '4'])]}">
                         <group name="frequency_control_3" class="o_col_4" style="width:80%;">
                             <field name="period_3_frequency" string="Période 3 (en jours)" style="width:30%;"/>
+                            <div class="oe_sticky_warning" t-if="period_3_warning">
+                                <field name="period_3_warning" readonly="1" nolabel="1"/>
+                            </div>
                         </group>
                         <group style="margin-left:200px;">
                             <group>
@@ -115,6 +125,9 @@
                     <div style="width:70%;" attrs="{'invisible': [('period_count', '!=', '4')]}">
                         <group name="frequency_control_4" class="o_col_4" style="width:80%;">
                             <field name="period_4_frequency" string="Période 4 (en jours)" style="width:30%;"/>
+                            <div class="oe_sticky_warning" t-if="period_4_warning">
+                                <field name="period_4_warning" readonly="1" nolabel="1"/>
+                            </div>
                         </group>
                         <group style="margin-left:200px;">
                             <group>
@@ -141,11 +154,60 @@
                         </field>
                     </div>
                     <xpath expr="//page[@name='maintenance']" position="inside">
-                        <group string="Planification de la maintenance préventive">
-                            <field name="effective_date"/>
-                            <field name="start_maintenance_date"/>
-                            <field name="next_maintenance_date" readonly="False"/>
+                        <group>
+                            <group string="Planification de la maintenance préventive">
+                                <div>
+                                    <div>
+                                        <label for="effective_date"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+
+                                        <field name="effective_date"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+
+                                    </div>
+                                    <div>
+                                        <label for="start_maintenance_date"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+                                        <field name="start_maintenance_date"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+
+                                    </div>
+                                </div>
+                            </group>
+                            <group string="Dates Prochaines de Maintenance">
+                                <div>
+                                    <div style="margin-bottom:10px;"
+                                         attrs="{'invisible':[('period_1_frequency','=',0)]}">
+                                        <label for="next_maintenance_mensuelle"
+                                               style="font-size:16px; font-weight:bold; color:#333;"/>
+                                        <field name="next_maintenance_mensuelle" readonly="1"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+                                    </div>
+                                    <div style="margin-bottom:10px;"
+                                         attrs="{'invisible':[('period_2_frequency','=',0)]}">
+                                        <label for="next_maintenance_trimestrielle"
+                                               style="font-size:16px; font-weight:bold; color:#333;"/>
+                                        <field name="next_maintenance_trimestrielle" readonly="1"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+                                    </div>
+                                    <div style="margin-bottom:10px;"
+                                         attrs="{'invisible':[('period_3_frequency','=',0)]}">
+                                        <label for="next_maintenance_semestrielle"
+                                               style="font-size:16px; font-weight:bold; color:#333;"/>
+                                        <field name="next_maintenance_semestrielle" readonly="1"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+                                    </div>
+                                    <div style="margin-bottom:10px;"
+                                         attrs="{'invisible':[('period_4_frequency','=',0)]}">
+                                        <label for="next_maintenance_annuelle"
+                                               style="font-size:16px; font-weight:bold; color:#333;"/>
+                                        <field name="next_maintenance_annuelle" readonly="1"
+                                               style="font-size:15px; font-weight:500; color:#000;"/>
+                                    </div>
+                                </div>
+                            </group>
                         </group>
+
 
                     </xpath>
                 </xpath>

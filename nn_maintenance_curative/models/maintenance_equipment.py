@@ -25,6 +25,27 @@ class MaintenanceEquipment(models.Model):
     period_4_frequency = fields.Integer("Période 4 (en jours)")
     state = fields.Integer("Période 4 (en jours)")
 
+    period_1_warning = fields.Html(string="Alerte Période 1", compute="_compute_warnings")
+    period_2_warning = fields.Html(string="Alerte Période 2", compute="_compute_warnings")
+    period_3_warning = fields.Html(string="Alerte Période 3", compute="_compute_warnings")
+    period_4_warning = fields.Html(string="Alerte Période 4", compute="_compute_warnings")
+
+    @api.depends('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency')
+    def _compute_warnings(self):
+        for rec in self:
+            rec.period_1_warning = (
+                "<div class='note-warning'>⚠️ Plus de 31 jours !</div>" if rec.period_1_frequency and rec.period_1_frequency > 31 else False
+            )
+            rec.period_2_warning = (
+                "<div class='note-warning'>⚠️ Plus de 93 jours !</div>" if rec.period_2_frequency and rec.period_2_frequency > 93 else False
+            )
+            rec.period_3_warning = (
+                "<div class='note-warning'>⚠️ Plus de 186 jours !</div>" if rec.period_3_frequency and rec.period_3_frequency > 186 else False
+            )
+            rec.period_4_warning = (
+                "<div class='note-warning'>⚠️ Plus de 366 jours !</div>" if rec.period_4_frequency and rec.period_4_frequency > 366 else False
+            )
+
     effective_date = fields.Date("Date effective")
 
     start_maintenance_date = fields.Date(
@@ -34,11 +55,62 @@ class MaintenanceEquipment(models.Model):
         readonly=False,
     )
 
-    next_maintenance_date = fields.Date(
-        string="Prochaine maintenance",
-        compute="_compute_next_maintenance_date",
+    next_maintenance_mensuelle = fields.Date(
+        string="Prochaine maintenance mensuelle",
+        compute="_compute_next_maintenance_mensuelle",
         store=True
     )
+
+    next_maintenance_trimestrielle = fields.Date(
+        string="Prochaine maintenance trimestrielle",
+        compute="_compute_next_maintenance_trimestrielle",
+        store=True
+    )
+
+    next_maintenance_semestrielle = fields.Date(
+        string="Prochaine maintenance semestrielle",
+        compute="_compute_next_maintenance_semestrielle",
+        store=True
+    )
+
+    next_maintenance_annuelle = fields.Date(
+        string="Prochaine maintenance annuelle",
+        compute="_compute_next_maintenance_annuelle",
+        store=True
+    )
+
+    @api.onchange('period_1_frequency')
+    def _compute_next_maintenance_mensuelle(self):
+        for record in self:
+            if record.period_1_frequency:
+                record.next_maintenance_mensuelle = fields.Date.today() + timedelta(days=record.period_1_frequency)
+
+            else:
+                record.next_maintenance_mensuelle = False
+
+    @api.onchange('period_2_frequency')
+    def _compute_next_maintenance_trimestrielle(self):
+        for record in self:
+            if record.period_2_frequency:
+                record.next_maintenance_trimestrielle = fields.Date.today() + timedelta(days=record.period_2_frequency)
+            else:
+                record.next_maintenance_trimestrielle = False
+
+    @api.onchange('period_3_frequency')
+    def _compute_next_maintenance_semestrielle(self):
+        for record in self:
+            if record.period_3_frequency:
+                record.next_maintenance_semestrielle = fields.Date.today() + timedelta(days=record.period_3_frequency)
+            else:
+                record.next_maintenance_semestrielle = False
+
+    @api.onchange('period_4_frequency')
+    def _compute_next_maintenance_annuelle(self):
+        for record in self:
+            if record.period_4_frequency:
+                record.next_maintenance_annuelle = fields.Date.today() + timedelta(days=record.period_4_frequency)
+            else:
+                record.next_maintenance_annuelle = False
 
     intervention_ligne_ids_1 = fields.One2many('maintenance.intervention.line1', 'equipment_id',
                                                string="Intervention fréquence 1", domain=[('frequency', '=', '1')])
@@ -188,14 +260,3 @@ class MaintenanceEquipment(models.Model):
                     record.start_maintenance_date = False
             else:
                 record.start_maintenance_date = False
-
-    @api.depends('date_heure_debut_1', 'date_heure_debut_2', 'date_heure_debut_3', 'date_heure_debut_4')
-    def _compute_next_maintenance_date(self):
-        for rec in self:
-            all_dates = list(filter(None, [
-                rec.date_heure_debut_1,
-                rec.date_heure_debut_2,
-                rec.date_heure_debut_3,
-                rec.date_heure_debut_4,
-            ]))
-            rec.next_maintenance_date = min(all_dates).date() if all_dates else False

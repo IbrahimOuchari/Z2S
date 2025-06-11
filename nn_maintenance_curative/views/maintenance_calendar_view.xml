@@ -4,9 +4,9 @@
         <field name="name">maintenance.equipment.calendar</field>
         <field name="model">maintenance.equipment</field>
         <field name="arch" type="xml">
-            <calendar date_start="next_maintenance_date">
+            <calendar date_start="next_maintenance_mensuelle">
                 <field name="name"/>
-                <field name="next_maintenance_date"/>
+                <field name="next_maintenance_mensuelle"/>
             </calendar>
         </field>
     </record>
