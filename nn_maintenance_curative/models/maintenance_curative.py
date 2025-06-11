@@ -21,18 +21,16 @@ class CurativeMaintenanceRequest(models.Model):
     declaration_date = fields.Date(string="Date Déclaration", required=True, readonly=True)
     problem_description = fields.Text(string="Problem Description", required=True)
     date_effective = fields.Date(string="Date Effective", required=True)
-    date_intervention = fields.Date(string="Date Intervention", required=True)
+    date_intervention_souhaitee = fields.Date(string="Date Intervention Souhaitée", required=True)
     color = fields.Integer(string='Couleur', compute='_compute_color')
 
-    @api.depends('date_intervention')
+    @api.depends('date_intervention_souhaitee')
     def _compute_color(self):
         for rec in self:
-            if rec.date_intervention == date.today() + timedelta(days=1):
+            if rec.date_intervention_souhaitee == date.today() + timedelta(days=1):
                 rec.color = 1  # Red (index 1)
             else:
                 rec.color = 0  # Default (grey)
-
-    date_intervention_souhaitee = fields.Date(string="Date Intervention Souhaitée")
 
     # Phase 2 : Diagnostic & Planification
     nom_intervenant = fields.Char(string="Nom & Prénom de l'Intervenant")
@@ -60,6 +58,11 @@ class CurativeMaintenanceRequest(models.Model):
         'maintenance.curative.spare.part',
         'curative_id',
         string='Pièces de rechange'
+    )
+    spare_part_demand_ids = fields.One2many(
+        'maintenance.curative.spare.part.demand',
+        'curative_id',
+        string='Pièces de rechange demandées'
     )
 
     pieces_rechange_ids = fields.One2many('maintenance.curative.piece', 'maintenance_id', string="Pièces de Rechange")
@@ -218,12 +221,87 @@ class CurativeMaintenanceRequest(models.Model):
 
     def move_to_realisation(self):
         self.state = 'realisation'
+        for rec in self:
+            new_lines = []
+            for op in rec.spare_part_demand_ids:
+                new_lines.append((0, 0, {
+                    'product_id': op.product_id.id,
+                    'quantity': op.quantity,
+                    'curative_id': op.curative_id.id,
+                }))
+            rec.spare_part_ids = new_lines
 
     def move_to_efficacy(self):
         self.state = 'efficacy'
 
     def move_to_cloture(self):
         self.state = 'cloture'
+
+    picking_id = fields.Many2one(
+        'stock.picking',
+        string="Bon de Livraison",
+        copy=False
+    )
+
+    def action_create_stock_picking(self):
+        for record in self:
+
+            # Get Picking Type with code 'MT'
+            picking_type = self.env['stock.picking.type'].search([('sequence_code', '=', 'MT')], limit=1)
+            if not picking_type:
+                raise UserError("Aucun type d'opération de transfert interne avec code 'MT' n'a été trouvé.")
+
+            # Create Stock Picking
+            picking = self.env['stock.picking'].create({
+                'picking_type_id': picking_type.id,
+                'origin': record.name,
+                'location_id': picking_type.default_location_src_id.id,
+                'location_dest_id': picking_type.default_location_dest_id.id
+            })
+
+            # Create stock.move lines
+            for line in record.spare_part_ids:
+                if not line.product_id or not line.quantity:
+                    continue
+                self.env['stock.move'].create({
+                    'name': line.product_id.display_name,
+                    'product_id': line.product_id.product_variant_id.id,
+                    'product_uom_qty': line.quantity,
+                    'product_uom': line.product_id.uom_id.id,
+                    'picking_id': picking.id,
+                    'location_id': picking.location_id.id,
+                    'location_dest_id': picking.location_dest_id.id,
+                })
+
+            # Mark the record as created and store picking
+            # Mark the record as created and link the picking
+            record.stock_pick_created = True
+            record.picking_id = picking.id
+
+            # Return picking view
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'stock.picking',
+                'view_mode': 'form',
+                'res_id': picking.id,
+                'target': 'current',
+            }
+        return None
+
+    stock_pick_created = fields.Boolean(string="Stock Picking Créé", default=False)
+
+    def action_view_stock_picking(self):
+        self.ensure_one()
+        if not self.picking_id:
+            raise UserError("Aucun transfert associé.")
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Transfert',
+            'res_model': 'stock.picking',
+            'view_mode': 'form',
+            'res_id': self.picking_id.id,
+            'target': 'current',
+        }
 
 
 class MaintenanceCurativePiece(models.Model):

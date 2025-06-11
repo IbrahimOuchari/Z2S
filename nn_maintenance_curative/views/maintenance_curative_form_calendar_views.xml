@@ -7,9 +7,23 @@
             <form string="Fiche d'Intervention Curative">
                 <header>
                     <field name="state" widget="statusbar" readonly="True"/>
-
+                    <button name="action_create_stock_picking"
+                            type="object"
+                            string="Créer le Bon de Stock"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'realisation')]}"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box" modifiers="{}">
+                        <field name="stock_pick_created" invisible="1"/>
+
+                        <button name="action_view_stock_picking"
+                                string="Voir le Transfert"
+                                type="object"
+                                class="oe_stat_button" icon="fa-truck"
+                                attrs="{'invisible': [('stock_pick_created', '=', False)]}"/>
+                    </div>
+
                     <group>
                         <field name="demandeur_hr" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="equipment_id" attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
@@ -22,7 +36,8 @@
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                         <field name="date_effective" string="Date Effective"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
-                        <field name="date_intervention"
+
+                        <field name="date_intervention_souhaitee"
                                attrs="{'readonly': [('state', '!=', 'declaration')]}"/>
                     </group>
 
@@ -64,6 +79,18 @@
                            'readonly': [('state', '!=', 'diagnostic')],
                            'invisible': [('state', '=', 'declaration')]
                        }"/>
+                        <field name="spare_part_demand_ids" string="Pièces de rechange demandées"
+                               attrs="{
+           'readonly': [('state', '!=', 'diagnostic')],
+           'invisible': [('state', '=', 'declaration')]
+       }">
+                            <tree editable="bottom" decoration-danger="quantity > qty_available or not qty_available">
+                                <field name="product_id" domain="[('is_spare_part', '=', True)]"/>
+                                <field name="name"/>
+                                <field name="quantity"/>
+                                <field name="qty_available"/>
+                            </tree>
+                        </field>
 
                         <field name="besoin_description"
                                attrs="{'invisible': [('besoin', '=', False)]}"/>
@@ -110,7 +137,7 @@
            'invisible': [('state', '!=', 'realisation')]
        }">
                             <tree editable="bottom">
-                                <field name="product_id"/>
+                                <field name="product_id" domain="[('is_spare_part', '=', True)]"/>
                                 <field name="name"/>
                                 <field name="quantity"/>
                             </tree>

@@ -1,0 +1,28 @@
+<odoo>
+
+    <record id="view_maintenance_date_intervention_souhaitee" model="ir.ui.view">
+        <field name="name">maintenance.curative.date_intervention_souhaitee</field>
+        <field name="model">maintenance.curative</field>
+        <field name="arch" type="xml">
+            <tree default_order="date_intervention_souhaitee asc">
+                <field name="equipment_id"/>
+                <field name="date_intervention_souhaitee"/>
+            </tree>
+
+        </field>
+    </record>
+    <record id="action_maintenance_date_intervention_souhaitee" model="ir.actions.act_window">
+        <field name="name">Date Prochaine Maintenance</field>
+        <field name="res_model">maintenance.curative</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_maintenance_date_intervention_souhaitee"/>
+        <field name="context">{'search_default_order': 'date_intervention_souhaitee asc'}</field>
+    </record>
+
+    <!-- Menu Items -->
+
+    <menuitem id="menu_maintenance_curative_date_intervention_souhaitee" name="Date Prochaine Maintenance"
+              parent="menu_maintenance_curative"
+              action="action_maintenance_date_intervention_souhaitee"/>
+
+</odoo>
