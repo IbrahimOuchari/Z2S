@@ -34,6 +34,5 @@
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
-    'post_init_hook': 'remove_old_model_maintenance_operation_frequente',
 
 }
