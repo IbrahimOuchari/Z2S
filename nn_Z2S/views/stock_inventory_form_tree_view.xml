@@ -39,7 +39,8 @@
                 <field name="can_edit" invisible="1"/>
 
 
-                <field name="product_qty_counted" string="Compté User"/>
+                <field name="product_qty_counted" string="Compté User" widget="product_qty_counted_widget"/>
+
             </xpath>
             <xpath expr="//button[@name='action_refresh_quantity']" position="attributes">
                 <attribute name="attrs">{'invisible': True}</attribute>
@@ -171,7 +172,7 @@
                             string="Réconfirmer la fermeture de la demande"
                             type="object"
                             class="btn-danger"
-                        />
+                    />
 
                 </header>
 

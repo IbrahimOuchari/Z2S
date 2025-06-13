@@ -19,7 +19,8 @@
                             <!-- Get filtered inventory lines -->
                             <t t-set="filtered_lines" t-value="o.get_filtered_inventory_lines()"/>
                             <!-- Get unique locations from filtered inventory lines -->
-                            <t t-set="locations" t-value="filtered_lines.mapped('location_id').filtered(lambda loc: loc.display_name != 'Retour')"/>
+                            <t t-set="locations"
+                               t-value="filtered_lines.mapped('location_id').filtered(lambda loc: loc.display_name != 'Retour')"/>
 
                             <!-- Initialize a variable to keep track of the previous location -->
                             <t t-set="previous_location" t-value="None"/>
@@ -33,24 +34,49 @@
                                         <div style="page-break-before: always;"></div>
                                     </t>
 
-                                    <h4 class="text-center mt-2" t-field="location.display_name"/> <!-- Reduced top margin for location -->
+                                    <h4 class="text-center mt-2"
+                                        t-field="location.display_name"/> <!-- Reduced top margin for location -->
 
                                     <table class="table table-sm mt-1">
                                         <thead>
                                             <tr>
-                                                <th><strong>Réf Article</strong></th>
-                                                <th><strong>Article</strong></th>
-                                                <th><strong>Client</strong></th>
-                                                <th class="text-right"><strong>Quantité Comptée</strong></th>
+                                                <th>
+                                                    <strong>Lieu</strong>
+                                                </th>
+                                                <th>
+                                                    <strong>Réf Article</strong>
+                                                </th>
+                                                <th>
+                                                    <strong>Article</strong>
+                                                </th>
+                                                <th>
+                                                    <strong>Client</strong>
+                                                </th>
+                                                <th class="text-right">
+                                                    <strong>Quantité Comptée</strong>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <t t-foreach="filtered_lines.filtered(lambda line: line.location_id == location)" t-as="line">
+                                            <t t-foreach="filtered_lines.filtered(lambda line: line.location_id == location)"
+                                               t-as="line">
                                                 <tr t-if="line.product_id">
-                                                    <td><span t-field="line.product_id.ref_product_client"/></td>
-                                                    <td><span t-field="line.product_id.name"/></td>
-                                                    <td><span t-field="line.client_id.name" t-if="line.client_id"/></td>
-                                                    <td class="text-right"><span t-field="line.product_qty_counted" t-if="line.product_qty_counted"/></td>
+                                                    <td>
+                                                        <span t-field="line.location_id.name"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="line.product_id.ref_product_client"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="line.product_id.name"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="line.client_id.name" t-if="line.client_id"/>
+                                                    </td>
+                                                    <td class="text-right">
+                                                        <span t-field="line.product_qty_counted"
+                                                              t-if="line.product_qty_counted"/>
+                                                    </td>
                                                 </tr>
                                                 <!-- Add a horizontal line for visual separation -->
                                                 <tr>

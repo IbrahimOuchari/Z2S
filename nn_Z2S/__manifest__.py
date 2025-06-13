@@ -10,7 +10,7 @@
     'description': "Advanced version of BMG Technologies module for enhanced commission management.",
     'category': 'Accounting/Accounting',
     'website': 'https://www.bmgtech.tn',
-    'depends': ['base', 'mrp', 'product', 'stock', 'sale', 'account', 'Z2S','ks_percent_field'],
+    'depends': ['base', 'mrp', 'product', 'stock', 'sale', 'account', 'Z2S', 'ks_percent_field'],
     'data': [
         'security/ir.model.access.csv',
         'security/groups.xml',
@@ -49,7 +49,7 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'nn_Z2S/static/src/js/empty_float_field.js',  # Path to your JS file
+            'nn_Z2S/static/src/js/product_qty_counted_widget.js',  # Path to your JS file
         ],
     },
     'images': ['static/src/img/free.png'],
