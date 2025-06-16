@@ -5,7 +5,8 @@
         <field name="inherit_id" ref="stock.view_stock_move_operations"/>
         <field name="arch" type="xml">
             <xpath expr="//group/group/field[@name='next_serial']" position="before">
-                <group attrs="{'invisible': [('picking_type_code', '!=', 'incoming')]}">
+                <group attrs="{'invisible': [('picking_type_code', 'not in', ['incoming', 'internal'])]}">
+
                     <field name="quantity_per_batch"
                            string="Quantité colisage"
                            attrs="{'required': [('picking_type_code', '=', 'incoming')]}"/>
@@ -15,18 +16,19 @@
             </xpath>
 
             <xpath expr="//field[@name='move_line_ids']" position="after">
-                <notebook attrs="{'invisible': [('picking_type_code', '!=', 'incoming')]}">
+                <notebook attrs="{'invisible': [('picking_type_code', 'not in', ['incoming', 'internal'])]}">
                     <page string="Gestion de étiquettes"
-                          attrs="{'invisible': [('picking_type_code', '!=', 'incoming')]}">
+                          attrs="{'invisible': [('picking_type_code', 'not in', ['incoming', 'internal'])]}">
                         <field name="lot_management_ids">
-                            <tree >
+                            <tree>
                                 <field name="name" string="ID-ETQ-REC"/>
                                 <field name="quantity_per_batch" string="Quantité colisage"/>
                                 <field name="total_quantity_per_batch" invisible="1" string="Total"/>
                                 <field name="cumule" string="Cumulé"/>
                                 <field name="date" string="Date" readonly="True"/>
                                 <field name="state" string="Status"/>
-                                <button name="print_label_stock_move" string="Imprimer" type="object" class="btn-primary"/>
+                                <button name="print_label_stock_move" string="Imprimer" type="object"
+                                        class="btn-primary"/>
                             </tree>
                         </field>
                     </page>

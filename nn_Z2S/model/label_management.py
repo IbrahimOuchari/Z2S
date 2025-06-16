@@ -1,8 +1,8 @@
-from datetime import datetime
-from odoo import models, fields, api
-import math
-from odoo.exceptions import ValidationError
 import logging
+import math
+
+from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ class LabelManagement(models.Model):
     _name = 'label.management'
     _description = 'Label Management'
 
-    name = fields.Char( copy=False, unique=True)
+    name = fields.Char(copy=False, unique=True)
     finished_product_id = fields.Many2one('product.product', string="Produit Fini")
     client_reference = fields.Char(string="Référence Client")
     designation = fields.Char(string="Désignation")
@@ -162,22 +162,47 @@ class LabelManagement(models.Model):
                 lot_qty = qty_per_batch
 
             cumule += lot_qty
+            year = fields.Date.today().year % 100
 
             # Create the lot with name format "REC or EXP-YEAR-XXXX"
-            prefix = 'REC' if move.picking_type_code == 'incoming' else 'EXP'
-            sequence_number = self.env['ir.sequence'].next_by_code('label_management.of_exp_year.sequence')
+            # prefix = 'REC' if move.picking_type_code == 'incoming' else 'EXP'
+            if move.picking_type_code == 'incoming':
+                sequence_number = self.env['ir.sequence'].next_by_code('label_management.rec_a.sequence')
 
-            # Use the same year calculation
-            year = fields.Date.today().year % 100
-            lot_name = f"{prefix}-{year}-{sequence_number}"  # Format name correctly
+                lot_name = sequence_number  # Format name correctly
+                self.create({
+                    'quantity_per_batch': lot_qty,
+                    'stock_move_id': move.id,
+                    'cumule': cumule,
+                    'name': lot_name,  # Set the name here
+                    'active': True,
+                })
+            if move.picking_type_code == 'internal':
+                sequence_number = self.env['ir.sequence'].next_by_code('label_management.ret_int.sequence')
+                # prefix = sequence_number.prefix
 
-            self.create({
-                'quantity_per_batch': lot_qty,
-                'stock_move_id': move.id,
-                'cumule': cumule,
-                'name': lot_name,  # Set the name here
-                'active': True,
-            })
+                lot_name = sequence_number  # Format name correctly
+
+                self.create({
+                    'quantity_per_batch': lot_qty,
+                    'stock_move_id': move.id,
+                    'cumule': cumule,
+                    'name': lot_name,  # Set the name here
+                    'active': True,
+                })
+            if move.picking_type_code == 'outgoing':
+                # Use the same year calculation
+                sequence_number = self.env['ir.sequence'].next_by_code('label_management.of_exp_year.sequence')
+
+                lot_name = sequence_number  # Format name correctly
+
+                self.create({
+                    'quantity_per_batch': lot_qty,
+                    'stock_move_id': move.id,
+                    'cumule': cumule,
+                    'name': lot_name,  # Set the name here
+                    'active': True,
+                })
 
     @api.constrains('quantity_per_batch', 'manufacturing_order_id')
     def _check_quantity_per_batch(self):
@@ -305,5 +330,3 @@ class LabelManagement(models.Model):
 
         # Generate the report for the current LabelManagement record
         return report.report_action(self)
-
-
