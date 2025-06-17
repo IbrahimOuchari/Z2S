@@ -1,0 +1,51 @@
+<odoo>
+
+    <template id="assets_backend" name="custom float input assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript"
+                    src="/nn_stock_zero_qty_adjustment/static/src/js/product_qty_input_float.js"/>
+        </xpath>
+    </template>
+    <record id="view_stock_inventory_line_zero_qty_adjustment" model="ir.ui.view">
+        <field name="name">stock.inventory.line.tree.zero.qty.adjust</field>
+        <field name="model">stock.inventory.line</field>
+        <field name="inherit_id" ref="stock.stock_inventory_line_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//tree/field[@name='difference_qty']" position="before">
+                <field name="product_qty_counted_char"/>
+                <field name="confirmed_zero" widget="boolean_toggle"/>
+
+            </xpath>
+
+            <xpath expr="//tree" position="attributes">
+                <!-- Highlight the row when zero is confirmed -->
+                <attribute name="decoration-success">confirmed_zero == True</attribute>
+            </xpath>
+
+
+            <!--            <xpath expr="//tree/field[@name='product_qty_counted']" position="replace">-->
+            <!--                <field name="product_qty_counted"-->
+            <!--                       widget=""/>-->
+            <!--                <field name="qty_retyped"-->
+            <!--                />-->
+
+            <!--            </xpath>-->
+        </field>
+    </record>
+    <record id="view_stock_inventory_line_search_custom" model="ir.ui.view">
+        <field name="name">stock.inventory.line.search.confirmed.zero</field>
+        <field name="model">stock.inventory.line</field>
+        <field name="inherit_id" ref="stock.stock_inventory_line_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/filter[@name='difference']" position="after">
+                <separator/>
+
+                <filter string="Zéro Confirmé" name="confirmed_zero_true" domain="[('confirmed_zero', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
+
