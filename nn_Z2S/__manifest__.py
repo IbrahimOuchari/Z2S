@@ -42,6 +42,7 @@
         'views/location_form_view.xml',
         'views/mrp_production_search_filter.xml',
         'views/sale_devis_perdu_form.xml',
+        'views/mrp_production_annule_of.xml',
         'wizards/return_components_wizard_view.xml',
         'wizards/inventory_cancel_wizard.xml',
         'wizards/devis_perdu_form_view.xml',

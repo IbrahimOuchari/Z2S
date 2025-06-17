@@ -1,6 +1,7 @@
-from odoo import models, fields, api, _, exceptions
 import logging
 from datetime import datetime
+
+from odoo import models, fields, api, _, exceptions
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -17,9 +18,6 @@ class ReturnComponentsWizard(models.TransientModel):
         ('non_solde', 'Non Soldé'),
         ('solde', 'Soldé')
     ], string='État', default='non_solde')
-
-
-
 
     stock_picking_id = fields.Many2one('stock.picking', string='Stock Picking')
 
@@ -58,7 +56,6 @@ class ReturnComponentsWizard(models.TransientModel):
 
         return res
 
-
     @api.onchange('stock_picking_id')
     def _onchange_stock_picking_id(self):
         """Track the state of the stock.picking."""
@@ -82,7 +79,7 @@ class ReturnComponentsWizard(models.TransientModel):
             self.stock_picking_id = stock_picking.id  # This will trigger the onchange
             self.create_stock_moves(stock_picking)
             self.update_stock_moves_quantity_left()
-
+            self.mrp_production_id.write({'state': 'annulation_encours'})
             # Further logic...
 
     def check_all_returned(self):

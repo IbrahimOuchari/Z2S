@@ -1,0 +1,15 @@
+<odoo>
+    <record id="mrp_production_button_cancel_of_inherit" model="ir.ui.view">
+        <field name="name">mrp.production.inherit.button</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="/form/header/button[@name='action_annule_of']" position="attributes">
+                <attribute name="attrs">{'invisible':[('state','!=','annulation_encours')]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
