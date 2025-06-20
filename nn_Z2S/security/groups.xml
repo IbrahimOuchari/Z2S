@@ -23,5 +23,34 @@
     <record id="group_annulation_validation" model="res.groups">
         <field name="name">Validation/Rejet des annulations de devis</field>
     </record>
+    <!-- 1. Define the custom group -->
+    <record id="group_create_purchase" model="res.groups">
+        <field name="name">Créer un Bon d'Achat</field>
+    </record>
 
+    <!-- 3. Hide create for everyone else -->
+    <record id="purchase_order_form_restrict_create" model="ir.ui.view">
+        <field name="name">purchase.order.form.create.restricted</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="create">false</attribute>
+            </form>
+        </field>
+    </record>
+
+    <!-- 2. Allow create only for users in the group -->
+    <record id="purchase_order_form_allow_create" model="ir.ui.view">
+        <field name="name">purchase.order.form.create.allowed</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="groups_id" eval="[(4, ref('nn_stock_zero_qty_adjustment.group_create_purchase'))]"/>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="create">true</attribute>
+            </form>
+        </field>
+    </record>
 </odoo>

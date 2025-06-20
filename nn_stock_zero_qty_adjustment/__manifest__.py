@@ -14,9 +14,12 @@
     'author': 'Neonara',
     'website': 'https://neonara.digital',
     'license': 'LGPL-3',
-    'depends': ['stock', 'nn_Z2S'],
+    'depends': ['stock', 'nn_Z2S', 'purchase'],
     'data': [
+        # 'security/groups.xml',
+        # 'security/ir.model.access.csv',
         'views/stock_inventory_line_tree.xml',
+        'views/purchase_rfq_form_view.xml',
         # 'report/product_pdf_template.xml',  # à activer une fois le template prêt
     ],
     'installable': True,
