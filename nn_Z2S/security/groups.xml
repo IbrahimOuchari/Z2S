@@ -46,7 +46,7 @@
         <field name="name">purchase.order.form.create.allowed</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
-        <field name="groups_id" eval="[(4, ref('nn_stock_zero_qty_adjustment.group_create_purchase'))]"/>
+        <field name="groups_id" eval="[(4, ref('nn_Z2S.group_create_purchase'))]"/>
         <field name="arch" type="xml">
             <form position="attributes">
                 <attribute name="create">true</attribute>
