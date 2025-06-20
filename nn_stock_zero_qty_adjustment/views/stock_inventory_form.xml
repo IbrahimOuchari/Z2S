@@ -1,0 +1,21 @@
+<odoo>
+
+    <record id="view_inventory_form_inherit_action_demand_close" model="ir.ui.view">
+        <field name="name">inventory.form.inherit</field>
+        <field name="model">stock.inventory</field> <!-- Change this to your actual model name -->
+        <field name="inherit_id" ref="stock.view_inventory_form"/> <!-- Replace with the correct view reference -->
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="inside">
+                <button name="action_demand_close"
+                        string="Demande Clôture inventaire"
+                        class="btn-primary"
+                        type="object"
+                        attrs="{'invisible': [('state', '!=', 'confirm')]}"/>
+
+            </xpath>
+
+
+        </field>
+    </record>
+</odoo>

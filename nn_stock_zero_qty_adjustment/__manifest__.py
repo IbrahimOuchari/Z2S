@@ -20,6 +20,7 @@
         # 'security/ir.model.access.csv',
         'views/stock_inventory_line_tree.xml',
         'views/purchase_rfq_form_view.xml',
+        'views/stock_inventory_form.xml',
         # 'report/product_pdf_template.xml',  # à activer une fois le template prêt
     ],
     'installable': True,

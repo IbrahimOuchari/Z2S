@@ -1,4 +1,5 @@
 import logging
+from re import match
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
@@ -18,26 +19,40 @@ class StockInventoryLine(models.Model):
         help="Saisie utilisateur même pour zéro. Converti automatiquement vers le champ réel."
     )
 
+    @api.constrains('product_qty_counted_char')
+    def _check_numeric_input(self):
+        for line in self:
+            val = line.product_qty_counted_char
+            if val and val.strip():
+                # Allow numbers with optional decimal (either , or .), no letters
+                if not match(r'^\s*-?\d+([.,]\d+)?\s*$', val.strip()):
+                    raise ValidationError(
+                        _("Le champ 'Quantité Comptée (Texte)' n'accepte que des valeurs numériques. Exemple : 12, 12.5 ou 12,5"))
+
     product_qty_counted = fields.Float(
         compute='_compute_qty_char',
         store=True
     )
 
-    confirmed_zero = fields.Boolean(
-        string="Zéro Confirmé",
-        compute='_compute_confirmed_zero',
-        store=True,
-        default=False
+    value_confirmed = fields.Boolean(
+        string="Valeur Confirmé",
+        compute='_compute_value_confirmed',
+        store=True
     )
 
     @api.depends('product_qty_counted_char')
-    def _compute_confirmed_zero(self):
+    def _compute_value_confirmed(self):
         for line in self:
-            if line.product_qty_counted_char:
-                if float(line.product_qty_counted_char or 0.0) == line.theoretical_qty:
-                    line.confirmed_zero = True
-                else:
-                    line.confirmed_zero = False
+            if line.product_qty_counted_char and line.product_qty_counted_char.strip():
+                try:
+                    line.product_qty = float(line.product_qty_counted_char.strip())
+                    line.value_confirmed = True
+                except ValueError:
+                    line.product_qty = 0.0
+                    line.value_confirmed = False
+            else:
+                line.product_qty = 0.0
+                line.value_confirmed = False
 
     def _generate_moves(self):
         vals_list = []

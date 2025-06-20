@@ -26,47 +26,58 @@ class StockInventory(models.Model):
             'name': _('Inventory Lines'),
             'res_model': 'stock.inventory.line',
         }
+
         context = {
             'default_is_editable': True,
             'default_inventory_id': self.id,
             'default_company_id': self.company_id.id,
         }
-        # Define domains and context
+
+        # Base domain for stock.inventory.line
         domain = [
             ('inventory_id', '=', self.id),
             ('location_id.usage', 'in', ['internal', 'transit']),
-            ('location_id.name', 'not in', ['Retour', 'Destruction']),  # Corrected here
-            ('product_id.active', '=', True),  # Corrected here
+            ('location_id.name', 'not in', ['Retour', 'Destruction']),
+            ('product_id.active', '=', True),
         ]
 
+        # Handle default location and readonly flag
         if self.location_ids:
             context['default_location_id'] = self.location_ids[0].id
-            if len(self.location_ids) == 1:
-                if not self.location_ids[0].child_ids:
-                    context['readonly_location_id'] = True
+            if len(self.location_ids) == 1 and not self.location_ids[0].child_ids:
+                context['readonly_location_id'] = True
 
+            # Quant domain for product filtering per selected locations
+            quant_domain = [('location_id', 'in', self.location_ids.ids)]
+            if self.exhausted:
+                quant_domain.append(('quantity', '>=', 0))
+            else:
+                quant_domain.append(('quantity', '>', 0))
+
+            product_ids = self.env['stock.quant'].search(quant_domain).mapped('product_id.id')
+            product_ids = list(set(product_ids))  # remove duplicates
+
+            domain.append(('product_id', 'in', product_ids))
+            domain.append(('location_id', 'in', self.location_ids.ids))  # Filter lines by selected locations
+
+        # Custom product filters
         if self.is_produit_fini:
             domain.append(('product_id.sale_ok', '=', True))
-
         if self.is_produit_fourni:
             domain.append(('product_id.fourni', '=', True))
-
         if self.is_produit_achete:
             domain.append(('product_id.purchase_ok', '=', True))
-
         if self.category_id:
             domain.append(('product_id.categ_id', '=', self.category_id.id))
-
         if self.partner_id:
             domain.append(('product_id.client_id.id', '=', self.partner_id.id))
 
+        # Determine which view to use
         if self.product_ids:
-            # no_create on product_id field
             action['view_id'] = self.env.ref('stock.stock_inventory_line_tree_no_product_create').id
             if len(self.product_ids) == 1:
                 context['default_product_id'] = self.product_ids[0].id
         else:
-            # no product_ids => we're allowed to create new products in tree
             action['view_id'] = self.env.ref('stock.stock_inventory_line_tree').id
 
         action['context'] = context
@@ -75,29 +86,39 @@ class StockInventory(models.Model):
 
     def get_filtered_inventory_lines(self):
         self.ensure_one()
+
         domain = [
             ('inventory_id', '=', self.id),
             ('location_id.usage', 'in', ['internal', 'transit']),
-            ('location_id.name', 'not in', ['Retour', 'Destruction']),  # Corrected here
-            ('product_id.active', '=', True),  # Corrected here
+            ('location_id.name', 'not in', ['Retour', 'Destruction']),
+            ('product_id.active', '=', True),
         ]
-        # Add additional domain filters based on the current record
+
+        if self.location_ids:
+            quant_domain = [('location_id', 'in', self.location_ids.ids)]
+            if self.exhausted:
+                quant_domain.append(('quantity', '>=', 0))
+            else:
+                quant_domain.append(('quantity', '>', 0))
+
+            product_ids = self.env['stock.quant'].search(quant_domain).mapped('product_id.id')
+            product_ids = list(set(product_ids))  # unique
+
+            domain.append(('product_id', 'in', product_ids))
+            domain.append(('location_id', 'in', self.location_ids.ids))
+
+        # Your existing product filters
         if self.is_produit_fini:
             domain.append(('product_id.sale_ok', '=', True))
-
         if self.is_produit_fourni:
             domain.append(('product_id.fourni', '=', True))
-
         if self.is_produit_achete:
             domain.append(('product_id.purchase_ok', '=', True))
-
         if self.category_id:
             domain.append(('product_id.categ_id', '=', self.category_id.id))
-
         if self.partner_id:
             domain.append(('product_id.client_id', '=', self.partner_id.id))
 
-        # Return a recordset of stock.inventory.line
         return self.env['stock.inventory.line'].search(domain)
 
     state = fields.Selection(string='Status', selection=[
@@ -131,9 +152,8 @@ class StockInventory(models.Model):
             },
         }
 
-    def action_demand_close(self):
-        for record in self:
-            record.state = 'demand_close'
+    # def action_demand_close(self):
+    #     pass
 
     # def action_demand_close(self):
     #     self.ensure_one()

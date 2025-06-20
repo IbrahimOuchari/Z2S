@@ -11,26 +11,20 @@
         <field name="model">stock.inventory.line</field>
         <field name="inherit_id" ref="stock.stock_inventory_line_tree"/>
         <field name="arch" type="xml">
-
-            <xpath expr="//tree/field[@name='difference_qty']" position="before">
-                <field name="product_qty_counted_char"/>
-                <field name="confirmed_zero" widget="boolean_toggle"/>
-
+            <xpath expr="//tree/field[@name='product_qty_counted']" position="replace">
             </xpath>
+
 
             <xpath expr="//tree" position="attributes">
                 <!-- Highlight the row when zero is confirmed -->
-                <attribute name="decoration-success">confirmed_zero == True</attribute>
+                <attribute name="decoration-success">value_confirmed == True</attribute>
+            </xpath>
+            <xpath expr="//tree/field[@name='difference_qty']" position="before">
+                <field name="product_qty_counted_char"/>
+                <field name="value_confirmed" widget="boolean_toggle" invisible="0"/>
+
             </xpath>
 
-
-            <!--            <xpath expr="//tree/field[@name='product_qty_counted']" position="replace">-->
-            <!--                <field name="product_qty_counted"-->
-            <!--                       widget=""/>-->
-            <!--                <field name="qty_retyped"-->
-            <!--                />-->
-
-            <!--            </xpath>-->
         </field>
     </record>
     <record id="view_stock_inventory_line_search_custom" model="ir.ui.view">
@@ -41,7 +35,10 @@
             <xpath expr="//search/filter[@name='difference']" position="after">
                 <separator/>
 
-                <filter string="Zéro Confirmé" name="confirmed_zero_true" domain="[('confirmed_zero', '=', True)]"/>
+                <filter string="Valeur Confirmé" name="value_not_confirmed_true"
+                        domain="[('value_confirmed', '=', True)]"/>
+                <filter string="Valeur non-Confirmé" name="value_confirmed_true"
+                        domain="[('value_confirmed', '=', False)]"/>
             </xpath>
         </field>
     </record>
