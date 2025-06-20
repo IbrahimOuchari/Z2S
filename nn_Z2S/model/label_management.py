@@ -177,20 +177,31 @@ class LabelManagement(models.Model):
                     'name': lot_name,  # Set the name here
                     'active': True,
                 })
-            if move.picking_type_code == 'internal':
-                sequence_number = self.env['ir.sequence'].next_by_code('label_management.ret_int.sequence')
-                # prefix = sequence_number.prefix
+            elif move.picking_type_code == 'internal':
+                _logger.info("📌 RT condition matched")
+                _logger.info(f"🧾 Stock Move ID: {move.id}")
+                _logger.info(f"🛠 Picking Type Code: {move.picking_type_code}")
+                _logger.info(f"🔢 Picking Type Sequence: {move.picking_type_id.sequence}")
+                _logger.info(f"🎯 Lot Quantity: {lot_qty}")
+                _logger.info(f"📊 Cumulative Quantity: {cumule}")
 
-                lot_name = sequence_number  # Format name correctly
+                sequence_number = self.env['ir.sequence'].next_by_code('label_management.ret_int_op.sequence')
+                lot_name = sequence_number
+                _logger.info(f"📦 Generated Sequence: {lot_name}")
 
-                self.create({
+                # Create the lot and store the result
+                new_lot = self.create({
                     'quantity_per_batch': lot_qty,
                     'stock_move_id': move.id,
                     'cumule': cumule,
-                    'name': lot_name,  # Set the name here
+                    'name': lot_name,
                     'active': True,
                 })
-            if move.picking_type_code == 'outgoing':
+
+                # Log the outcome
+                _logger.info(f"✅ Lot created with ID: {new_lot.id} and Name: {new_lot.name}")
+
+            elif move.picking_type_code == 'outgoing':
                 # Use the same year calculation
                 sequence_number = self.env['ir.sequence'].next_by_code('label_management.of_exp_year.sequence')
 
@@ -267,7 +278,12 @@ class LabelManagement(models.Model):
                 # Construct the name using the selected sequence
                 name = f"{sequence_number}"
 
-            else:  # Outgoing, use EXP
+            elif picking_type == 'internal':  # Outgoing, use EXP
+                sequence_number = self.env['ir.sequence'].next_by_code('label_management.ret_int_op.sequence')
+                if not sequence_number:
+                    raise ValueError("Sequence number for EXP could not be generated.")
+                name = f"{sequence_number}"
+            elif picking_type == 'outgoing':  # Outgoing, use EXP
                 sequence_number = self.env['ir.sequence'].next_by_code('label_management.of_exp_year.sequence')
                 if not sequence_number:
                     raise ValueError("Sequence number for EXP could not be generated.")

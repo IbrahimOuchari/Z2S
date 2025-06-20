@@ -10,9 +10,9 @@
             <field name="implementation">no_gap</field>
             <field name="use_date_range">False</field>
         </record>
-        <record id="seq_label_management_internal_return" model="ir.sequence">
-            <field name="name">Label Management RET-INT Sequence</field>
-            <field name="code">label_management.ret_int.sequence</field>
+        <record id="seq_label_management_internal_return_operation" model="ir.sequence">
+            <field name="name">Label Management RET-INT operatuion Sequence</field>
+            <field name="code">label_management.ret_int_op.sequence</field>
             <field name="prefix">RET-INT-%(y)s-</field>  <!-- This will use the two-digit year format -->
             <field name="padding">4</field>
             <field name="number_next">1</field>
