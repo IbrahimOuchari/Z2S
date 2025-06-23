@@ -79,7 +79,7 @@ class MaintenanceEquipment(models.Model):
         store=True
     )
 
-    @api.onchange('period_1_frequency')
+    @api.depends('period_1_frequency')
     def _compute_next_maintenance_mensuelle(self):
         for record in self:
             if record.period_1_frequency:
@@ -88,7 +88,7 @@ class MaintenanceEquipment(models.Model):
             else:
                 record.next_maintenance_mensuelle = False
 
-    @api.onchange('period_2_frequency')
+    @api.depends('period_2_frequency')
     def _compute_next_maintenance_trimestrielle(self):
         for record in self:
             if record.period_2_frequency:
@@ -96,7 +96,7 @@ class MaintenanceEquipment(models.Model):
             else:
                 record.next_maintenance_trimestrielle = False
 
-    @api.onchange('period_3_frequency')
+    @api.depends('period_3_frequency')
     def _compute_next_maintenance_semestrielle(self):
         for record in self:
             if record.period_3_frequency:
@@ -104,7 +104,7 @@ class MaintenanceEquipment(models.Model):
             else:
                 record.next_maintenance_semestrielle = False
 
-    @api.onchange('period_4_frequency')
+    @api.depends('period_4_frequency')
     def _compute_next_maintenance_annuelle(self):
         for record in self:
             if record.period_4_frequency:
@@ -241,22 +241,21 @@ class MaintenanceEquipment(models.Model):
                 record._create_intervention_lines()
         return result
 
-    @api.depends('effective_date', 'period_1_frequency', 'period_2_frequency', 'period_3_frequency',
-                 'period_4_frequency')
+    @api.depends('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency')
     def _compute_start_maintenance_date(self):
+        today = fields.Date.today()
         for record in self:
-            if record.effective_date:
-                freqs = [
-                    record.period_1_frequency,
-                    record.period_2_frequency,
-                    record.period_3_frequency,
-                    record.period_4_frequency
-                ]
-                freqs = [f for f in freqs if f]
-                if freqs:
-                    min_freq = min(freqs)
-                    record.start_maintenance_date = record.effective_date + timedelta(days=min_freq)
-                else:
-                    record.start_maintenance_date = False
+            freqs = [
+                record.period_1_frequency,
+                record.period_2_frequency,
+                record.period_3_frequency,
+                record.period_4_frequency
+            ]
+            freqs = [f for f in freqs if f and f > 0]
+
+            if freqs:
+                next_date = today + timedelta(days=min(freqs))
+                _logger.info(f"[Maintenance] Prochaine date calculée : {next_date}")
+                record.start_maintenance_date = next_date
             else:
                 record.start_maintenance_date = False
