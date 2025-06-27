@@ -1,4 +1,6 @@
+from odoo import _
 from odoo import models, _, fields
+from odoo.exceptions import UserError
 from odoo.exceptions import UserError, ValidationError
 from odoo.osv import expression
 from odoo.tools import float_compare, float_is_zero
@@ -41,20 +43,143 @@ class StockInventory(models.Model):
 
     def action_demand_close(self):
         for record in self:
-            lines = record.get_filtered_inventory_lines()
-            unconfirmed_lines = lines.filtered(lambda l: not l.value_confirmed)
+            # Get the domain from get_filtered_inventory_lines method
+            domain = [
+                ('inventory_id', '=', record.id),
+                ('location_id.usage', 'in', ['internal', 'transit']),
+                ('location_id.name', 'not in', ['Retour', 'Destruction']),
+                ('product_id.active', '=', True),
+            ]
+
+            if record.location_ids:
+                quant_domain = [('location_id', 'in', record.location_ids.ids)]
+                if record.exhausted:
+                    quant_domain.append(('quantity', '>=', 0))
+                else:
+                    quant_domain.append(('quantity', '>', 0))
+
+                product_ids = record.env['stock.quant'].search(quant_domain).mapped('product_id.id')
+                product_ids = list(set(product_ids))
+
+                domain.append(('product_id', 'in', product_ids))
+                domain.append(('location_id', 'in', record.location_ids.ids))
+
+            if record.is_produit_fini:
+                domain.append(('product_id.sale_ok', '=', True))
+            if record.is_produit_fourni:
+                domain.append(('product_id.fourni', '=', True))
+            if record.is_produit_achete:
+                domain.append(('product_id.purchase_ok', '=', True))
+            if record.category_id:
+                domain.append(('product_id.categ_id', '=', record.category_id.id))
+            if record.partner_id:
+                domain.append(('product_id.client_id', '=', record.partner_id.id))
+
+            # Add filter for unconfirmed lines here
+            domain.append(('value_confirmed', '=', False))
+
+            # Search lines matching the full domain including unconfirmed ones
+            unconfirmed_lines = record.env['stock.inventory.line'].search(domain)
+
             count_unconfirmed = len(unconfirmed_lines)
 
             if count_unconfirmed:
                 message = _(
                     "Il y a %d ligne(s) non confirmée(s). Veuillez les confirmer avant de clôturer l'inventaire."
                 ) % count_unconfirmed
-
-                # First raise error with message
                 raise UserError(message)
-
-                # If you want to show the window, you can't do it after raising error in one call.
-                # You would need to return the action instead of raising error, but then no popup message.
 
             # All confirmed
             record.state = 'demand_close'
+
+    def action_show_location_article_counts(self):
+        self.ensure_one()
+
+        if not self.location_ids:
+            raise UserError(_("Veuillez sélectionner au moins un emplacement."))
+
+        # Get list of relevant locations including children
+        domain_loc = [('id', 'child_of', self.location_ids.ids)]
+        locations = self.env['stock.location'].search(domain_loc)
+
+        location_ids = locations.ids
+
+        domain = [
+            ('company_id', '=', self.company_id.id),
+            ('location_id', 'in', location_ids),
+        ]
+        if not self.exhausted:
+            domain.append(('quantity', '>', 0))
+        else:
+            domain.append(('quantity', '>=', 0))
+
+        quants = self.env['stock.quant'].read_group(
+            domain,
+            ['product_id', 'location_id'],
+            ['product_id', 'location_id'],
+            lazy=False,
+        )
+
+        # Group products per location (no duplicates)
+        location_to_products = {}
+        for q in quants:
+            loc_id = q['location_id'][0]
+            prod_id = q['product_id'][0]
+            location_to_products.setdefault(loc_id, set()).add(prod_id)
+
+        # Build the output
+        message_lines = []
+        for loc in locations:
+            count = len(location_to_products.get(loc.id, set()))
+            message_lines.append(f"{loc.name} : {count} article(s)")
+
+        raise UserError(_("Nombre d’articles par emplacement :\n\n%s") % "\n".join(message_lines))
+
+    def _get_exhausted_inventory_lines_vals(self, non_exhausted_set):
+        self.ensure_one()
+
+        if self.product_ids:
+            product_ids = self.product_ids.ids
+        else:
+            product_ids = self.env['product.product'].search([
+                '|', ('company_id', '=', self.company_id.id), ('company_id', '=', False),
+                ('type', '=', 'product'),
+                ('active', '=', True)
+            ]).ids
+
+        if self.location_ids:
+            location_ids = self.location_ids.ids
+        else:
+            location_ids = self.env['stock.warehouse'].search([
+                ('company_id', '=', self.company_id.id)
+            ]).mapped('lot_stock_id').ids
+
+        # Only allow valid combinations
+        valid_quant_pairs = self.env['stock.quant'].read_group(
+            domain=[
+                ('product_id', 'in', product_ids),
+                ('location_id', 'in', location_ids),
+            ],
+            fields=['product_id', 'location_id'],
+            groupby=['product_id', 'location_id'],
+            lazy=False,
+        )
+
+        valid_product_location_set = {
+            (entry['product_id'][0], entry['location_id'][0])
+            for entry in valid_quant_pairs
+        }
+
+        vals = []
+        for product_id in product_ids:
+            for location_id in location_ids:
+                key = (product_id, location_id)
+                if key not in non_exhausted_set and key in valid_product_location_set:
+                    vals.append({
+                        'inventory_id': self.id,
+                        'product_id': product_id,
+                        'location_id': location_id,
+                        'theoretical_qty': 0
+                    })
+
+        return vals

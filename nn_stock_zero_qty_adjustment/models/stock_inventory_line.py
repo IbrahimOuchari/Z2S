@@ -15,7 +15,7 @@ class StockInventoryLine(models.Model):
     _inherit = 'stock.inventory.line'
 
     product_qty_counted_char = fields.Char(
-        string="Quantité Comptée (Texte)",
+        string="Comptée User",
         help="Saisie utilisateur même pour zéro. Converti automatiquement vers le champ réel."
     )
 
@@ -79,3 +79,14 @@ class StockInventoryLine(models.Model):
             vals_list.append(vals)
 
         return self.env['stock.move'].create(vals_list)
+
+    def action_open_inventory(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Inventaire',
+            'view_mode': 'form',
+            'res_model': 'stock.inventory',
+            'res_id': self.inventory_id.id,
+            'target': 'current',
+        }

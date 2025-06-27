@@ -1,0 +1,10 @@
+<odoo>
+    <template id="InventoryLines.Buttons" inherit_id="web.ListView.buttons">
+        <xpath expr="//div[@class='o_list_buttons']" position="inside">
+            <button class="btn btn-primary o_button_redirect_inventory" type="button">
+                Rediriger vers Inventaire
+            </button>
+        </xpath>
+    </template>
+
+</odoo>

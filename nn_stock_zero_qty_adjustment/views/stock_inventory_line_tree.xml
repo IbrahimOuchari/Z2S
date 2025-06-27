@@ -14,8 +14,11 @@
             <xpath expr="//tree/field[@name='product_qty_counted']" position="replace">
             </xpath>
 
-
+            <!--            <xpath expr="//tree" position="attributes">-->
+            <!--                <attribute name="js_class">inventory_line_kanban_redirect</attribute>-->
+            <!--            </xpath>-->
             <xpath expr="//tree" position="attributes">
+                <!-- Highlight the row when zero is confirmed -->
                 <!-- Highlight the row when zero is confirmed -->
                 <attribute name="decoration-success">value_confirmed == True</attribute>
             </xpath>

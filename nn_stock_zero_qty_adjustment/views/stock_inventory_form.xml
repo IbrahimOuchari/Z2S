@@ -12,9 +12,15 @@
                         class="btn-primary"
                         type="object"
                         attrs="{'invisible': [('state', '!=', 'confirm')]}"/>
+                <button name="action_show_location_article_counts" type="object"
+                        string="Voir Articles par Emplacement"/>
+
 
             </xpath>
+            <xpath expr="//button[@name='action_get_account_moves']" position="attributes">
+                <attribute name="invisible">1</attribute>
 
+            </xpath>
 
         </field>
     </record>
