@@ -17,7 +17,9 @@ class StockPicking(models.Model):
 
     of_manual = fields.Boolean(default=False, string='Livraison sans OF')
 
-
+    def action_cancel_forced(self):
+        # Your custom logic here
+        return True
 class StockMove(models.Model):
     _inherit = "stock.move"
 
