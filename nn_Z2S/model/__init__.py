@@ -32,6 +32,7 @@ from . import stock_inventory_fields
 from . import stock_inventory_line
 from . import stock_move_group_tobe_consumed
 from . import stock_move_lot
+from . import stock_move_move_raw_ids
 from . import stock_move_quantity_left
 from . import stock_picking_location_and_date
 from . import stock_picking_lot_report

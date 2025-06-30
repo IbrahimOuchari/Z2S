@@ -11,17 +11,32 @@
 
                     <label for="date_submission_start" string="Période de soumission" width="50%"/>
                     <div class="d-flex">
-                        <field name="date_submission_start"
-                               force_save="1"
-                               placeholder="Date début"
-                               class="oe_inline"/>
+                        <div>
+                            <label for="date_submission_start" string="De" width="50%"/>
 
-                        <span class="o_form_label mx-3 oe_edit_only">jusqu’à</span>
+                        </div>
 
-                        <field name="date_submission_end"
-                               force_save="1"
-                               placeholder="Date fin"
-                               class="oe_inline"/>
+                        <div>
+
+                            <field name="date_submission_start"
+                                   force_save="1"
+                                   placeholder="Date début"
+                                   class="oe_inline"/>
+
+                        </div>
+
+
+                        <div>
+                            <label for="date_submission_start" string="Jusqu'à" width="50%" style="margin-left:3px;"/>
+
+                        </div>
+                        <div>
+
+                            <field name="date_submission_end"
+                                   force_save="1"
+                                   placeholder="Date fin"
+                                   class="oe_inline"/>
+                        </div>
                     </div>
 
                 </group>
