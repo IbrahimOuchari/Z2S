@@ -17,6 +17,26 @@ class StockInventory(models.Model):
     is_produit_achete = fields.Boolean(string="Produit Acheté")
     is_produit_fourni = fields.Boolean(string="Produit Fourni")
     accounting_date = fields.Date(default=fields.Date.today)
+    location_ids = fields.Many2many(
+        'stock.location',
+        string='Emplacements',
+        readonly=True,
+        check_company=True,
+        states={'draft': [('readonly', False)]},
+        domain="[('company_id', '=', company_id),"
+               "('usage', 'in', ['internal', 'transit']),"
+               "('scrap_location', '=', False),"
+               "('return_location', '=', False)]"
+    )
+
+    def _get_location_domain(self):
+        usage_list = ['internal', 'transit']
+        if self.location_ids.scrap_location:
+            usage_list.append('inventory')  # or 'scrap' if needed
+        if self.location_ids.return_location:
+            usage_list.append('return')  # if Odoo defines it like this
+
+        return [('company_id', '=', self.company_id.id), ('usage', 'in', usage_list)]
 
     def action_open_inventory_lines(self):
         self.ensure_one()
@@ -37,10 +57,64 @@ class StockInventory(models.Model):
         # Base domain: always filter inventory lines for current inventory
         domain = [
             ('inventory_id', '=', self.id),
-            ('location_id.name', 'not in', ['Retour', 'Destruction']),
             ('product_id.active', '=', True),
+            ('location_id.scrap_location', '=', False),
+            ('location_id.return_location', '=', False),
         ]
 
+        if self.is_produit_fini and not self.is_produit_fourni and not self.is_produit_achete:
+            domain += [
+                ('product_id.sale_ok', '=', True),
+                ('product_id.fourni', '=', False),
+                ('product_id.purchase_ok', '=', False),
+            ]
+        elif not self.is_produit_fini and self.is_produit_fourni and not self.is_produit_achete:
+            domain += [
+                ('product_id.sale_ok', '=', False),
+                ('product_id.fourni', '=', True),
+                ('product_id.purchase_ok', '=', False),
+            ]
+        elif not self.is_produit_fini and not self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                ('product_id.sale_ok', '=', False),
+                ('product_id.fourni', '=', False),
+                ('product_id.purchase_ok', '=', True),
+            ]
+        elif self.is_produit_fini and self.is_produit_fourni and not self.is_produit_achete:
+            domain += [
+                '|',
+                ('product_id.sale_ok', '=', True),
+                ('product_id.fourni', '=', True),
+                ('product_id.purchase_ok', '=', False),
+            ]
+        elif self.is_produit_fini and not self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                '|',
+                ('product_id.sale_ok', '=', True),
+                ('product_id.purchase_ok', '=', True),
+                ('product_id.fourni', '=', False),
+            ]
+        elif not self.is_produit_fini and self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                '|',
+                ('product_id.fourni', '=', True),
+                ('product_id.purchase_ok', '=', True),
+                ('product_id.sale_ok', '=', False),
+            ]
+        elif self.is_produit_fini and self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                '|', '|',
+                ('product_id.sale_ok', '=', True),
+                ('product_id.fourni', '=', True),
+                ('product_id.purchase_ok', '=', True),
+            ]
+        else:
+            # None selected → exclude all or no product filter:
+            domain += [
+                ('product_id.sale_ok', '=', False),
+                ('product_id.fourni', '=', False),
+                ('product_id.purchase_ok', '=', False),
+            ]
         # Filter by selected locations if any
         if self.location_ids:
             domain.append(('location_id', 'in', self.location_ids.ids))
@@ -51,13 +125,6 @@ class StockInventory(models.Model):
             # Fallback if no location selected: internal and transit usages
             domain.append(('location_id.usage', 'in', ['internal', 'transit']))
 
-        # Add product filters (keep as you had)
-        if self.is_produit_fini:
-            domain.append(('product_id.sale_ok', '=', True))
-        if self.is_produit_fourni:
-            domain.append(('product_id.fourni', '=', True))
-        if self.is_produit_achete:
-            domain.append(('product_id.purchase_ok', '=', True))
         if self.category_id:
             domain.append(('product_id.categ_id', '=', self.category_id.id))
         if self.partner_id:

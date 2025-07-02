@@ -11,6 +11,12 @@ class StockMove(models.Model):
 
     qty_delivered = fields.Float(string="Quantité tracké")
     quantity_track = fields.Float(string="Quantité tracké")
+    qty_left = fields.Float(string="Quantité restante", store=True)
+    qty_needed = fields.Float(
+        string="Quantité nécessaire",
+        digits='Product Unit of Measure',
+        readonly=True, store=True,
+    )
 
 
 class MrpProduction(models.Model):
@@ -22,52 +28,90 @@ class MrpProduction(models.Model):
         store=True
     )
     stock_move_changes = fields.Float(string="Déclencheur de suivi", compute="_compute_qty_delivered", store=True)
+    ignore_component_check = fields.Boolean(string="Ignorer la vérification des composants")
 
-    @api.depends('picking_ids.move_lines.quantity_done')
+    @api.depends('picking_ids.move_lines.quantity_done', 'picking_ids.move_lines.quantity_left')
     def _compute_qty_delivered(self):
         for production in self:
-
             product_qty_done = {}
+            product_qty_left = {}
 
-            for picking in production.picking_ids.filtered(lambda p: p.state == 'done'):
-                for move in picking.move_lines:
+            # Step 1: Find the latest picking by name
+            latest_picking = None
+            if production.picking_ids:
+                latest_picking = max(production.picking_ids, key=lambda p: p.name)
+
+            # Step 2: Compute qty_delivered and qty_left from latest picking only
+            if latest_picking:
+                for move in latest_picking.move_lines:
                     if move.product_id:
-                        product_qty_done.setdefault(move.product_id.id, 0.0)
-                        product_qty_done[move.product_id.id] += move.quantity_done
+                        product_qty_done[move.product_id.id] = move.quantity_done
+                        product_qty_left[move.product_id.id] = move.quantity_left
 
+            # Step 3: Assign to move_raw_ids
             for move in production.move_raw_ids:
                 move.qty_delivered = product_qty_done.get(move.product_id.id, 0.0)
+                move.qty_left = product_qty_left.get(move.product_id.id, 0.0)
 
     def button_mark_done(self):
         for mrp in self:
-            errors = []
+            if mrp.ignore_component_check:
+                # Skip checks, just call original function for this record
+                continue
 
-            # Check if there are any pending pickings
-            has_pending_picking = any(picking.state != 'done' for picking in mrp.picking_ids)
+            erreurs = []
+            for move in mrp.move_raw_ids:
+                produit = move.product_id.display_name
+                qty_livree = move.qty_delivered
+                qty_requise = move.qty_needed
+
+                if qty_livree <= 0:
+                    erreurs.append(
+                        f"❌ {produit} : {qty_livree:.2f}/{qty_requise:.2f} unités\n"
+                        "👉 Aucune collecte effectuée. Veuillez transférer le produit."
+                    )
+                elif qty_livree < qty_requise:
+                    manque = qty_requise - qty_livree
+                    erreurs.append(
+                        f"⚠️ {produit} : {qty_livree:.2f}/{qty_requise:.2f} unités\n"
+                        f"👉 Quantité incomplète. Il manque encore {manque:.2f} unités à transférer."
+                    )
+
+            if erreurs:
+                message = (
+                        "🚫 Impossible de terminer la production à cause des composants suivants :\n\n"
+                        + "\n\n".join(erreurs)
+                )
+                raise UserError(message)
+
+        # Finally call the original button_mark_done on all records
+        return super(MrpProduction, self).button_mark_done()
+
+    def write(self, vals):
+        res = super().write(vals)
+        self.update_qty_needed_on_moves()
+        return res
+
+    def update_qty_needed_on_moves(self):
+        for mrp in self:
+            if not mrp.bom_id:
+                continue
+
+            # Decide which quantity to use: qty_producing or product_qty
+            qty_reference = mrp.qty_producing if mrp.qty_producing else mrp.product_qty
+
+            if not qty_reference:
+                continue
 
             for move in mrp.move_raw_ids:
-                delivered = move.qty_delivered
-                qty_tobe_consumed = move.product_uom_qty
-                qty_consumed = move.quantity_done
+                bom_line = mrp.bom_id.bom_line_ids.filtered(lambda l: l.product_id.id == move.product_id.id)
+                if bom_line:
+                    qty_needed = bom_line[0].product_qty * qty_reference
+                else:
+                    qty_needed = 0.0
 
-                # Case 1: Nothing delivered at all
-                if delivered <= 0 and has_pending_picking:
-                    errors.append(
-                        f"{move.product_id.display_name}: {delivered:.2f}/{qty_tobe_consumed:.2f} (aucune collecte effectuée)"
-                    )
+                move.qty_needed = qty_needed
 
-                # Case 2: Delivered less than consumed & still pickings in progress
-                elif delivered < qty_consumed and has_pending_picking:
-                    missing_qty = qty_consumed - delivered
-                    errors.append(
-                        f"{move.product_id.display_name}: {missing_qty:.2f}/{qty_consumed:.2f} "
-                        f"(transfert partiel — veuillez terminer les opérations de transfert)"
-                    )
-
-            if errors:
-                raise UserError(
-                    "Impossible de terminer la production à cause des composants suivants :\n\n" +
-                    "\n".join(errors)
-                )
-
-        return super(MrpProduction, self).button_mark_done()
+        @api.onchange('product_qty', 'bom_id')
+        def _onchange_qty_needed_preview(self):
+            self.update_qty_needed_on_moves()

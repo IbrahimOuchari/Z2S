@@ -40,19 +40,23 @@ class StockInventoryLine(models.Model):
         store=True
     )
 
-    @api.depends('product_qty_counted_char')
+    @api.depends('product_qty_counted_char', 'product_qty')
     def _compute_value_confirmed(self):
         for line in self:
             if line.product_qty_counted_char and line.product_qty_counted_char.strip():
                 try:
+                    # Si texte présent, c'est prioritaire
                     line.product_qty = float(line.product_qty_counted_char.strip())
                     line.value_confirmed = True
                 except ValueError:
                     line.product_qty = 0.0
                     line.value_confirmed = False
             else:
-                line.product_qty = 0.0
-                line.value_confirmed = False
+                # Si texte vide, on utilise product_qty directement
+                if line.product_qty and line.product_qty > 0.0:
+                    line.value_confirmed = True
+                else:
+                    line.value_confirmed = False
 
     def _generate_moves(self):
         vals_list = []

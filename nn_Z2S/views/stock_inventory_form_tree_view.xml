@@ -90,14 +90,24 @@
                         groups="nn_Z2S.stock_inventory_validation"/>
 
             </xpath>
+
+            <xpath expr="//field[@name='product_ids']" position="attributes">
+                <attribute name="options">{'no_create':True}</attribute>
+
+            </xpath>
             <xpath expr="//field[@name='state']" position="attributes">
                 <attribute name="statusbar_visible">draft,confirm,demand_close,done</attribute>
             </xpath>            <!-- Add fields to the form view -->
             <xpath expr="//sheet" position="inside">
                 <group>
                     <group string="Infos Supplémentaires">
-                        <field name="category_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                        <field name="partner_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="category_id"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}"
+                               options="{'no_create': True}"/>
+
+                        <field name="partner_id"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}"
+                               options="{'no_create': True}"/>
                     </group>
                     <group string="Sélection du type de produit">
                         <field name="is_produit_fini" string="Produit Fini"

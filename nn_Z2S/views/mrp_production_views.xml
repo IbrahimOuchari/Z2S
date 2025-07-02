@@ -24,7 +24,18 @@
             <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
             <field name="arch" type="xml">
                 <!--                    <attribute name="invisible">1</attribute>-->
+                <xpath expr="//notebook" position="after">
+                    <div>
+                        <field name="ignore_component_check"
+                               string="Ignoré Vérification Composants"
+                               widget="boolean_button"
+                               options="{'terminology': 'toggle'}"
+                               class="o_checkbox_big"
+                               groups="nn_Z2S.group_ignore_component_check_user"/>
+                    </div>
 
+
+                </xpath>
                 <xpath expr="//header" position="inside">
                     <field name="stock_move_changes" invisible="1"/>
                 </xpath>

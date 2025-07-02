@@ -113,6 +113,7 @@
                     <separator/>
                     <filter string="Article Fourni" name="fourni" domain="[('fourni', '=', True)]"/>
                     <filter string="Article Fini" name="sale_ok" domain="[('sale_ok', '=', True)]"/>
+                    >
                     <separator/>
                     <filter string="Article Validé" name="valide" domain="[('state_product', '=', '1')]"/>
                     <filter string="Article En cours de Validation" name="valide"
