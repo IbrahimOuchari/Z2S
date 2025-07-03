@@ -10,16 +10,16 @@
                 <field name="name" string="OF"/>  <!-- Manufacturing Order -->
                 <field name="product_id" string="Article"/>  <!-- Product -->
                 <field name="ref_product_client" string="Référence Article"/>  <!-- Client Reference -->
-<!--                <field name="description" string="Désignation"/>  &lt;!&ndash; Description &ndash;&gt;-->
+                <!--                <field name="description" string="Désignation"/>  &lt;!&ndash; Description &ndash;&gt;-->
                 <field name="qty_producing" string="Quantité Produite"/>  <!-- Produced Quantity -->
-<!--                <field name="create_date" string="Date création OF"/>  &lt;!&ndash; Creation Date &ndash;&gt;-->
+                <!--                <field name="create_date" string="Date création OF"/>  &lt;!&ndash; Creation Date &ndash;&gt;-->
                 <field name="date_realisation" string="Date Réalisation"/>  <!-- Realization Date -->
-<!--                <field name="total_theo_duration" string="Durée Théorique" />  &lt;!&ndash; Theoretical Duration &ndash;&gt;-->
-                <field name="formatted_theo_duration" string="Durée Théorique" />  <!-- Theoretical Duration -->
-<!--                <field name="total_real_duration" string="Durée Réelle"/>  &lt;!&ndash; Real Duration &ndash;&gt;-->
+                <!--                <field name="total_theo_duration" string="Durée Théorique" />  &lt;!&ndash; Theoretical Duration &ndash;&gt;-->
+                <field name="formatted_theo_duration" string="Durée Théorique"/>  <!-- Theoretical Duration -->
+                <!--                <field name="total_real_duration" string="Durée Réelle"/>  &lt;!&ndash; Real Duration &ndash;&gt;-->
                 <field name="formatted_real_duration" string="Durée Réelle"/>  <!-- Real Duration -->
                 <field name="total_average_productivity" string="Productivité"
-                       widget="percentage"/>  <!-- Productivity -->
+                       widget="percentage" avg="avg"/>  <!-- Productivity -->
                 <field name="state" string="Etat"/>  <!-- Status -->
 
             </tree>

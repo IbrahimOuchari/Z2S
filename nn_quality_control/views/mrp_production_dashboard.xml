@@ -6,19 +6,26 @@
         <field name="model">mrp.production</field>
         <field name="arch" type="xml">
             <tree string="Productivité des Opérations" create="false" delete="false">
-<!--                <field name="name" string="OF"/>-->
+                <field name="quality_control_id" string="Contrôle qualité"/>
+                <field name="name" string="OF"/>
+
                 <field name="product_id" string="Article"/>
                 <field name="ref_product_client" string="Référence Article"/>
-                <field name="description" string="Désignation"/>
-                <field name="product_qty" string="Quantité Produite"/>
-<!--                <field name="create_date" string="Date création OF"/>-->
-                <field name="quality_control_id" string="Controle quality" />
-                <field name="ppm" />
-                <field name="total_non_conform_count" />
-                <field name="global_defect_rate" />
-<!--                <field name="ppm" string="PPM"/>-->
+                <field name="client_id" optional="hide"/>
+                <field name="description" string="Désignation" optional="hide"/>
+                <field name="ppm"/>
+                <field name="ppm1" optional="hide"/>
+                <field name="ppm2" optional="hide"/>
+                <field name="ppm3" optional="hide"/>
 
-                <field name="quality_control_checked" invisible="0"/>
+
+                <field name="product_qty" string="Quantité Produite"/>
+                <!--                <field name="create_date" string="Date création OF"/>-->
+                <field name="total_non_conform_count"/>
+                <field name="global_defect_rate"/>
+                <!--                <field name="ppm" string="PPM"/>-->
+
+                <field name="quality_control_checked" invisible="1"/>
                 <field name="control_quality_state" invisible="1"/>
                 <field name="state" string="Etat"/>
             </tree>
@@ -81,23 +88,22 @@
 
     <!-- Action -->
     <record id="action_control_quality_analysis_tree" model="ir.actions.act_window">
-        <field name="name">Contrôle Qualités</field>
+        <field name="name">Tableau de bord des Contrôles qualité</field>
         <field name="res_model">mrp.production</field>
         <field name="view_mode">tree</field>
         <field name="view_id" ref="view_mrp_productivity_tree_control_quality"/>
         <field name="search_view_id" ref="view_mrp_production_filter_quality"/>
         <field name="context">{
             'search_default_has_quality': 1
-        }</field>
+            }
+        </field>
     </record>
 
 
-
-
-<!--       <menuitem id="menu_Z2S_control_quality"-->
-<!--              name="Analyse"-->
-<!--              parent="menu_root_control_quality"-->
-<!--              sequence="1"-->
+    <!--       <menuitem id="menu_Z2S_control_quality"-->
+    <!--              name="Analyse"-->
+    <!--              parent="menu_root_control_quality"-->
+    <!--              sequence="1"-->
     /> <!-- Replace with your actual module name -->
 
     <!-- Menu item remains unchanged -->

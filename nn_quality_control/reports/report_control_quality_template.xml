@@ -9,7 +9,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">nn_quality_control.report_template_control_quality_print</field>
             <field name="report_file">nn_quality_control.report_template_control_quality_print</field>
-            <field name="binding_model_id" eval="False"/>
+            <field name="binding_model_id" ref="model_control_quality"/>
             <field name="binding_type">report</field>
             <!--            <field name="paperformat_id" ref="report_control_quality_print_z2s"/>-->
         </record>
@@ -123,7 +123,7 @@
 
                                 </td>
                                 <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.start_date.strftime('%Y-%m-%d %H:%M:%S')"/>
+                                    <span t-esc="quality_control.start_date and quality_control.start_date.strftime('%Y-%m-%d %H:%M:%S') or 'N/A'"/>
                                 </td>
                                 <td class="text-center" style="border: 3px solid black; text-align: center;">
                                     <span t-esc="quality_control.end_date and quality_control.end_date.strftime('%Y-%m-%d %H:%M:%S') or 'N/A'"/>
@@ -187,6 +187,11 @@
                                         style="background-color: red; color: white; margin-right: 10px;">
                                     Moyenne Défaut Client :
                                     <span t-esc="quality_control.type1_client_default_avg"/>
+                                </button>
+                                <button type="button" class="btn"
+                                        style="background-color: blue; color: white; margin-right: 10px;">
+                                    PPM :
+                                    <span t-esc="quality_control.ppm1"/>
                                 </button>
                             </div>
                             <table class="table table-bordered"
@@ -327,6 +332,11 @@
                                     Moyenne Défaut Client :
                                     <span t-esc="quality_control.type2_client_default_avg"/>
                                 </button>
+                                <button type="button" class="btn"
+                                        style="background-color: blue; color: white; margin-right: 10px;">
+                                    PPM :
+                                    <span t-esc="quality_control.ppm2"/>
+                                </button>
                             </div>
                             <table class="table table-bordered"
                                    style="width: 100%; font-size: 15px; border-collapse: collapse; page-break-inside: avoid;">
@@ -352,7 +362,7 @@
                                             style="border: 3px solid black; text-align: center;">
                                             Résultat 1
                                         </th>
-                                 <th class="text-center"
+                                        <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
                                             Défaut 1
                                         </th>
@@ -399,7 +409,7 @@
                                             <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type2_line.result1"/>
                                             </td>
-                                     <td class="text-center" style="border: 3px solid black;">
+                                            <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type2_line.defect1.name"/>
                                             </td>
 
@@ -460,6 +470,11 @@
                                     Moyenne Défaut Client :
                                     <span t-esc="quality_control.type3_client_default_avg"/>
                                 </button>
+                                <button type="button" class="btn"
+                                        style="background-color: blue; color: white; margin-right: 10px;">
+                                    PPM :
+                                    <span t-esc="quality_control.ppm3"/>
+                                </button>
                             </div>
                             <table class="table table-bordered"
                                    style="width: 100%; font-size: 15px; border-collapse: collapse; page-break-inside: avoid;">
@@ -485,7 +500,7 @@
                                             style="border: 3px solid black; text-align: center;">
                                             Résultat 1
                                         </th>
-                                 <th class="text-center"
+                                        <th class="text-center"
                                             style="border: 3px solid black; text-align: center;">
                                             Défaut 1
                                         </th>
@@ -532,7 +547,7 @@
                                             <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type3_line.result1"/>
                                             </td>
-                                      <td class="text-center" style="border: 3px solid black;">
+                                            <td class="text-center" style="border: 3px solid black;">
                                                 <span t-esc="type3_line.defect1.name"/>
                                             </td>
 

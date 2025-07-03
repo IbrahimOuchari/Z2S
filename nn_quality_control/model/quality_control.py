@@ -1,8 +1,9 @@
-from unicodedata import digit
-
-from odoo import models, fields, api, exceptions, _
-from datetime import datetime
 import logging
+from datetime import datetime
+
+from odoo import api, models, _
+from odoo import models, fields, api, exceptions, _
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -21,36 +22,50 @@ class QualityControl(models.Model):
     of_id = fields.Many2one(
         'mrp.production',
         string='Ordre de Fabrication',
-        ondelete='set null',
-        domain="[('quality_control_checked', '=', False), ('state', 'in',  ['confirmed','progress','to_close','done'])]"
+        store=True,
+        domain="[('quality_control_checked', '=', False), ('state', 'in',  ['confirmed','progress','to_close','done'])]",
+        readonly=False, required=True,
     )
+
+    # Add this import at the top of your file if not already present:
+    # from odoo import models, fields, api, exceptions, _
 
     @api.onchange('state', 'of_id', 'type_1', 'type_2', 'type_3')
     def onchange_state_of_id(self):
         for record in self:
             _logger.info(
-                f"Triggered onchange_state_ofid for Record ID: {self.id}, State: {record.state}, OF_ID: {record.of_id.id if record.of_id else 'None'},OF_Name: {record.of_id.name if record.of_id else 'None'}")
+                f"Triggered onchange_state_ofid for Record ID: {record.id}, "
+                f"State: {record.state}, "
+                f"OF_ID: {record.of_id.id if record.of_id else 'None'}, "
+                f"OF_Name: {record.of_id.name if record.of_id else 'None'}"
+            )
+
+            # Skip processing if this is a new record that hasn't been saved yet
+            if not record.id or isinstance(record.id, models.NewId):
+                _logger.info(f"Skipping onchange for unsaved record: {record.id}")
+                return
+
+            # Skip processing if of_id is not set
+            if not record.of_id:
+                _logger.info("Skipping onchange - no OF_ID set")
+                return
 
             if record.state in ['in_progress', 'validated', 'closed']:
-                of_search = self.env['mrp.production'].search([
-                    ('id', '=', record.of_id.id)
-                ])
+                of_search = self.env['mrp.production'].search([('id', '=', record.of_id.id)])
                 if of_search:
-                    of_search.write({
-                        'quality_control_checked': True,
-                    })
+                    of_search.write({'quality_control_checked': True})
                     of_search.action_update_control_quality()
             else:
-                of_search = self.env['mrp.production'].search([
-                    ('id', '=', record.of_id.id)
-                ])
-                of_search.write({
-                    'quality_control_checked': False,
-                })
-                of_search.action_update_control_quality()
+                of_search = self.env['mrp.production'].search([('id', '=', record.of_id.id)])
+                if of_search:
+                    of_search.write({'quality_control_checked': False})
+                    of_search.action_update_control_quality()
 
-                _logger.info(
-                    f"OF_Search Results - ID: {of_search.id if of_search else 'Not Found'}, Name: {of_search.name if of_search else 'Not Found'}, quality_control_checked: {of_search.quality_control_checked if of_search else 'Not Found'}")
+                    _logger.info(
+                        f"OF_Search Results - ID: {of_search.id if of_search else 'Not Found'}, "
+                        f"Name: {of_search.name if of_search else 'Not Found'}, "
+                        f"quality_control_checked: {of_search.quality_control_checked if of_search else 'Not Found'}"
+                    )
 
     other_info = fields.Text(string="Autre Info", default="RAS")
 
@@ -58,7 +73,7 @@ class QualityControl(models.Model):
                                      default=lambda self: self.env.user)
     company = fields.Many2one('res.users', string='Contrôleur', readonly=True,
                               default=lambda self: self.env.user)
-    start_date = fields.Datetime(string='Date début', compute='_compute_start_date', store=True )
+    start_date = fields.Datetime(string='Date début', compute='_compute_start_date', store=True)
     end_date = fields.Datetime(string='Date fin', compute='_compute_end_date', store=True)
     manual_quantity = fields.Boolean(string='Quantité Manuelle', default=False)
 
@@ -70,10 +85,9 @@ class QualityControl(models.Model):
 
     qty_producing_related = fields.Float(related='of_id.qty_producing', string='Quantité Produite', store=True,
                                          )  # New field for quantity produced
-    product_qty_related = fields.Float(related='of_id.product_qty', string='Quantité Produite',
-                                         )  # New field for quantity produced
-    product_qty = fields.Float(string='Quantité Produite',store=True  )  # New field for quantity produced
-
+    product_qty_related = fields.Float(related='of_id.product_qty', string='Quantité Produite', store=True,
+                                       )  # New field for quantity produced
+    product_qty = fields.Float(string='Quantité Produite', store=True)  # New field for quantity produced
 
     qty_producing = fields.Float(string='Quantité Produite', store=True,
                                  compute='_compute_of_id')  # New field for quantity produced
@@ -104,6 +118,12 @@ class QualityControl(models.Model):
             else:
                 record.global_defect_rate = 0.0  # Avoid division by zero
 
+    global_non_conforme = fields.Float(
+        string='total Non-conforme',
+        store=True,
+        digits=(16, 3),
+    )
+
     type1_line_ids = fields.One2many('control.quality.type1.line', 'quality_id',
                                      string='Lignes de Contrôle Qualité De Type1')
     type2_line_ids = fields.One2many('control.quality.type2.line', 'quality_id',
@@ -118,30 +138,30 @@ class QualityControl(models.Model):
     type1_total_client_default = fields.Integer(string='Nombre Total défaut client',
                                                 compute='_compute_conform_non_conform_type1',
                                                 store=True)
-    type1_client_default_avg = fields.Integer(string='Taux des défaut client',
-                                              compute='_compute_defect_rate_type1',
-                                              store=True)
+    type1_client_default_avg = fields.Float(string='Taux des défaut client',
+                                            compute='_compute_defect_rate_type1',
+                                            store=True, digits=(6, 2))
     type2_conform_count = fields.Integer(string='Nombre Conforme', compute='_compute_conform_non_conform_type2',
                                          store=True)
     type2_non_conform_count = fields.Integer(string='Nombre Non Conforme', compute='_compute_conform_non_conform_type2',
                                              store=True)
     type2_total_client_default = fields.Integer(string='Nombre Total défaut client',
                                                 compute='_compute_conform_non_conform_type2',
-                                                store=True)
-    type2_client_default_avg = fields.Integer(string='Taux des défaut client',
-                                              compute='_compute_defect_rate_type2',
-                                              store=True)
+                                                store=True, digits=(6, 2))
+    type2_client_default_avg = fields.Float(string='Taux des défaut client',
+                                            compute='_compute_defect_rate_type2', digits=(6, 2),
+                                            store=True)
 
     type3_conform_count = fields.Integer(string='Nombre Conforme', compute='_compute_conform_non_conform_type3',
                                          store=True)
     type3_non_conform_count = fields.Integer(string='Nombre Non Conforme', compute='_compute_conform_non_conform_type3',
                                              store=True)
-    type3_total_client_default = fields.Integer(string='Nombre Total défaut client',
-                                                compute='_compute_conform_non_conform_type3',
-                                                store=True)
-    type3_client_default_avg = fields.Integer(string='Taux des défaut client',
-                                              compute='_compute_defect_rate_type3',
-                                              store=True)
+    type3_total_client_default = fields.Float(string='Nombre Total défaut client',
+                                              compute='_compute_conform_non_conform_type3',
+                                              store=True, )
+    type3_client_default_avg = fields.Float(string='Taux des défaut client',
+                                            compute='_compute_defect_rate_type3',
+                                            store=True, digits=(6, 2))
     total_conform_count = fields.Integer(string='Total Nombre Conforme', compute='_compute_total_conform_non_conform',
                                          store=True)
     total_non_conform_count = fields.Integer(string='Total Nombre Non Conforme',
@@ -155,15 +175,43 @@ class QualityControl(models.Model):
         ('validated', 'Validée'),  # Validated
     ], string='Statut', default='draft')
 
+    @api.constrains('total_lines_type1', 'total_lines_type2', 'total_lines_type3', 'product_qty')
+    def _check_total_lines_vs_product_qty(self):
+        for record in self:
+            if record.product_qty:
+                if record.total_lines_type1 > record.product_qty:
+                    raise ValidationError(_(
+                        "Le total des lignes Contrôle lampe loupe(%s) dépasse la quantité produite (%s)."
+                    ) % (record.total_lines_type1, record.product_qty))
+
+                if record.total_lines_type2 > record.product_qty:
+                    raise ValidationError(_(
+                        "Le total des lignes Contrôle Caméra (%s) dépasse la quantité produite (%s)."
+                    ) % (record.total_lines_type2, record.product_qty))
+
+                if record.total_lines_type3 > record.product_qty:
+                    raise ValidationError(_(
+                        "Le total des lignes Contrôle Rayon X (%s) dépasse la quantité produite (%s)."
+                    ) % (record.total_lines_type3, record.product_qty))
+
     ppm = fields.Float(string="PPM", compute="_compute_ppm", store=True, digits=(16, 3))
 
     @api.depends('global_defect_rate')
     def _compute_ppm(self):
         for record in self:
-            record.ppm = record.global_defect_rate * 10000  # 1% = 10,000 PPM
+            ppm_values = []
+            if record.ppm1:
+                ppm_values.append(record.ppm1)
+            if record.ppm2:
+                ppm_values.append(record.ppm2)
+            if record.ppm3:
+                ppm_values.append(record.ppm3)
+            if ppm_values:
+                record.ppm = sum(ppm_values) / len(ppm_values)
+            else:
+                record.ppm = 0.0
 
-
-    @api.onchange('total_lines','total_lines_type1','total_lines_type2','total_lines_type3')
+    @api.onchange('total_lines', 'total_lines_type1', 'total_lines_type2', 'total_lines_type3')
     def state_change(self):
         for record in self:
             print(f"Total Lines: {record.total_lines}, "
@@ -217,7 +265,8 @@ class QualityControl(models.Model):
     total_lines_type1 = fields.Integer(string='Total Lignes Type 1', compute='_compute_total_lines_type1', store=True)
     total_lines_type2 = fields.Integer(string='Total Lignes Type 2', compute='_compute_total_lines_type2', store=True)
     total_lines_type3 = fields.Integer(string='Total Lignes Type 3', compute='_compute_total_lines_type3', store=True)
-    forced_closure = fields.Boolean(string='Cloture Forcée', default= False)
+    forced_closure = fields.Boolean(string='Cloture Forcée', default=False)
+
     @api.depends('type1_line_ids', 'type2_line_ids', 'type3_line_ids', 'type_1', 'type_2', 'type_3')
     def _compute_total_lines(self):
         for record in self:
@@ -302,20 +351,17 @@ class QualityControl(models.Model):
             # If all checks pass, change state to 'done'
             record.state = 'validated'
 
+    @api.onchange('type1_line_ids', 'type2_line_ids', 'type3_line_ids')
+    def _onchange_set_start_date(self):
+        for rec in self:
+            if not rec.start_date and rec.total_lines > 0:
+                rec.start_date = fields.Datetime.now()
 
-
-
-    @api.onchange('type1_line_ids','type2_line_ids','type3_line_ids')
-    def _compute_start_date(self):
-        for record in self:
-            if not record.start_date and record.total_lines:
-                record.start_date= datetime.now()
-
-    @api.onchange('type1_line_ids','type2_line_ids','type3_line_ids')
+    @api.onchange('type1_line_ids', 'type2_line_ids', 'type3_line_ids')
     def _compute_end_date(self):
         for record in self:
             if record.total_lines:
-               record.end_date= datetime.now()
+                record.end_date = datetime.now()
 
     def name_get(self):
         result = []
@@ -329,9 +375,23 @@ class QualityControl(models.Model):
         if vals.get('reference', '/') == '/':
             current_year = fields.Date.today().strftime('%y')
             sequence = self.env['ir.sequence'].next_by_code('control.quality') or '0001'
-            of_name = self.env['mrp.production'].browse(vals.get('of_id')).name or 'OF'
             vals['reference'] = f"CQ - {current_year} - {sequence}"
+
+        # Backup OF_ID on creation if present
+        if vals.get('of_id'):
+            vals['backup_of_id'] = vals['of_id']
+
         return super(QualityControl, self).create(vals)
+
+    backup_of_id = fields.Many2one('mrp.production', string='OF (Backup)', invisible=True)
+
+    @api.onchange('of_id')
+    def _onchange_of_id(self):
+        for record in self:
+            if record.of_id:
+                record.backup_of_id = record.of_id
+            elif record.backup_of_id:
+                record.of_id = record.backup_of_id
 
     @api.depends('of_id')
     def _compute_of_id(self):
@@ -402,30 +462,57 @@ class QualityControl(models.Model):
                     record.type3_non_conform_count
             )
 
+    ppm1 = fields.Float(string="PPM1", compute='_compute_ppm1', digits=(16, 3))
+
+    @api.depends('type1_client_default_avg')
+    def _compute_ppm1(self):
+        for rec in self:
+            rec.ppm1 = rec.type1_client_default_avg * 10000
+
+    ppm2 = fields.Float(string="PPM2", compute='_compute_ppm2', digits=(16, 3))
+
+    @api.depends('type2_client_default_avg')
+    def _compute_ppm2(self):
+        for rec in self:
+            rec.ppm2 = rec.type2_client_default_avg * 10000
+
+    ppm3 = fields.Float(string="PPM3", compute='_compute_ppm3', digits=(16, 3))
+
+    @api.depends('type3_client_default_avg')
+    def _compute_ppm3(self):
+        for rec in self:
+            rec.ppm3 = rec.type3_client_default_avg * 10000
+
     @api.depends('type1_non_conform_count', 'total_lines_type1')
     def _compute_defect_rate_type1(self):
         for record in self:
-            total_controlled = record.total_lines_type1
-            if total_controlled > 0:
-                record.type1_client_default_avg = (record.type1_non_conform_count / total_controlled) * 100
+            total = record.total_lines_type1
+            non_conform = record.type1_non_conform_count
+            base = total - non_conform
+            if base > 0:
+                record.type1_client_default_avg = (non_conform / base) * 100
             else:
                 record.type1_client_default_avg = 0.0
 
-    @api.depends('type2_non_conform_count', 'total_lines_type2')  # Compute defect rate for Type 2
+    @api.depends('type2_non_conform_count', 'total_lines_type2')
     def _compute_defect_rate_type2(self):
         for record in self:
-            total_controlled = record.total_lines_type2
-            if total_controlled > 0:
-                record.type2_client_default_avg = (record.type2_non_conform_count / total_controlled) * 100
+            total = record.total_lines_type2
+            non_conform = record.type2_non_conform_count
+            base = total - non_conform
+            if base > 0:
+                record.type2_client_default_avg = (non_conform / base) * 100
             else:
                 record.type2_client_default_avg = 0.0
 
-    @api.depends('type3_non_conform_count', 'total_lines_type3')  # Compute defect rate for Type 3
+    @api.depends('type3_non_conform_count', 'total_lines_type3')
     def _compute_defect_rate_type3(self):
         for record in self:
-            total_controlled = record.total_lines_type3
-            if total_controlled > 0:
-                record.type3_client_default_avg = (record.type3_non_conform_count / total_controlled) * 100
+            total = record.total_lines_type3
+            non_conform = record.type3_non_conform_count
+            base = total - non_conform
+            if base > 0:
+                record.type3_client_default_avg = (non_conform / base) * 100
             else:
                 record.type3_client_default_avg = 0.0
 
@@ -442,6 +529,7 @@ class QualityControl(models.Model):
             record.forced_closure = True
 
         # New fields to create
+
     original_product_qty = fields.Float(string='Original Quantity')
     product_qty_percentage = fields.Float(string='Quantity Percentage (%)', default=100.0)
 
@@ -479,6 +567,8 @@ class QualityControl(models.Model):
                 vals['product_qty_percentage'] = 100.0
 
         return super(QualityControl, self).write(vals)
+
+
 class QualityControlLine(models.Model):
     _name = 'control.quality.line'
     _description = 'Ligne de Contrôle Qualité'

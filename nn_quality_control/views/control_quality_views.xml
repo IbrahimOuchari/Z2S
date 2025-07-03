@@ -11,9 +11,9 @@
 
                     <button name="action_validate" type="object" string="Validate" class="btn-primary"
                             states="closed"/>
-                    <button name="print_control_quality" type="object" string="Imprimer Controle qualité"
-                            class="btn-primary"
-                    />
+                    <!--                    <button name="print_control_quality" type="object" string="Imprimer Controle qualité"-->
+                    <!--                            class="btn-primary"-->
+                    <!--                    />-->
 
                     <button name="action_force_closure"
                             string="Forcer la Clôture"
@@ -33,9 +33,10 @@
                         </button>
 
                         <button type="button" class="btn btn-primary" name="action_taux_defaut_global"
-                                string="PPM"
+
                                 attrs="{'invisible': [('state', '=', 'done')]}">
-                            <span t-field="ppm"/> <!-- This will show the computed value -->
+                            <span t-field="ppm"/>
+                            Moyenne PPM : <!-- This will show the computed value -->
                             <field name="ppm" attrs="{'readonly': True}"/>
 
                         </button>
@@ -47,9 +48,11 @@
 
                         <field name="barcode" invisible="1"/>
                         <field name="reference" string="Référence" attrs="{'readonly': True}"/>
-                        <field name="of_id" options="{'no_create': True}" string="Ordre de Fabrication"
-                               attrs="{'readonly': [('state', 'in', ('in_progress','closed','validated'))]}"
-                        />
+                        <field name="of_id"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}"
+                               options="{'no_create': True}" force_save="1"/>
+
+                        <field name="backup_of_id" invisible="1"/>
                         <field name="article_id" attrs="{'readonly': True}"/>
                         <field name="client_reference" string="Référence Client" attrs="{'readonly': True}"/>
                         <field name="client_id" string="Client" attrs="{'readonly': True}"/>
@@ -65,8 +68,8 @@
                                groups="nn_quality_control.group_manual_quantity_management"/>
                         <field name="total_lines" attrs="{'readonly': True}"/>
                         <field name="other_info"/>
-                        <field name="start_date" invisible="0" readonly="True"/>
-                        <field name="end_date" invisible="0" readonly="True"/>
+                        <field name="start_date" invisible="0" force_save="1" readonly="True"/>
+                        <field name="end_date" invisible="0" force_save="1" readonly="True"/>
                         <field name="forced_closure" invisible="1"/>
                     </group>
                     <!-- Type 1 Section -->
@@ -103,7 +106,12 @@
                                 Taux default %
                                 <field name="type1_client_default_avg"/>
                             </button>
-
+                            <button type="button" class="btn btn-primary" name="ppm1"
+                                    attrs="{'invisible': [('type_1', '=', False)]}">
+                                <span t-field="ppm1"/>
+                                PPM :
+                                <field name="ppm1"/>
+                            </button>
 
                         </div>
                     </div>
@@ -139,6 +147,12 @@
                                 Taux default %
                                 <field name="type2_client_default_avg"/>
                             </button>
+                            <button type="button" class="btn btn-primary" name="ppm2"
+                                    attrs="{'invisible': [('type_2', '=', False)]}">
+                                <span t-field="ppm2"/>
+                                PPM :
+                                <field name="ppm2"/>
+                            </button>
                         </div>
                     </div>
 
@@ -172,6 +186,13 @@
                                 <span t-field="type3_client_default_avg"/>
                                 Taux default %
                                 <field name="type3_client_default_avg"/>
+                            </button>
+
+                            <button type="button" class="btn btn-primary" name="ppm3"
+                                    attrs="{'invisible': [('type_3', '=', False)]}">
+                                <span t-field="ppm3"/>
+                                PPM :
+                                <field name="ppm3"/>
                             </button>
                         </div>
                     </div>
@@ -282,6 +303,7 @@
                 <field name="client_id"/>
                 <field name="designation"/>
                 <field name="total_lines"/>
+
                 <field name="state" widget="badge"
                        decoration-muted="state == 'draft'"
                        decoration-info="state == 'in_progress'"

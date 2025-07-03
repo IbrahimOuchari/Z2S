@@ -14,13 +14,13 @@
     """,
     'category': 'Manufacturing',
     'website': 'https://www.bmgtech.tn',
-    'depends': ['base','sale','mrp', 'stock', 'nn_Z2S','barcodes','report_xlsx'],
+    'depends': ['base', 'sale', 'mrp', 'stock', 'nn_Z2S', 'barcodes', 'report_xlsx'],
     'data': [
         'security/groups.xml',  # Define access rights for quality control
         'security/ir.model.access.csv',  # Define access rights for quality control
         'reports/report_control_quality_template.xml',
-        'reports/control_quality_excel.xml',
-        'reports/header_control_quality.xml',  # Main view for quality control
+        # 'reports/control_quality_excel.xml',
+        # 'reports/header_control_quality.xml',  # Main view for quality control
         'views/control_quality_views.xml',  # Main view for quality control
         'views/configuration_reprise_view.xml',  # Main view for quality control
         'views/configuration_type_default_view.xml',  # Main view for quality control
