@@ -54,7 +54,6 @@ class StockInventory(models.Model):
             'default_company_id': self.company_id.id,
         }
 
-        # Base domain: always filter inventory lines for current inventory
         domain = [
             ('inventory_id', '=', self.id),
             ('product_id.active', '=', True),
@@ -62,22 +61,18 @@ class StockInventory(models.Model):
             ('location_id.return_location', '=', False),
         ]
 
+        # ✔️ Keep exact structure, but remove all = False filters
+
         if self.is_produit_fini and not self.is_produit_fourni and not self.is_produit_achete:
             domain += [
                 ('product_id.sale_ok', '=', True),
-                ('product_id.fourni', '=', False),
-                ('product_id.purchase_ok', '=', False),
             ]
         elif not self.is_produit_fini and self.is_produit_fourni and not self.is_produit_achete:
             domain += [
-                ('product_id.sale_ok', '=', False),
                 ('product_id.fourni', '=', True),
-                ('product_id.purchase_ok', '=', False),
             ]
         elif not self.is_produit_fini and not self.is_produit_fourni and self.is_produit_achete:
             domain += [
-                ('product_id.sale_ok', '=', False),
-                ('product_id.fourni', '=', False),
                 ('product_id.purchase_ok', '=', True),
             ]
         elif self.is_produit_fini and self.is_produit_fourni and not self.is_produit_achete:
@@ -85,21 +80,18 @@ class StockInventory(models.Model):
                 '|',
                 ('product_id.sale_ok', '=', True),
                 ('product_id.fourni', '=', True),
-                ('product_id.purchase_ok', '=', False),
             ]
         elif self.is_produit_fini and not self.is_produit_fourni and self.is_produit_achete:
             domain += [
                 '|',
                 ('product_id.sale_ok', '=', True),
                 ('product_id.purchase_ok', '=', True),
-                ('product_id.fourni', '=', False),
             ]
         elif not self.is_produit_fini and self.is_produit_fourni and self.is_produit_achete:
             domain += [
                 '|',
                 ('product_id.fourni', '=', True),
                 ('product_id.purchase_ok', '=', True),
-                ('product_id.sale_ok', '=', False),
             ]
         elif self.is_produit_fini and self.is_produit_fourni and self.is_produit_achete:
             domain += [
@@ -109,12 +101,9 @@ class StockInventory(models.Model):
                 ('product_id.purchase_ok', '=', True),
             ]
         else:
-            # None selected → exclude all or no product filter:
-            domain += [
-                ('product_id.sale_ok', '=', False),
-                ('product_id.fourni', '=', False),
-                ('product_id.purchase_ok', '=', False),
-            ]
+            # No filters selected — optional fallback
+            pass
+
         # Filter by selected locations if any
         if self.location_ids:
             domain.append(('location_id', 'in', self.location_ids.ids))
@@ -122,7 +111,6 @@ class StockInventory(models.Model):
             if len(self.location_ids) == 1 and not self.location_ids[0].child_ids:
                 context['readonly_location_id'] = True
         else:
-            # Fallback if no location selected: internal and transit usages
             domain.append(('location_id.usage', 'in', ['internal', 'transit']))
 
         if self.category_id:
@@ -130,7 +118,6 @@ class StockInventory(models.Model):
         if self.partner_id:
             domain.append(('product_id.client_id', '=', self.partner_id.id))
 
-        # Decide view depending on products filter
         if self.product_ids:
             action['view_id'] = self.env.ref('stock.stock_inventory_line_tree_no_product_create').id
             if len(self.product_ids) == 1:
