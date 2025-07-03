@@ -20,9 +20,11 @@ class MrpProduction(models.Model):
         store=True  # Store the field value to persist it in the database
     )
     ppm = fields.Float(related='quality_control_id.ppm', string="PPM", store=True, digits=(16, 3))
-    ppm1 = fields.Float(related='quality_control_id.ppm1', string="Contrôle Lampe Loup", store=True, digits=(16, 3))
-    ppm2 = fields.Float(related='quality_control_id.ppm2', string="Contrôle Caméra", store=True, digits=(16, 3))
-    ppm3 = fields.Float(related='quality_control_id.ppm3', string="Contrôle Rayon X", store=True, digits=(16, 3))
+    ppm1 = fields.Float(related='quality_control_id.ppm1', string="PPM Contrôle Lampe Loupe", store=True,
+                        digits=(16, 3))
+    ppm2 = fields.Float(related='quality_control_id.ppm2', string="PPM Contrôle Caméra PPM", store=True, digits=(16, 3))
+    ppm3 = fields.Float(related='quality_control_id.ppm3', string="PPM Contrôle Rayon X PPM", store=True,
+                        digits=(16, 3))
     total_non_conform_count = fields.Integer(
         related='quality_control_id.total_non_conform_count',
         string='Total Nombre Non Conforme',

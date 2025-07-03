@@ -147,7 +147,7 @@ class QualityControl(models.Model):
                                              store=True)
     type2_total_client_default = fields.Integer(string='Nombre Total défaut client',
                                                 compute='_compute_conform_non_conform_type2',
-                                                store=True, digits=(6, 2))
+                                                store=True, )
     type2_client_default_avg = fields.Float(string='Taux des défaut client',
                                             compute='_compute_defect_rate_type2', digits=(6, 2),
                                             store=True)
@@ -156,9 +156,9 @@ class QualityControl(models.Model):
                                          store=True)
     type3_non_conform_count = fields.Integer(string='Nombre Non Conforme', compute='_compute_conform_non_conform_type3',
                                              store=True)
-    type3_total_client_default = fields.Float(string='Nombre Total défaut client',
-                                              compute='_compute_conform_non_conform_type3',
-                                              store=True, )
+    type3_total_client_default = fields.Integer(string='Nombre Total défaut client',
+                                                compute='_compute_conform_non_conform_type3',
+                                                store=True, )
     type3_client_default_avg = fields.Float(string='Taux des défaut client',
                                             compute='_compute_defect_rate_type3',
                                             store=True, digits=(6, 2))
@@ -208,6 +208,8 @@ class QualityControl(models.Model):
                 ppm_values.append(record.ppm3)
             if ppm_values:
                 record.ppm = sum(ppm_values) / len(ppm_values)
+                print(len(ppm_values))
+                print(sum(ppm_values))
             else:
                 record.ppm = 0.0
 
@@ -462,21 +464,21 @@ class QualityControl(models.Model):
                     record.type3_non_conform_count
             )
 
-    ppm1 = fields.Float(string="PPM1", compute='_compute_ppm1', digits=(16, 3))
+    ppm1 = fields.Float(string="PPM Contrôle Lampe LoupeM", compute='_compute_ppm1', digits=(16, 3))
 
     @api.depends('type1_client_default_avg')
     def _compute_ppm1(self):
         for rec in self:
             rec.ppm1 = rec.type1_client_default_avg * 10000
 
-    ppm2 = fields.Float(string="PPM2", compute='_compute_ppm2', digits=(16, 3))
+    ppm2 = fields.Float(string="PPM Contrôle Caméra", compute='_compute_ppm2', digits=(16, 3))
 
     @api.depends('type2_client_default_avg')
     def _compute_ppm2(self):
         for rec in self:
             rec.ppm2 = rec.type2_client_default_avg * 10000
 
-    ppm3 = fields.Float(string="PPM3", compute='_compute_ppm3', digits=(16, 3))
+    ppm3 = fields.Float(string="PPM Contrôle Rayon X", compute='_compute_ppm3', digits=(16, 3))
 
     @api.depends('type3_client_default_avg')
     def _compute_ppm3(self):

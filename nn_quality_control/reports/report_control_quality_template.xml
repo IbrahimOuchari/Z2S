@@ -15,22 +15,32 @@
         </record>
         <template id="report_header_template">
             <div class="header" style="text-align: center; padding: 10px; border-bottom: 3px solid black;">
-                <span style="text-align: center; font-size: 14px;">
-                    <strong>Article:</strong>
-                    <span t-field="docs.article_id.name"/>
-                </span>
-                <br/>
-                <span style="text-align: center; font-size: 14px;">
-                    <strong>Quantité produite:</strong>
-                    <span t-field="docs.qty_producing"/>
-                </span>
+                <div style="margin-bottom: 5px;">
+                    <span style="font-size: 14px;">
+                        <strong>Article:</strong>
+                        <t t-foreach="docs" t-as="doc">
+
+                            <span t-field="doc.article_id.name"/>
+                        </t>
+                    </span>
+                    <br/>
+                    <span style="font-size: 14px;">
+                        <strong>Quantité produite:</strong>
+                        <t t-foreach="docs" t-as="doc">
+
+                            <span t-field="doc.qty_producing"/>
+                        </t>
+
+                    </span>
+                </div>
             </div>
 
             <main>
-                <t t-raw="0"/>
+                <t t-foreach="docs" t-as="doc">
+
+                    <t t-raw="0"/>
+                </t>
             </main>
-
-
         </template>
 
 

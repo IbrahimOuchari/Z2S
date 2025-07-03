@@ -6,6 +6,8 @@
         <field name="model">mrp.bom</field>
         <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
         <field name="arch" type="xml">
+
+
             <xpath expr="//form/sheet" position="before">
                 <header>
                     <field name="state" widget="statusbar"
@@ -18,12 +20,24 @@
                             attrs="{'invisible': [('state', '!=', 'waiting_for_validation')]}"
                             groups="nn_mrp_bom_custom_states.nomenclature_validation_group"
                     />
+                    <button name="set_state_draft"
+                            type="object"
+                            string="Remettre en Brouillon"
+                            class="btn-secondary"
+                            attrs="{'invisible': [('state', '!=', 'rejected')]}"
+                            groups="nn_mrp_bom_custom_states.nomenclature_validation_group"/>
                     <button name="accept_bom"
                             type="object"
                             string="Valider Nomenclature"
                             class="btn-success"
                             attrs="{'invisible': [('state', '!=', 'waiting_for_validation')]}"
                             groups="nn_mrp_bom_custom_states.nomenclature_validation_group"/>
+                    <button name="set_state_draft"
+                            type="object"
+                            string="Remettre en Brouillon"
+                            class="btn-secondary"
+                            attrs="{'invisible': [('state', '!=', 'done')]}"
+                            groups="nn_mrp_bom_custom_states.remettre_nomenclature_validee"/>
                     <button name="confirm_bom"
                             type="object"
                             string="Confirmer Nomenclature"
@@ -55,37 +69,69 @@
                 <field name="date_validation" attrs="{'invisible': [('state', '!=', 'waiting_for_validation')]}"/>
 
             </xpath>
+            <xpath expr="//field[@name='product_tmpl_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='product_qty']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='routing_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='product_uom_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='code']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='bom_line_ids']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='operation_ids']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='ready_to_produce']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='consumption']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='picking_type_id']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+            </xpath>
+
         </field>
     </record>
-<odoo>
-    <data>
-        <!-- Update context for the action to include default company and default filter for date_validation -->
-        <record id="mrp.mrp_bom_form_action" model="ir.actions.act_window">
-            <field name="name">Bills of Materials</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">mrp.bom</field>
-            <field name="domain">[]</field> <!-- Force empty domain -->
-            <field name="view_mode">tree,kanban,form</field>
-            <field name="search_view_id" ref="mrp.view_mrp_bom_filter"/>
-            <field name="context">
-                {
+    <odoo>
+        <data>
+            <!-- Update context for the action to include default company and default filter for date_validation -->
+            <record id="mrp.mrp_bom_form_action" model="ir.actions.act_window">
+                <field name="name">Bills of Materials</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">mrp.bom</field>
+                <field name="domain">[]</field> <!-- Force empty domain -->
+                <field name="view_mode">tree,kanban,form</field>
+                <field name="search_view_id" ref="mrp.view_mrp_bom_filter"/>
+                <field name="context">
+                    {
                     'default_company_id': allowed_company_ids[0],
                     'search_default_date_validation_filter': 1
-                }
-            </field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    No bill of materials found. Let's create one!
-                </p><p>
-                    Bills of materials allow you to define the list of required raw
-                    materials used to make a finished product; through a manufacturing
-                    order or a pack of products.
-                </p>
-            </field>
-        </record>
-        
-    </data>
-</odoo>
+                    }
+                </field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No bill of materials found. Let's create one!
+                    </p>
+                    <p>
+                        Bills of materials allow you to define the list of required raw
+                        materials used to make a finished product; through a manufacturing
+                        order or a pack of products.
+                    </p>
+                </field>
+            </record>
+
+        </data>
+    </odoo>
 
 
 </odoo>

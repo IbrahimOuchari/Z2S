@@ -9,7 +9,7 @@ class MrpBomCustomState(models.Model):
     state = fields.Selection([
         ('draft', 'Brouillon'),
         ('confirm', 'Confirmé'),
-        ('waiting_for_validation', 'En Attente de Validation') , # New state added
+        ('waiting_for_validation', 'En Attente de Validation'),  # New state added
 
         ('rejected', 'Rejeté'),
         ('done', 'Validé'),
@@ -34,10 +34,10 @@ class MrpBomCustomState(models.Model):
             # Set the date_validation field to the current date and time
             record.date_validation = fields.Datetime.now()
 
-
     def accept_bom(self):
         for record in self:
             record.state = 'done'
+            record.bom_cancel = False
 
     def reject_bom(self):
         return {
@@ -48,3 +48,7 @@ class MrpBomCustomState(models.Model):
             'target': 'new',
             'context': {'default_bom_id': self.id, },
         }
+
+    def set_state_draft(self):
+        for record in self:
+            record.state = 'draft'

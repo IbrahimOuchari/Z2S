@@ -5,11 +5,11 @@
             <field name="model">mrp.production</field>
             <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
             <field name="arch" type="xml">
-<xpath expr="//field[@name='bom_id']" position="replace">
-    <field name="bom_id"
-           domain="[('product_tmpl_id', '=', product_tmpl_id), ('state', '=', 'done')]"
-           context="{'sort': 'date_validation desc'}" />
-</xpath>
+                <xpath expr="//field[@name='bom_id']" position="replace">
+                    <field name="bom_id"
+                           domain="[('product_tmpl_id', '=', product_tmpl_id), ('state', '=', 'done')]"
+                           context="{'sort': 'date_validation desc'}" options="{'no_create':True}"/>
+                </xpath>
             </field>
         </record>
 
@@ -30,20 +30,18 @@
         </record>
 
 
+        <record id="ordre_fabrication_stock_move_line_extension" model="ir.ui.view">
+            <field name="name">ordre.fabrication.stock.move.line.extension</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="Z2S.ordre_fabrication_stock_move_line"/>
+            <field name="arch" type="xml">
 
+                <xpath expr="//field[@name='ref_product_client']" position="after">
+                    <field name="ref_product_client_manual" string="Référence Article CLient"/>
+                </xpath>
 
-<record id="ordre_fabrication_stock_move_line_extension" model="ir.ui.view">
-    <field name="name">ordre.fabrication.stock.move.line.extension</field>
-    <field name="model">mrp.production</field>
-    <field name="inherit_id" ref="Z2S.ordre_fabrication_stock_move_line"/>
-    <field name="arch" type="xml">
-
-        <xpath expr="//field[@name='ref_product_client']" position="after">
-            <field name="ref_product_client_manual" string="Référence Article CLient"/>
-        </xpath>
-
-    </field>
-</record>
+            </field>
+        </record>
 
 
     </data>
