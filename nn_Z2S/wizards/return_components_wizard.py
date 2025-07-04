@@ -33,8 +33,8 @@ class ReturnComponentsWizard(models.TransientModel):
             if production:
                 lines_to_return = []
                 for move in production.move_raw_ids:
-                    if move.product_uom_qty > move.quantity_done:
-                        quantity_left = move.product_uom_qty - move.quantity_done
+                    if move.qty_left > 0:
+                        quantity_left = move.qty_left
                         stock_moves = self.env['stock.move'].search([
                             ('product_id', '=', move.product_id.id),
                             ('picking_id.origin', '=', production.name),

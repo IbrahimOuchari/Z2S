@@ -268,7 +268,7 @@ class MrpProduction(models.Model):
             # Get move lines for components (raw moves)
             for move in production.move_raw_ids:
                 # Check if any quantity remains to be consumed
-                if move.product_uom_qty > move.quantity_done:
+                if move.qty_left > 0:
                     not_consumed_components = True
                     break
 
@@ -297,6 +297,19 @@ class MrpProduction(models.Model):
                 'target': 'new',
                 'context': {'default_mrp_production_id': production.id}
             }
+
+    components_returned = fields.Boolean(string="Composants Retourné", default=False,
+                                         compute='_compute_components_returned')
+
+    @api.onchange('move_raw_ids.qty_left', 'move_raw_ids')
+    def _compute_components_returned(self):
+        for mrp in self:
+            all_returned = True
+            for move in mrp.move_raw_ids:
+                if move.qty_left > 0:
+                    all_returned = False
+                    break
+            mrp.components_returned = all_returned
 
     def action_view_return_operations(self):
         self.ensure_one()

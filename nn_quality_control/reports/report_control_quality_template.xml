@@ -1,592 +1,435 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-
-
         <record id="action_template_quality_controle_print" model="ir.actions.report">
-            <field name="name">Controle qualité imppression</field>
+            <field name="name">Controle qualité impression</field>
             <field name="model">control.quality</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">nn_quality_control.report_template_control_quality_print</field>
             <field name="report_file">nn_quality_control.report_template_control_quality_print</field>
             <field name="binding_model_id" ref="model_control_quality"/>
             <field name="binding_type">report</field>
-            <!--            <field name="paperformat_id" ref="report_control_quality_print_z2s"/>-->
         </record>
-        <template id="report_header_template">
+
+        <!-- Simplified external layout -->
+        <template id="external_layout_quality_control">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-if="not company">
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+
             <div class="header" style="text-align: center; padding: 10px; border-bottom: 3px solid black;">
                 <div style="margin-bottom: 5px;">
                     <span style="font-size: 14px;">
                         <strong>Article:</strong>
-                        <t t-foreach="docs" t-as="doc">
-
-                            <span t-field="doc.article_id.name"/>
-                        </t>
+                        <span t-field="o.article_id.name"/>
                     </span>
                     <br/>
                     <span style="font-size: 14px;">
                         <strong>Quantité produite:</strong>
-                        <t t-foreach="docs" t-as="doc">
-
-                            <span t-field="doc.qty_producing"/>
-                        </t>
-
+                        <span t-field="o.qty_producing"/>
                     </span>
                 </div>
             </div>
 
-            <main>
-                <t t-foreach="docs" t-as="doc">
-
-                    <t t-raw="0"/>
-                </t>
-            </main>
+            <div class="article o_report_layout_standard">
+                <t t-raw="0"/>
+            </div>
         </template>
 
-
+        <!-- Main report template -->
         <template id="report_template_control_quality_print">
-            <t t-foreach="docs" t-as="quality_control">
-                <t t-call="nn_quality_control.report_header_template">
-
-                    <div class="page">
-
-                        <!-- Header Table with Thick Border and Cell Separation -->
-                        <table class="table table-bordered"
-                               style="width: 100%; margin-bottom: 20px; border-collapse: collapse; page-break-inside: avoid;">
-                            <tr style="border-bottom: 3px solid black; text-align: center;">
-                                <th class="text-center"
-                                    style="width: 33%; border: 3px solid black; text-align: center;">Référence Fiche
-                                    Contrôle
-                                </th>
-                                <th class="text-center"
-                                    style="width: 33%; border: 3px solid black; text-align: center;">Ordre de
-                                    Fabrication
-                                </th>
-                                <th class="text-center"
-                                    style="width: 34%; border: 3px solid black; text-align: center;">Article
-                                </th>
-                            </tr>
-                            <tr style="border-bottom: 3px solid black;">
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-
-                                    <span t-field="quality_control.reference"/>
-
-
-                                </td>
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.of_id.name"/>
-                                </td>
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.article_id.name"/>
-                                </td>
-                            </tr>
-                        </table>
-
-                        <!-- Client Info Table with Thick Border and Cell Separation -->
-                        <table class="table table-bordered"
-                               style="width: 100%; margin-bottom: 20px; border-collapse: collapse; page-break-inside: avoid; text-align: center;">
-                            <tr style="border-bottom: 3px solid black;">
-                                <th class="text-center"
-                                    style="width: 33%; border: 3px solid black; text-align: center;">Client
-                                </th>
-                                <th class="text-center"
-                                    style="width: 33%; border: 3px solid black; text-align: center;">Quantité
-                                    produite
-                                </th>
-                                <th class="text-center"
-                                    style="width: 34%; border: 3px solid black; text-align: center;">Désignation
-                                </th>
-                            </tr>
-                            <tr style="border-bottom: 3px solid black;">
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.client_id.name"/>
-                                </td>
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.qty_producing"
-                                          t-options='{"widget": "float", "precision": 0}'/>
-                                </td>
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.designation"/>
-                                </td>
-                            </tr>
-                        </table>
-
-                        <!-- Control Info Table with Thick Border and Cell Separation -->
-                        <table class="table table-bordered"
-                               style="width: 100%; margin-bottom: 20px; border-collapse: collapse; page-break-inside: avoid;">
-                            <tr style="border-bottom: 3px solid black; text-align: center;">
-                                <th class="text-center"
-                                    style="width: 33%; border: 3px solid black; text-align: center;">Controleuse
-                                </th>
-                                <th class="text-center"
-                                    style="width: 33%; border: 3px solid black; text-align: center;">Date et heure
-                                    début
-                                </th>
-                                <th class="text-center"
-                                    style="width: 34%; border: 3px solid black; text-align: center;">Date et heure
-                                    validation
-                                </th>
-                            </tr>
-                            <tr style="border-bottom: 3px solid black;">
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.controlleur_id.name"/>
-
-                                </td>
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.start_date and quality_control.start_date.strftime('%Y-%m-%d %H:%M:%S') or 'N/A'"/>
-                                </td>
-                                <td class="text-center" style="border: 3px solid black; text-align: center;">
-                                    <span t-esc="quality_control.end_date and quality_control.end_date.strftime('%Y-%m-%d %H:%M:%S') or 'N/A'"/>
-                                </td>
-                            </tr>
-                            <th class="text-center " colspan="2"
-                                style="width: auto;   text-align: center;">       <!-- Green Button for "Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: DodgerBlue; color: white; margin-right: -15px;">
-                                    Taux Global des Défauts :
-                                    <span t-esc="quality_control.global_defect_rate"
-                                          t-options='{"widget": "float", "precision": 3}'/>
-                                    %
-                                </button>
-                            </th>
-                            <th class="text-center"
-                                style="width: auto;  text-align: center;">       <!-- Green Button for "Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: DodgerBlue; color: white; margin-right: 150px;">
-                                    PPM :
-                                    <span t-esc="quality_control.ppm" t-options='{"widget": "float", "precision": 3}'/>
-
-                                </button>
-                            </th>
-
-                        </table>
-
-
-                        <!-- Type 1 Section with Thick Border and Cell Separation -->
-                        <div t-if="quality_control.type_1" style="page-break-inside: avoid;">
-                            <h3 class="text-center">Contrôle lampe loupe</h3>
-                            <div class="text-right mb-2">
-                                <strong>Quantité contrôlée:</strong>
-                                <span t-esc="len(quality_control.type1_line_ids)"/>
-                            </div>
-                            <strong>Détails Contrôle lampe loupe:</strong>
-                            <div class="text-center mb-2">
-                                <!-- Green Button for "Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: green; color: white; margin-right: 10px;">
-                                    Conforme :
-                                    <span t-esc="quality_control.type1_conform_count"/>
-                                </button>
-
-                                <!-- Red Button for "Non Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Non Conforme :
-                                    <span t-esc="quality_control.type1_non_conform_count"/>
-                                </button>
-
-                                <!-- Red Button for "Défaut Client Total" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Défaut Client Total :
-                                    <span t-esc="quality_control.type1_total_client_default"/>
-                                </button>
-
-                                <!-- Red Button for "Moyenne Défaut Client" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Moyenne Défaut Client :
-                                    <span t-esc="quality_control.type1_client_default_avg"/>
-                                </button>
-                                <button type="button" class="btn"
-                                        style="background-color: blue; color: white; margin-right: 10px;">
-                                    PPM :
-                                    <span t-esc="quality_control.ppm1"/>
-                                </button>
-                            </div>
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="nn_quality_control.external_layout_quality_control">
+                        <div class="page">
+                            <!-- Header Table -->
                             <table class="table table-bordered"
-                                   style="width: 100%; font-size: 15px; border-collapse: collapse; page-break-inside: avoid;">
-                                <thead>
-                                    <tr style="border-bottom: 3px solid black;">
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Numéro de Série
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Contrôleur
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Opérateur
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Nombre de Prestation
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Résultat 1
-                                        </th>
-
-
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Défaut 1
-                                        </th>
-
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Défaut 2
-                                        </th>
-
-
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Reprise
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Résultat 2
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Autre Information
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Horodatage
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="quality_control.type1_line_ids" t-as="type1_line">
-                                        <tr style="border-bottom: 3px solid black;">
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.serial_number"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.controlleur_id.name"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.operator_id.name"/>
-                                            </td>
-                                            <td class="text-center"
-                                                style="border: 3px solid black;text-align:center;">
-                                                <span t-esc="type1_line.service_count"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.result1"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.defect1.name"/>
-                                            </td>
-
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.defect2.name"/>
-                                            </td>
-
-
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.reprise_id.name"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.result2"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.other_info"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type1_line.timestamp"/>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
+                                   style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr style="border-bottom: 3px solid black; text-align: center;">
+                                    <th style="width: 33%; border: 3px solid black; text-align: center;">
+                                        Référence Fiche Contrôle
+                                    </th>
+                                    <th style="width: 33%; border: 3px solid black; text-align: center;">
+                                        Ordre de Fabrication
+                                    </th>
+                                    <th style="width: 34%; border: 3px solid black; text-align: center;">
+                                        Article
+                                    </th>
+                                </tr>
+                                <tr style="border-bottom: 3px solid black;">
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.reference"/>
+                                    </td>
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.of_id.name"/>
+                                    </td>
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.article_id.name"/>
+                                    </td>
+                                </tr>
                             </table>
-                        </div>
 
-
-                        <!-- Type 2 Section with Thick Border and Cell Separation -->
-                        <div t-if="quality_control.type_2" style="page-break-inside: avoid;">
-                            <h3 class="text-center">Contrôle Caméra</h3>
-                            <div class="text-right mb-2">
-                                <strong>Quantité contrôlée:</strong>
-                                <span t-esc="len(quality_control.type2_line_ids)"/>
-                            </div>
-                            <strong>Détails Contrôle Caméra:</strong>
-                            <div class="text-center mb-2">
-                                <!-- Green Button for "Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: green; color: white; margin-right: 10px;">
-                                    Conforme :
-                                    <span t-esc="quality_control.type2_conform_count"/>
-                                </button>
-
-                                <!-- Red Button for "Non Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Non Conforme :
-                                    <span t-esc="quality_control.type2_non_conform_count"/>
-                                </button>
-
-                                <!-- Red Button for "Défaut Client Total" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Défaut Client Total :
-                                    <span t-esc="quality_control.type2_total_client_default"/>
-                                </button>
-
-                                <!-- Red Button for "Moyenne Défaut Client" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Moyenne Défaut Client :
-                                    <span t-esc="quality_control.type2_client_default_avg"/>
-                                </button>
-                                <button type="button" class="btn"
-                                        style="background-color: blue; color: white; margin-right: 10px;">
-                                    PPM :
-                                    <span t-esc="quality_control.ppm2"/>
-                                </button>
-                            </div>
+                            <!-- Client Info Table -->
                             <table class="table table-bordered"
-                                   style="width: 100%; font-size: 15px; border-collapse: collapse; page-break-inside: avoid;">
-                                <thead>
-                                    <tr style="border-bottom: 3px solid black;">
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Numéro de Série
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Contrôleur
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Opérateur
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Nombre de Prestation
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Résultat 1
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Défaut 1
-                                        </th>
-
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Défaut 2
-                                        </th>
-
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Reprise
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Résultat 2
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Autre Information
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Horodatage
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="quality_control.type2_line_ids" t-as="type2_line">
-                                        <tr style="border-bottom: 3px solid black;">
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.serial_number"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.controlleur_id.name"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.operator_id.name"/>
-                                            </td>
-                                            <td class="text-center"
-                                                style="border: 3px solid black;text-align:center;">
-                                                <span t-esc="type2_line.service_count"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.result1"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.defect1.name"/>
-                                            </td>
-
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.defect2.name"/>
-                                            </td>
-
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.reprise_id.name"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.result2"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.other_info"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type2_line.timestamp"/>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
+                                   style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr style="border-bottom: 3px solid black;">
+                                    <th style="width: 33%; border: 3px solid black; text-align: center;">
+                                        Client
+                                    </th>
+                                    <th style="width: 33%; border: 3px solid black; text-align: center;">
+                                        Quantité produite
+                                    </th>
+                                    <th style="width: 34%; border: 3px solid black; text-align: center;">
+                                        Désignation
+                                    </th>
+                                </tr>
+                                <tr style="border-bottom: 3px solid black;">
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.client_id.name"/>
+                                    </td>
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.qty_producing"
+                                              t-options='{"widget": "float", "precision": 0}'/>
+                                    </td>
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.designation"/>
+                                    </td>
+                                </tr>
                             </table>
-                        </div>
 
-                        <div t-if="quality_control.type_3" style="page-break-inside: avoid;">
-                            <h3 class="text-center">Contrôle Rayon X</h3>
-                            <div class="text-right mb-2">
-                                <strong>Quantité contrôlée:</strong>
-                                <span t-esc="len(quality_control.type2_line_ids)"/>
-                            </div>
-                            <strong>Détails Contrôle Rayon X:</strong>
-                            <div class="text-center mb-2">
-                                <!-- Green Button for "Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: green; color: white; margin-right: 10px;">
-                                    Conforme :
-                                    <span t-esc="quality_control.type3_conform_count"/>
-                                </button>
-
-                                <!-- Red Button for "Non Conforme" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Non Conforme :
-                                    <span t-esc="quality_control.type3_non_conform_count"/>
-                                </button>
-
-                                <!-- Red Button for "Défaut Client Total" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Défaut Client Total :
-                                    <span t-esc="quality_control.type3_total_client_default"/>
-                                </button>
-
-                                <!-- Red Button for "Moyenne Défaut Client" -->
-                                <button type="button" class="btn"
-                                        style="background-color: red; color: white; margin-right: 10px;">
-                                    Moyenne Défaut Client :
-                                    <span t-esc="quality_control.type3_client_default_avg"/>
-                                </button>
-                                <button type="button" class="btn"
-                                        style="background-color: blue; color: white; margin-right: 10px;">
-                                    PPM :
-                                    <span t-esc="quality_control.ppm3"/>
-                                </button>
-                            </div>
+                            <!-- Control Info Table -->
                             <table class="table table-bordered"
-                                   style="width: 100%; font-size: 15px; border-collapse: collapse; page-break-inside: avoid;">
-                                <thead>
-                                    <tr style="border-bottom: 3px solid black;">
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Numéro de Série
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Contrôleur
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Opérateur
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Nombre de Prestation
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Résultat 1
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Défaut 1
-                                        </th>
-
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Défaut 2
-                                        </th>
-
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Reprise
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Résultat 2
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Autre Information
-                                        </th>
-                                        <th class="text-center"
-                                            style="border: 3px solid black; text-align: center;">
-                                            Horodatage
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="quality_control.type3_line_ids" t-as="type3_line">
-                                        <tr style="border-bottom: 3px solid black;">
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.serial_number"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.controlleur_id.name"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.operator_id.name"/>
-                                            </td>
-                                            <td class="text-center"
-                                                style="border: 3px solid black; text-align:center;">
-                                                <span t-esc="type3_line.service_count"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.result1"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.defect1.name"/>
-                                            </td>
-
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.defect2.name"/>
-                                            </td>
-
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.reprise_id.name"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.result2"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.other_info"/>
-                                            </td>
-                                            <td class="text-center" style="border: 3px solid black;">
-                                                <span t-esc="type3_line.timestamp"/>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
+                                   style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr style="border-bottom: 3px solid black;">
+                                    <th style="width: 33%; border: 3px solid black; text-align: center;">
+                                        Contrôleur
+                                    </th>
+                                    <th style="width: 33%; border: 3px solid black; text-align: center;">
+                                        Date et heure début
+                                    </th>
+                                    <th style="width: 34%; border: 3px solid black; text-align: center;">
+                                        Date et heure validation
+                                    </th>
+                                </tr>
+                                <tr style="border-bottom: 3px solid black;">
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.controlleur_id.name"/>
+                                    </td>
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.start_date" t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span t-field="o.end_date" t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="border: 3px solid black; text-align: center;">
+                                        <span style="background-color: DodgerBlue; color: white; padding: 5px; display: inline-block;">
+                                            Taux Global des Défauts :<span t-field="o.global_defect_rate"
+                                                                           t-options='{"widget": "float", "precision": 3}'/>
+                                            %
+                                        </span>
+                                    </td>
+                                    <td style="border: 3px solid black; text-align: center;">
+                                        <span style="background-color: DodgerBlue; color: white; padding: 5px; display: inline-block;">
+                                            PPM :
+                                            <span t-field="o.ppm" t-options='{"widget": "float", "precision": 3}'/>
+                                        </span>
+                                    </td>
+                                </tr>
                             </table>
+
+                            <!-- Type 1 Section -->
+                            <div t-if="o.type_1">
+                                <h3 style="text-align: center;">Contrôle lampe loupe</h3>
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <strong>Quantité contrôlée:</strong>
+                                    <span t-esc="len(o.type1_line_ids)"/>
+                                </div>
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <span style="background-color: green; color: white; padding: 5px; margin-right: 10px;">
+                                        Conforme :
+                                        <span t-field="o.type1_conform_count"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Non Conforme :
+                                        <span t-field="o.type1_non_conform_count"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Défaut Client Total :
+                                        <span t-field="o.type1_total_client_default"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Moyenne Défaut Client :
+                                        <span t-field="o.type1_client_default_avg"/>
+                                    </span>
+                                    <span style="background-color: blue; color: white; padding: 5px;">
+                                        PPM :
+                                        <span t-field="o.ppm1"/>
+                                    </span>
+                                </div>
+
+                                <table class="table table-bordered"
+                                       style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 3px solid black;">
+                                            <th style="border: 3px solid black; text-align: center;">Numéro de Série
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Contrôleur</th>
+                                            <th style="border: 3px solid black; text-align: center;">Opérateur</th>
+                                            <th style="border: 3px solid black; text-align: center;">Nombre de
+                                                Prestation
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Résultat 1</th>
+                                            <th style="border: 3px solid black; text-align: center;">Défaut 1</th>
+                                            <th style="border: 3px solid black; text-align: center;">Défaut 2</th>
+                                            <th style="border: 3px solid black; text-align: center;">Reprise</th>
+                                            <th style="border: 3px solid black; text-align: center;">Résultat 2</th>
+                                            <th style="border: 3px solid black; text-align: center;">Autre Information
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Horodatage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.type1_line_ids" t-as="type1_line">
+                                            <tr style="border-bottom: 3px solid black;">
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.serial_number"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.controlleur_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.operator_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.service_count"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.result1"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.defect1.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.defect2.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.reprise_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.result2"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.other_info"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type1_line.timestamp"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Type 2 Section -->
+                            <div t-if="o.type_2">
+                                <h3 style="text-align: center;">Contrôle Caméra</h3>
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <strong>Quantité contrôlée:</strong>
+                                    <span t-esc="len(o.type2_line_ids)"/>
+                                </div>
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <span style="background-color: green; color: white; padding: 5px; margin-right: 10px;">
+                                        Conforme :
+                                        <span t-field="o.type2_conform_count"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Non Conforme :
+                                        <span t-field="o.type2_non_conform_count"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Défaut Client Total :
+                                        <span t-field="o.type2_total_client_default"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Moyenne Défaut Client :
+                                        <span t-field="o.type2_client_default_avg"/>
+                                    </span>
+                                    <span style="background-color: blue; color: white; padding: 5px;">
+                                        PPM :
+                                        <span t-field="o.ppm2"/>
+                                    </span>
+                                </div>
+
+                                <table class="table table-bordered"
+                                       style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 3px solid black;">
+                                            <th style="border: 3px solid black; text-align: center;">Numéro de Série
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Contrôleur</th>
+                                            <th style="border: 3px solid black; text-align: center;">Opérateur</th>
+                                            <th style="border: 3px solid black; text-align: center;">Nombre de
+                                                Prestation
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Résultat 1</th>
+                                            <th style="border: 3px solid black; text-align: center;">Défaut 1</th>
+                                            <th style="border: 3px solid black; text-align: center;">Défaut 2</th>
+                                            <th style="border: 3px solid black; text-align: center;">Reprise</th>
+                                            <th style="border: 3px solid black; text-align: center;">Résultat 2</th>
+                                            <th style="border: 3px solid black; text-align: center;">Autre Information
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Horodatage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.type2_line_ids" t-as="type2_line">
+                                            <tr style="border-bottom: 3px solid black;">
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.serial_number"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.controlleur_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.operator_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.service_count"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.result1"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.defect1.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.defect2.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.reprise_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.result2"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.other_info"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type2_line.timestamp"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Type 3 Section -->
+                            <div t-if="o.type_3">
+                                <h3 style="text-align: center;">Contrôle Rayon X</h3>
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <strong>Quantité contrôlée:</strong>
+                                    <span t-esc="len(o.type3_line_ids)"/>
+                                </div>
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <span style="background-color: green; color: white; padding: 5px; margin-right: 10px;">
+                                        Conforme :
+                                        <span t-field="o.type3_conform_count"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Non Conforme :
+                                        <span t-field="o.type3_non_conform_count"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Défaut Client Total :
+                                        <span t-field="o.type3_total_client_default"/>
+                                    </span>
+                                    <span style="background-color: red; color: white; padding: 5px; margin-right: 10px;">
+                                        Moyenne Défaut Client :
+                                        <span t-field="o.type3_client_default_avg"/>
+                                    </span>
+                                    <span style="background-color: blue; color: white; padding: 5px;">
+                                        PPM :
+                                        <span t-field="o.ppm3"/>
+                                    </span>
+                                </div>
+
+                                <table class="table table-bordered"
+                                       style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 3px solid black;">
+                                            <th style="border: 3px solid black; text-align: center;">Numéro de Série
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Contrôleur</th>
+                                            <th style="border: 3px solid black; text-align: center;">Opérateur</th>
+                                            <th style="border: 3px solid black; text-align: center;">Nombre de
+                                                Prestation
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Résultat 1</th>
+                                            <th style="border: 3px solid black; text-align: center;">Défaut 1</th>
+                                            <th style="border: 3px solid black; text-align: center;">Défaut 2</th>
+                                            <th style="border: 3px solid black; text-align: center;">Reprise</th>
+                                            <th style="border: 3px solid black; text-align: center;">Résultat 2</th>
+                                            <th style="border: 3px solid black; text-align: center;">Autre Information
+                                            </th>
+                                            <th style="border: 3px solid black; text-align: center;">Horodatage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.type3_line_ids" t-as="type3_line">
+                                            <tr style="border-bottom: 3px solid black;">
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.serial_number"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.controlleur_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.operator_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.service_count"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.result1"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.defect1.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.defect2.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.reprise_id.name"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.result2"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.other_info"/>
+                                                </td>
+                                                <td style="border: 3px solid black; text-align: center;">
+                                                    <span t-field="type3_line.timestamp"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </t>
                 </t>
             </t>
-
         </template>
-
     </data>
 </odoo>

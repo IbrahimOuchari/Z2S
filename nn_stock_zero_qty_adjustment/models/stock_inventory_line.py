@@ -36,27 +36,25 @@ class StockInventoryLine(models.Model):
 
     value_confirmed = fields.Boolean(
         string="Valeur Confirmé",
-        compute='_compute_value_confirmed',
-        store=True
+        # compute='_compute_value_confirmed',
+        store=True,
+        default=False
     )
 
-    @api.depends('product_qty_counted_char', 'product_qty')
-    def _compute_value_confirmed(self):
+    @api.onchange('product_qty_counted_char')
+    def _onchange_product_qty_counted_char(self):
         for line in self:
             if line.product_qty_counted_char and line.product_qty_counted_char.strip():
                 try:
-                    # Si texte présent, c'est prioritaire
+                    # If text is present, it's used
                     line.product_qty = float(line.product_qty_counted_char.strip())
                     line.value_confirmed = True
                 except ValueError:
                     line.product_qty = 0.0
                     line.value_confirmed = False
             else:
-                # Si texte vide, on utilise product_qty directement
-                if line.product_qty and line.product_qty > 0.0:
-                    line.value_confirmed = True
-                else:
-                    line.value_confirmed = False
+                # If text is empty, value is not confirmed
+                line.value_confirmed = False
 
     def _generate_moves(self):
         vals_list = []
@@ -65,15 +63,15 @@ class StockInventoryLine(models.Model):
             rounding = line.product_id.uom_id.rounding
 
             # ✅ Skip only if difference is zero and not confirmed
-            if float_is_zero(line.difference_qty, precision_rounding=rounding) and not line.confirmed_zero:
+            if float_is_zero(line.difference_qty, precision_rounding=rounding) and not line.value_confirmed:
                 continue
 
             # ✅ If difference is exactly 0 but confirmed, simulate a tiny move
             qty = abs(line.difference_qty)
-            if float_is_zero(qty, precision_rounding=rounding) and line.confirmed_zero:
+            if float_is_zero(qty, precision_rounding=rounding) and line.value_confirmed:
                 qty = rounding  # minimum qty based on UoM
 
-            if line.difference_qty > 0 or (line.difference_qty == 0 and line.confirmed_zero):
+            if line.difference_qty > 0 or (line.difference_qty == 0 and line.value_confirmed):
                 # Found more than expected or confirmed zero
                 vals = line._get_move_values(qty, virtual_location.id, line.location_id.id, False)
             else:
@@ -94,3 +92,19 @@ class StockInventoryLine(models.Model):
             'res_id': self.inventory_id.id,
             'target': 'current',
         }
+
+    @api.model
+    def create(self, vals):
+
+        record = super(StockInventoryLine, self).create(vals)
+        record.is_new = True
+
+        return record
+
+    is_new = fields.Boolean(default=False)
+
+    def write(self, vals):
+        res = super(StockInventoryLine, self).write(vals)
+        if 'product_id' in vals:
+            self.is_new = False
+        return res

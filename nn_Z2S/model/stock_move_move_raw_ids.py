@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    qty_delivered = fields.Float(string="Quantité tracké")
+    qty_delivered = fields.Float(string="Quantité tracké", default=False)
     quantity_track = fields.Float(string="Quantité tracké")
     qty_left = fields.Float(string="Quantité restante", store=True)
     qty_needed = fields.Float(
@@ -30,7 +30,7 @@ class MrpProduction(models.Model):
     stock_move_changes = fields.Float(string="Déclencheur de suivi", compute="_compute_qty_delivered", store=True)
     ignore_component_check = fields.Boolean(string="Ignorer la vérification des composants")
 
-    @api.depends('picking_ids.move_lines.quantity_done', 'picking_ids.move_lines.quantity_left')
+    @api.depends('picking_ids.move_lines.quantity_done', 'picking_ids.state', 'picking_ids.move_lines.quantity_left')
     def _compute_qty_delivered(self):
         for production in self:
             product_qty_done = {}
@@ -38,8 +38,9 @@ class MrpProduction(models.Model):
 
             # Step 1: Find the latest picking by name
             latest_picking = None
-            if production.picking_ids:
-                latest_picking = max(production.picking_ids, key=lambda p: p.name)
+            done_pickings = [p for p in production.picking_ids if p.state == 'done']
+            if done_pickings:
+                latest_picking = max(done_pickings, key=lambda p: p.date_done)
 
             # Step 2: Compute qty_delivered and qty_left from latest picking only
             if latest_picking:
@@ -52,6 +53,9 @@ class MrpProduction(models.Model):
             for move in production.move_raw_ids:
                 move.qty_delivered = product_qty_done.get(move.product_id.id, 0.0)
                 move.qty_left = product_qty_left.get(move.product_id.id, 0.0)
+            if production.state == 'done':
+                for move in production.move_raw_ids:
+                    move.qty_delivered = 0
 
     def button_mark_done(self):
         for mrp in self:

@@ -24,10 +24,15 @@
             </xpath>
             <xpath expr="//tree/field[@name='difference_qty']" position="before">
                 <field name="product_qty_counted_char"/>
+                <field name="is_new" invisible="1"/>
+
                 <field name="value_confirmed" widget="boolean_toggle" invisible="0"/>
 
             </xpath>
-
+            <xpath expr="//tree" position="attributes">
+                <attribute name="create">1</attribute>
+            </xpath>
+   
         </field>
     </record>
     <record id="view_stock_inventory_line_search_custom" model="ir.ui.view">

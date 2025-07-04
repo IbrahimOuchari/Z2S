@@ -94,12 +94,24 @@
                 </xpath>
 
                 <xpath expr="//header" position="inside">
+                    <field name="components_returned" invisible="1"/>
+
                     <button name="action_return_components"
                             type="object"
                             class="oe_highlight"
                             string="Demande Annulation"
                             icon="fa-undo"
-                            attrs="{'invisible': [('state', 'not in', ['confirmed'])]}"/>
+                            attrs="{
+            'invisible': [
+                '|',
+                    ('state', 'not in', ['confirmed', 'progress']),
+                    '&amp;',
+                        ('state', '=', 'annulation_encours'),
+                        ('components_returned', '=', True)
+            ]
+        }"/>
+
+                    <field name="components_returned" invisible="1"/>
 
                     <field name="control_quality_done" invisible="1"/>
                     <button name="action_view_control_quality" type="object" string="Contrôle Qualité"

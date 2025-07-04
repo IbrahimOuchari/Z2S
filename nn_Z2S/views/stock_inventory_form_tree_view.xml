@@ -58,6 +58,7 @@
             <xpath expr="//field[@name='difference_qty']" position="attributes">
                 <attribute name="groups">nn_Z2S.stock_inventory_validation</attribute>
             </xpath>
+
         </field>
     </record>
 

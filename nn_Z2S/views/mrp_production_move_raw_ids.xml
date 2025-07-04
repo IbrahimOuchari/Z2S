@@ -15,6 +15,7 @@
             </xpath>
             <xpath expr="//page[@name='components']/field[@name='move_raw_ids']" position="attributes">
                 <attribute name="readonly">True</attribute>
+                <attribute name="force_save">1</attribute>
 
 
             </xpath>
