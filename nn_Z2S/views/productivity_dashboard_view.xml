@@ -18,7 +18,7 @@
                 <field name="formatted_theo_duration" string="Durée Théorique"/>  <!-- Theoretical Duration -->
                 <!--                <field name="total_real_duration" string="Durée Réelle"/>  &lt;!&ndash; Real Duration &ndash;&gt;-->
                 <field name="formatted_real_duration" string="Durée Réelle"/>  <!-- Real Duration -->
-                <field name="total_average_productivity" string="Productivité"
+                <field name="productivity" string="Productivité"
                        widget="percentage" avg="avg"/>  <!-- Productivity -->
                 <field name="state" string="Etat"/>  <!-- Status -->
 

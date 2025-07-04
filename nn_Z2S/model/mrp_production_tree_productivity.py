@@ -1,14 +1,17 @@
 import logging
+
 from odoo import models, fields, api
 
 _logger = logging.getLogger(__name__)
+
 
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     total_theo_duration = fields.Float(string="Durée théorique totale", compute="_compute_durations", store=True)
     total_real_duration = fields.Float(string="Durée réelle totale", compute="_compute_durations", store=True)
-    total_average_productivity = fields.Float(string="Productivité moyenne totale", compute="_compute_durations", store=True)
+    total_average_productivity = fields.Float(string="Productivité moyenne totale", compute="_compute_durations",
+                                              store=True)
 
     formatted_theo_duration = fields.Char(string="Durée théorique (formatée)", compute="_compute_formatted_durations")
     formatted_real_duration = fields.Char(string="Durée réelle (formatée)", compute="_compute_formatted_durations")
@@ -22,18 +25,19 @@ class MrpProduction(models.Model):
             # Calcul des moyennes en évitant les divisions par zéro
             total_theo = sum(workorders.mapped('duration_expected')) / len(workorders) if workorders else 0.0
             total_real = sum(workorders.mapped('real_duration_float')) / len(workorders) if workorders else 0.0
-            total_productivity = sum(workorders.mapped('productivity')) / len(workorders) if workorders else 0.0
 
             production.total_theo_duration = total_theo
             production.total_real_duration = total_real
-            production.total_average_productivity = total_productivity
+            production.total_average_productivity = production.productivity
 
     @api.depends('total_theo_duration', 'total_real_duration')
     def _compute_formatted_durations(self):
         """ Formate les durées en hh:mm:ss """
         for production in self:
-            production.formatted_theo_duration = self._format_duration(production.total_theo_duration * 60)  # Conversion en secondes
-            production.formatted_real_duration = self._format_duration(production.total_real_duration * 60)  # Conversion en secondes
+            production.formatted_theo_duration = self._format_duration(
+                production.total_theo_duration * 60)  # Conversion en secondes
+            production.formatted_real_duration = self._format_duration(
+                production.total_real_duration * 60)  # Conversion en secondes
 
     def _extract_seconds_from_duration(self, duration_str):
         """ Convertit une durée formatée (ex: '2H 30M') en secondes """

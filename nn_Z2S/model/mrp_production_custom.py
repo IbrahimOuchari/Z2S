@@ -1,7 +1,7 @@
+import logging
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-
-import logging
 
 # Configure logging
 _logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class MrpProduction(models.Model):
     productivity = fields.Float(
         string='Productivité (%)',
         compute='_compute_productivity',  # Compute productivity based on total durations
-        digits=(16,3)  # Compute productivity based on total durations
+        digits=(16, 3)  # Compute productivity based on total durations
     )
     # New field to display productivity with a percentage sign
     productivity_display = fields.Char(
@@ -50,7 +50,7 @@ class MrpProduction(models.Model):
     def _compute_productivity_display(self):
         for order in self:
             # Format the float productivity to a string with a percentage sign
-            order.productivity_display = f"{order.productivity:.2f}%" if order.productivity else "0.00%"
+            order.productivity_display = order.productivity
 
     label_management_ids = fields.One2many(
         'label.management',
@@ -136,48 +136,31 @@ class MrpProduction(models.Model):
                 _logger.error(f"Erreur lors du calcul de la durée théorique totale pour la commande {order.id}: {e}")
                 order.total_duration_theoretical = "Aucune Durée"
 
-    @api.depends('details_operation.duree_formatted')
+    @api.depends('workorder_ids.real_duration_float')
     def _compute_total_duration_real(self):
-        for order in self:
-            try:
-                # Iterate through each work order and sum their operation durations
-                total_real_duration = 0
+        for record in self:
+            total_minutes = sum(record.workorder_ids.mapped('real_duration_float'))
+            total_seconds = int(total_minutes * 60)
 
-                for workorder in order.workorder_ids:
-                    workorder_duration = sum(
-                        self._extract_seconds_from_duration(line.duree_formatted) for line in
-                        workorder.details_operation
-                    )
-                    total_real_duration += workorder_duration
-                    workorder.duration_real = self._format_duration(
-                        workorder_duration)  # Assuming you have a field duration_real in workorder_ids
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
 
-                # Format the total duration for the production order
-                formatted_total_duration = self._format_duration(total_real_duration)
-                order.total_duration_real = formatted_total_duration
+            result = []
+            if hours:
+                result.append(f"{hours} H")
+            if minutes:
+                result.append(f"{minutes} M")
+            if seconds or not result:  # Show 0 S if total is 0
+                result.append(f"{seconds} S")
 
-            except Exception as e:
-                _logger.error(f"Error while computing total real duration for order {order.id}: {e}")
-                order.total_duration_real = "Aucune Durée"
+            record.total_duration_real = ' '.join(result)
 
-    @api.depends('total_duration_theoretical', 'total_duration_real')
+    @api.depends('workorder_ids.productivity')
     def _compute_productivity(self):
-        for order in self:
-            try:
-                # Ensure the calculation is only done if the order state is 'done'
-                if order.state == 'done':
-                    real_seconds = self._extract_seconds_from_duration(order.total_duration_real)
-                    theoretical_seconds = self._extract_seconds_from_duration(order.total_duration_theoretical)
-
-                    if theoretical_seconds > 0:
-                        order.productivity = (real_seconds / theoretical_seconds) * 100  # Fixed formula
-                    else:
-                        order.productivity = 0.0
-                else:
-                    order.productivity = 0.0  # Default value if not 'done'
-            except Exception as e:
-                _logger.error(f"Erreur lors du calcul de la productivité pour la commande {order.id}: {e}")
-                order.productivity = 0.0
+        for rec in self:
+            valid_prod = [wo.productivity for wo in rec.workorder_ids if wo.productivity > 0]
+            rec.productivity = sum(valid_prod) / len(valid_prod) if valid_prod else 0.0
 
     def _extract_seconds_from_duration(self, duration_str):
         total_seconds = 0
@@ -315,9 +298,6 @@ class MrpProduction(models.Model):
                 'context': {'default_mrp_production_id': production.id}
             }
 
-
-
-
     def action_view_return_operations(self):
         self.ensure_one()
         return {
@@ -394,6 +374,5 @@ class MrpProduction(models.Model):
                     'default_return_count': self.return_count  # Pass the updated return count
                 }
             }
-
 
 #

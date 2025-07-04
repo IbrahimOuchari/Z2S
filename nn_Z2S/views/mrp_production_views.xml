@@ -202,10 +202,8 @@
                             <!-- Display the productivity percentage -->
                             <field name="productivity"
                                    string="Productivité (%)"
-                                   readonly="1" invisible="1"/>
-                            <field name="productivity_display"
-                                   string="Productivité (%)"
-                                   readonly="1"/>
+                                   readonly="1" invisible="0" widget="percentage"/>
+
                         </group>
                     </page>
                 </xpath>
