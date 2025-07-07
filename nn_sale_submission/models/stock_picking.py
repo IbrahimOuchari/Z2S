@@ -1,5 +1,5 @@
 from odoo import models, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class StockPicking(models.Model):

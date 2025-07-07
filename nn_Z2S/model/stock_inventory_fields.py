@@ -132,47 +132,69 @@ class StockInventory(models.Model):
     def get_filtered_inventory_lines(self):
         self.ensure_one()
 
-        domain_base = [
+        domain = [
             ('inventory_id', '=', self.id),
-            ('location_id.name', 'not in', ['Retour', 'Destruction']),
             ('product_id.active', '=', True),
+            ('location_id.scrap_location', '=', False),
+            ('location_id.return_location', '=', False),
         ]
 
-        all_lines = self.env['stock.inventory.line']
+        # ✔️ Keep exact structure, but remove all = False filters
 
-        for location in self.location_ids:
-            domain = domain_base.copy()
-            domain.append(('location_id', '=', location.id))
+        if self.is_produit_fini and not self.is_produit_fourni and not self.is_produit_achete:
+            domain += [
+                ('product_id.sale_ok', '=', True),
+            ]
+        elif not self.is_produit_fini and self.is_produit_fourni and not self.is_produit_achete:
+            domain += [
+                ('product_id.fourni', '=', True),
+            ]
+        elif not self.is_produit_fini and not self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                ('product_id.purchase_ok', '=', True),
+            ]
+        elif self.is_produit_fini and self.is_produit_fourni and not self.is_produit_achete:
+            domain += [
+                '|',
+                ('product_id.sale_ok', '=', True),
+                ('product_id.fourni', '=', True),
+            ]
+        elif self.is_produit_fini and not self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                '|',
+                ('product_id.sale_ok', '=', True),
+                ('product_id.purchase_ok', '=', True),
+            ]
+        elif not self.is_produit_fini and self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                '|',
+                ('product_id.fourni', '=', True),
+                ('product_id.purchase_ok', '=', True),
+            ]
+        elif self.is_produit_fini and self.is_produit_fourni and self.is_produit_achete:
+            domain += [
+                '|', '|',
+                ('product_id.sale_ok', '=', True),
+                ('product_id.fourni', '=', True),
+                ('product_id.purchase_ok', '=', True),
+            ]
+        else:
+            # No filters selected — optional fallback
+            pass
 
-            quant_domain = [('location_id', '=', location.id)]
-            if self.exhausted:
-                quant_domain.append(('quantity', '>=', 0))
-            else:
-                quant_domain.append(('quantity', '>', 0))
+        # Filter by selected locations if any
+        if self.location_ids:
+            domain.append(('location_id', 'in', self.location_ids.ids))
+        else:
+            domain.append(('location_id.usage', 'in', ['internal', 'transit']))
 
-            product_ids = self.env['stock.quant'].search(quant_domain).mapped('product_id.id')
-            if not product_ids:
-                continue
+        if self.category_id:
+            domain.append(('product_id.categ_id', '=', self.category_id.id))
+        if self.partner_id:
+            domain.append(('product_id.client_id', '=', self.partner_id.id))
 
-            domain.append(('product_id', 'in', product_ids))
-
-            # Apply product filters
-            if self.is_produit_fini:
-                domain.append(('product_id.sale_ok', '=', True))
-            if self.is_produit_fourni:
-                domain.append(('product_id.fourni', '=', True))
-            if self.is_produit_achete:
-                domain.append(('product_id.purchase_ok', '=', True))
-            if self.category_id:
-                domain.append(('product_id.categ_id', '=', self.category_id.id))
-            if self.partner_id:
-                domain.append(('product_id.client_id', '=', self.partner_id.id))
-
-            # Collect matching lines per location
-            lines = self.env['stock.inventory.line'].search(domain)
-            all_lines |= lines
-
-        return all_lines
+        # Return all matching lines
+        return self.env['stock.inventory.line'].search(domain)
 
     state = fields.Selection(string='Status', selection=[
         ('draft', 'Draft'),

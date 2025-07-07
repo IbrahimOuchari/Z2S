@@ -8,12 +8,12 @@ class SaleOrder(models.Model):
 
     ref_client = fields.Char(string="N° Bon de Commande Client")
 
-    @api.constrains('ref_client')
-    def _check_unique_ref_client(self):
-        for record in self:
-            existing_records = self.search([('ref_client', '=', record.ref_client), ('id', '!=', record.id)])
-            if existing_records:
-                raise ValidationError("Le numéro de la commande existe déjà.")
+    # @api.constrains('ref_client')
+    # def _check_unique_ref_client(self):
+    #     for record in self:
+    #         existing_records = self.search([('ref_client', '=', record.ref_client), ('id', '!=', record.id)])
+    #         if existing_records:
+    #             raise ValidationError("Le numéro de la commande existe déjà.")
 
     type_commande = fields.Selection([('type_1', 'HPR'), ('type_2', 'ST')], string="Type de la Commande",
                                      default="type_1", required=True)
@@ -89,7 +89,6 @@ class SaleOrder(models.Model):
                     'amount_total': amount_total,
 
                 })
-
 
     class PickingType(models.Model):
         _inherit = "stock.picking.type"
