@@ -10,10 +10,7 @@
                       event_limit="5"
                       quick_add="false">
                 <field name="technician_user_id" filters="1"/>
-                <field name="next_maintenance_mensuelle" filters="1"/>
-                <field name="next_maintenance_trimestrielle" filters="1"/>
-                <field name="next_maintenance_semestrielle" filters="1"/>
-                <field name="next_maintenance_annuelle" filters="1"/>
+               
                 <field name="name"/>
                 <field name="category_id"/>
             </calendar>
