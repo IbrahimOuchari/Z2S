@@ -15,7 +15,6 @@
                 <!--                <field name="description" string="Désignation"/>  &lt;!&ndash; Description &ndash;&gt;-->
                 <field name="qty_producing" string="Quantité Produite"/>  <!-- Produced Quantity -->
                 <!--                <field name="create_date" string="Date création OF"/>  &lt;!&ndash; Creation Date &ndash;&gt;-->
-                <field name="date_realisation" string="Date Réalisation"/>  <!-- Realization Date -->
                 <!--                <field name="total_theo_duration" string="Durée Théorique" />  &lt;!&ndash; Theoretical Duration &ndash;&gt;-->
                 <field name="formatted_theo_duration" string="Durée Théorique"/>  <!-- Theoretical Duration -->
                 <!--                <field name="total_real_duration" string="Durée Réelle"/>  &lt;!&ndash; Real Duration &ndash;&gt;-->
@@ -79,10 +78,5 @@
         <field name="context">{'search_default_state_filter':1}</field>
     </record>
 
-    <!-- Menu item under "Analyse" -->
-    <menuitem id="menu_productivity_analysis"
-              name="Tableau de bord des Productivités"
-              parent="mrp.menu_mrp_reporting"
-              action="action_productivity_analysis_tree"
-              sequence="15"/>
+
 </odoo>
