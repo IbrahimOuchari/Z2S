@@ -3,7 +3,7 @@ from datetime import datetime
 
 from odoo import api, models, _
 from odoo import models, fields, api, exceptions, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -23,12 +23,30 @@ class QualityControl(models.Model):
         'mrp.production',
         string='Ordre de Fabrication',
         store=True,
-        domain="[('quality_control_checked', '=', False), ('state', 'in',  ['confirmed','progress','to_close','done'])]",
+        domain="[('control_quality_created', '=', False), ('state', 'in',  ['confirmed','progress','to_close','done'])]",
         readonly=False, required=True,
     )
 
     # Add this import at the top of your file if not already present:
     # from odoo import models, fields, api, exceptions, _
+    def action_apply_of_to_lines(self):
+        for cq in self:
+            if cq.of_id:
+                if not cq.of_id.quality_control_id:
+                    cq.of_id.quality_control_id = cq.id
+                if not cq.of_id.control_quality_created:
+                    cq.of_id.control_quality_created = True
+
+    def check_control_quality_by_wifi(self, wifi_id):
+        cqs = self.env['control.quality'].search([('wifi_identifier', '=', wifi_id)])
+        if not cqs:
+            raise UserError(f"No Control Quality record found with WIFI-D {wifi_id}.")
+
+        message = f"WIFI-D {wifi_id} is linked to the following Control Quality records:\n"
+        for cq in cqs:
+            message += f"  - Control Quality ID {cq.id} (Reference: {cq.reference})\n"
+
+        raise UserError(message)
 
     @api.onchange('state', 'of_id', 'type_1', 'type_2', 'type_3')
     def onchange_state_of_id(self):
@@ -86,7 +104,9 @@ class QualityControl(models.Model):
     qty_producing_related = fields.Float(related='of_id.qty_producing', string='Quantité Produite', store=True,
                                          )  # New field for quantity produced
     product_qty_related = fields.Float(related='of_id.product_qty', string='Quantité Produite', store=True,
-                                       )  # New field for quantity produced
+                                       )
+    state_of = fields.Selection(related='of_id.state', store=True,
+                                )  # New field for quantity produced
     product_qty = fields.Float(string='Quantité Produite', store=True)  # New field for quantity produced
 
     qty_producing = fields.Float(string='Quantité Produite', store=True,

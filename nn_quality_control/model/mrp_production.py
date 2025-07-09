@@ -1,6 +1,7 @@
 import logging
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError, UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -13,6 +14,31 @@ class MrpProduction(models.Model):
         string='Quality Control',
         store=True,
     )
+
+    control_quality_created = fields.Boolean(
+        string="Contrôle Qualité Créé",
+        compute="_compute_control_quality_created",
+        store=True
+    )
+
+    @api.depends('quality_control_id')
+    def _compute_control_quality_created(self):
+        for rec in self:
+            has_cq = self.env['control.quality'].search_count([('of_id', '=', rec.id)]) > 0
+            rec.control_quality_created = has_cq
+
+    @api.constrains('quality_control_id')
+    def _check_unique_control_quality(self):
+        for rec in self:
+            if rec.quality_control_id:
+                cqs = self.env['control.quality'].search([('of_id', '=', rec.id)])
+                count = len(cqs)
+                if count > 1:
+                    cq_list = "\n".join([f"- {cq.reference} (ID: {cq.id})" for cq in cqs])
+                    raise ValidationError(
+                        f"Un seul contrôle qualité peut être créé par ordre de fabrication.\n"
+                        f"Contrôles qualité existants pour cet OF :\n{cq_list}"
+                    )
 
     quality_control_checked = fields.Boolean(
         string="Contrôle Qualité Vérifié",
@@ -45,23 +71,57 @@ class MrpProduction(models.Model):
         readonly=True
     )
 
-    # @api.onchange('quality_control_checked')
-    # def _onchange_quality_control_checked(self):
-    #     for record in self:
-    #         if record.quality_control_checked:
-    #             print("Function has started")
-    #             _logger.info(f"Triggered _onchange_quality_control_checked for Record ID: {record.id}, Name: {record.name}")
-    #
-    #             control_count = self.env['control.quality'].search([
-    #                 ('of_id', '=', record.name),
-    #                 ('state', 'in', ['done', 'in_progress'])  # Include both 'done' and 'in_progress' states
-    #             ])
-    #
-    #             _logger.info(
-    #                 f"Search Results - Found ID: {control_count.id if control_count else 'Not Found'}, Name: {control_count.name if control_count else 'Not Found'}")
-    #
-    #             record.quality_control_id = control_count.id
-    #             _logger.info(f"Updated Record {record.id} - quality_control_id set to {record.quality_control_id}")
+    def action_view_control_quality(self):
+        self.ensure_one()
+
+        # If already created, prevent duplicate and inform the user
+        if self.control_quality_created or self.quality_control_id:
+            raise UserError(_("Un Contrôle Qualité existe déjà pour cet OF."))
+
+        # Generate CQ reference
+        current_year = fields.Date.today().strftime('%y')
+        sequence = self.env['ir.sequence'].next_by_code('control.quality') or '0001'
+        reference = f"CQ - {current_year} - {sequence}"
+
+        # Create new Control Quality record
+        new_cq = self.env['control.quality'].create({
+            'of_id': self.id,
+            'reference': reference,
+            'client_id': self.client_id.id,
+            'article_id': self.product_id.id,
+            'client_reference': self.ref_product_client,
+            'designation': self.description,
+            'qty_producing': self.product_qty,
+        })
+
+        # Link and flag
+        self.write({
+            'quality_control_id': new_cq.id,
+            'control_quality_created': True,
+        })
+
+        # Redirect to newly created CQ
+        return {
+            'name': 'Créer Contrôle Qualité',
+            'type': 'ir.actions.act_window',
+            'res_model': 'control.quality',
+            'view_mode': 'form',
+            'res_id': new_cq.id,
+            'view_id': self.env.ref('nn_quality_control.view_quality_control_form').id,
+            'target': 'self',
+        }
+
+    def button_redirect_control_quality(self):
+        for record in self:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Contrôle Qualité',
+                'res_model': 'control.quality',
+                'res_id': record.quality_control_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+                'view_id': self.env.ref('nn_quality_control.view_quality_control_form').id,
+            }
 
     def action_update_control_quality(self):
         for record in self:

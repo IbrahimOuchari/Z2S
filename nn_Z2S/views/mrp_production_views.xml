@@ -114,10 +114,6 @@
                     <field name="components_returned" invisible="1"/>
 
                     <field name="control_quality_done" invisible="1"/>
-                    <button name="action_view_control_quality" type="object" string="Contrôle Qualité"
-                            class="btn-primary"
-
-                            attrs="{'invisible': [('control_quality_done', '>', 0),('state','=','done')]}"/>
 
                 </xpath>
                 <!--                <xpath expr="//header" position="inside">-->

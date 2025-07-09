@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <menuitem id="menu_Z2S_control_quality"
+              name="Analyse"
+              parent="menu_root_control_quality"
+              sequence="19"
+    />
+
+    <menuitem id="menu_Z2S_dashboard_defaut_groups"
+              name="Tableau de bord des défauts"
+              parent="menu_Z2S_control_quality"
+              sequence="3"
+    />
+
+
+</odoo>

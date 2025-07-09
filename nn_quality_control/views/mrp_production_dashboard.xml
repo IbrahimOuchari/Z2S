@@ -99,17 +99,11 @@
         </field>
     </record>
 
-
-    <!--       <menuitem id="menu_Z2S_control_quality"-->
-    <!--              name="Analyse"-->
-    <!--              parent="menu_root_control_quality"-->
-    <!--              sequence="1"-->
-    /> <!-- Replace with your actual module name -->
-
+    <!--    <menuitem id="menu_productivity_analysis_cq_total"-->
+    <!--              name="Tableau de bord des Contrôles qualité"-->
+    <!--              parent="menu_Z2S_control_quality"-->
+    <!--              action="action_control_quality_analysis_tree"-->
+    <!--              sequence="1"/>-->
     <!-- Menu item remains unchanged -->
-    <menuitem id="menu_productivity_analysis_control_quality"
-              name="Tableau de bord des Contrôles qualité"
-              parent="menu_root_control_quality"
-              action="action_control_quality_analysis_tree"
-              sequence="1"/>
+
 </odoo>

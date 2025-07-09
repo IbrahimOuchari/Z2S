@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Tree View: CAMERA -->
+    <record id="view_mrp_productivity_tree_control_quality_type2" model="ir.ui.view">
+        <field name="name">mrp.productivity.tree.camera</field>
+        <field name="model">control.quality.type2.line</field>
+        <field name="arch" type="xml">
+            <tree string="Contrôles Qualité - CAMERA" create="false" delete="false">
+                <field name="created_date"/>
+                <field name="quality_id" string="Contrôle qualité"/>
+                <field name="manu_of" string="OF"/>
+                <field name="article_id" string="Article"/>
+                <field name="controlleur_id" string="Contrôleur"/>
+                <field name="operator_id" string="Opérateur"/>
+                <field name="service_count" string="Nombre de prestation"/>
+                <field name="result1"/>
+                <field name="defect1"/>
+                <field name="defect2"/>
+                <field name="reprise_id"/>
+                <field name="result2"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_control_quality_pivot_type2" model="ir.ui.view">
+        <field name="name">control.quality.pivot.lampe_loup</field>
+        <field name="model">control.quality.type1.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse des Défauts - LAMPE LOUP">
+                <field name="defect1" type="row"/>
+                <field name="defect2" type="row"/>
+                <field name="article_id" type="col"/>
+                <field name="controlleur_id" type="col"/>
+                <field name="service_count" type="measure"/>
+                <field name="reprise_id" type="measure" string="Nombre de Reprises"/>
+                <field name="result2" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View: LAMPE LOUP -->
+    <record id="view_control_quality_graph_type2" model="ir.ui.view">
+        <field name="name">control.quality.graph.lampe_loup</field>
+        <field name="model">control.quality.type1.line</field>
+        <field name="arch" type="xml">
+            <graph string="Graphique des Défauts - LAMPE LOUP" type="bar">
+                <field name="defect1" type="row"/>
+                <field name="defect2" type="row"/>
+                <field name="service_count" type="measure"/>
+                <field name="reprise_id" type="measure"/>
+                <field name="result2" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+
+    <!-- Updated Action Window: CAMERA with all views -->
+    <record id="action_control_quality_analysis_tree_type2" model="ir.actions.act_window">
+        <field name="name">Tableau de bord des Contrôles Qualité - CAMERA</field>
+        <field name="res_model">control.quality.type2.line</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                                      (0, 0, {'view_mode': 'tree', 'view_id': ref('view_mrp_productivity_tree_control_quality_type2')}),
+                                      (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_control_quality_pivot_type2')}),
+                                      (0, 0, {'view_mode': 'graph', 'view_id': ref('view_control_quality_graph_type2')})]"/>
+    </record>
+
+    <!-- Server Action: Forcer OF - CAMERA -->
+    <record id="action_force_manu_of_server2" model="ir.actions.server">
+        <field name="name">Forcer OF - CAMERA</field>
+        <field name="model_id" ref="nn_quality_control.model_control_quality_type2_line"/>
+        <field name="binding_model_id" ref="nn_quality_control.model_control_quality_type2_line"/>
+        <field name="state">code</field>
+        <field name="binding_type">action</field>
+        <field name="code">
+            action = records.action_force_manu_of()
+        </field>
+    </record>
+</odoo>

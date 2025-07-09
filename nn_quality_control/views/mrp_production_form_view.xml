@@ -1,0 +1,30 @@
+<odoo>
+    <record id="view_mrp_production_form_inherited" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherited</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <!--                    <attribute name="invisible">1</attribute>-->
+            <xpath expr="//header" position="inside">
+                <button name="action_view_control_quality" type="object" string="Contrôle Qualité"
+                        class="btn-primary"
+
+                        attrs="{'invisible': ['|', ('control_quality_created', '=', True), ('state', '=', 'done')]}"/>
+                <field name="control_quality_created" invisible="1"/>
+                <field name="quality_control_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="button_redirect_control_quality"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-check-square"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">Contrôle</span>
+                        <span class="o_stat_value">Qualité</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

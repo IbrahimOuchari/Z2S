@@ -1,5 +1,6 @@
-from odoo import models, fields, api
 from datetime import datetime
+
+from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
 
@@ -8,7 +9,41 @@ class QualityControlLineType1(models.Model):
     _description = 'Ligne de Contrôle Qualité Type 1'
 
     quality_id = fields.Many2one('control.quality', string='Contrôle Qualité', ondelete='cascade')
-    manu_of = fields.Many2one('mrp.production', string='Contrôle Qualité', ondelete='cascade')
+    manu_of = fields.Many2one(
+        'mrp.production',
+        string='Ordre de Fabrication',
+        compute='_compute_manu_of',
+        store=True
+    )
+
+    @api.depends('quality_id')
+    def _compute_manu_of(self):
+        for record in self:
+            record.manu_of = record.quality_id.of_id if record.quality_id else False
+
+    @api.model
+    def force_recompute_manu_of(self):
+        for r in self.search([]):
+            r._compute_manu_of()
+
+    def action_force_manu_of(self):
+        for rec in self:
+            if rec.quality_id and rec.quality_id.of_id:
+                rec.manu_of = rec.quality_id.of_id
+
+    article_id = fields.Many2one('product.product', string='Article', compute='_compute_article',
+                                 store=True)
+
+    @api.depends('quality_id')
+    def _compute_article(self):
+        for record in self:
+            record.article_id = record.quality_id.article_id if record.quality_id else False
+
+    def action_force_article_id(self):
+        for rec in self:
+            if rec.quality_id and rec.quality_id.article_id:
+                rec.article_id = rec.quality_id.article_id
+
     serial_number = fields.Char(string='Numéro de Série', required=True)
     other_info = fields.Text(string="Autre Info", default="RAS")
 
@@ -82,8 +117,6 @@ class QualityControlLineType1(models.Model):
     controlleur_id = fields.Many2one('res.users', string='Contrôleur', readonly=True,
                                      default=lambda self: self.env.user)
 
-
-
     defect = fields.Many2one('defect.type', string='Défaut 1')
     defect1 = fields.Many2one('defect1.type', string='Défaut 1')
     defect2 = fields.Many2one('defect2.type', string='Défaut 2')
@@ -117,19 +150,6 @@ class QualityControlLineType1(models.Model):
             ])
             record.total_conform = total_conform
             record.total_non_conform = total_non_conform
-
-    # @api.model
-    # def create(self, vals):
-    #     # Ensure the created_date is set only during the creation of the record
-    #     if 'created_date' not in vals:
-    #         vals['created_date'] = fields.Datetime.now()  # Set the current datetime only if not provided
-    #     return super(QualityControlLineType1, self).create(vals)
-    #
-    # def write(self, vals):
-    #     # Prevent changing created_date during record update
-    #     if 'created_date' in vals:
-    #         vals.pop('created_date')  # Remove created_date from update values
-    #     return super(QualityControlLineType1, self).write(vals)
 
     timestamp = fields.Datetime(string='Timestamp', default=fields.Datetime.now)
 

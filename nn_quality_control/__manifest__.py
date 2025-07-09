@@ -26,9 +26,17 @@
         'views/configuration_type_default_view.xml',  # Main view for quality control
         'views/custom_serial_number_size.xml',  # Main view for quality control
         'views/configuration_type_default2_view.xml',  # Main view for quality control
-        'views/mrp_production_dashboard.xml',  # Main view for quality control
         'views/user_form_view.xml',  # Main view for quality control
         'views/production_form_tree_readonly.xml',  # Main view for quality control
+        'views/mrp_production_form_view.xml',  # Main view for quality control
+        'views/control_quality_analyse_menu.xml',  # Main view for quality control
+
+        'views/control_quality_control_lampe_loup.xml',  # Main view for quality control
+        'views/control_quality_control_camera.xml',  # Main view for quality control
+        'views/control_quality_control_rayon_x.xml',  # Main view for quality control
+        'views/mrp_production_dashboard.xml',  # Main view for quality control
+        'wizards/all_menu_under_analyse_action.xml',  # Main view for quality control
+
     ],
 
     'assets': {

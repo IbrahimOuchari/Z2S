@@ -49,8 +49,11 @@
                         <field name="barcode" invisible="1"/>
                         <field name="reference" string="Référence" attrs="{'readonly': True}"/>
                         <field name="of_id"
+                               domain="[('control_quality_created', '=', False), ('state', 'in', ['confirmed', 'progress', 'to_close', 'done'])]"
                                attrs="{'readonly': [('state', '!=', 'draft')]}"
-                               options="{'no_create': True}" force_save="1"/>
+                               options="{'no_create': True}"
+                               force_save="1"/>
+
 
                         <field name="backup_of_id" invisible="1"/>
                         <field name="article_id" attrs="{'readonly': True}"/>
@@ -296,7 +299,7 @@
         <field name="model">control.quality</field>
         <field name="arch" type="xml">
             <tree string="Contrôles de Qualité">
-                <field name="reference"/>
+                <field name="reference" string="Référence Contrôle Qualité"/>
                 <field name="of_id" options="{'no_create': True}" string="Ordre de Fabrication"/>
                 <field name="article_id"/>
                 <field name="client_reference"/>
@@ -318,6 +321,7 @@
         <field name="model">control.quality</field>
         <field name="arch" type="xml">
             <search>
+                <field name="reference"/>
                 <field name="of_id"/>
                 <field name="article_id"/>
                 <field name="client_reference"/>
