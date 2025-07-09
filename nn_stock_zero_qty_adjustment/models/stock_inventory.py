@@ -43,44 +43,10 @@ class StockInventory(models.Model):
 
     def action_demand_close(self):
         for record in self:
-            # Get the domain from get_filtered_inventory_lines method
-            domain = [
-                ('inventory_id', '=', record.id),
-                ('location_id.usage', 'in', ['internal', 'transit']),
-                ('location_id.name', 'not in', ['Retour', 'Destruction']),
-                ('product_id.active', '=', True),
-            ]
-
-            if record.location_ids:
-                quant_domain = [('location_id', 'in', record.location_ids.ids)]
-                if record.exhausted:
-                    quant_domain.append(('quantity', '>=', 0))
-                else:
-                    quant_domain.append(('quantity', '>', 0))
-
-                product_ids = record.env['stock.quant'].search(quant_domain).mapped('product_id.id')
-                product_ids = list(set(product_ids))
-
-                domain.append(('product_id', 'in', product_ids))
-                domain.append(('location_id', 'in', record.location_ids.ids))
-
-            if record.is_produit_fini:
-                domain.append(('product_id.sale_ok', '=', True))
-            if record.is_produit_fourni:
-                domain.append(('product_id.fourni', '=', True))
-            if record.is_produit_achete:
-                domain.append(('product_id.purchase_ok', '=', True))
-            if record.category_id:
-                domain.append(('product_id.categ_id', '=', record.category_id.id))
-            if record.partner_id:
-                domain.append(('product_id.client_id', '=', record.partner_id.id))
-
-            # Add filter for unconfirmed lines here
+            domain = record._get_inventory_lines_domain()
             domain.append(('value_confirmed', '=', False))
 
-            # Search lines matching the full domain including unconfirmed ones
-            unconfirmed_lines = record.env['stock.inventory.line'].search(domain)
-
+            unconfirmed_lines = self.env['stock.inventory.line'].search(domain)
             count_unconfirmed = len(unconfirmed_lines)
 
             if count_unconfirmed:
@@ -89,7 +55,6 @@ class StockInventory(models.Model):
                 ) % count_unconfirmed
                 raise UserError(message)
 
-            # All confirmed
             record.state = 'demand_close'
 
     def action_show_location_article_counts(self):

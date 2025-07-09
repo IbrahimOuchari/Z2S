@@ -57,6 +57,55 @@ class MrpProduction(models.Model):
                 for move in production.move_raw_ids:
                     move.qty_delivered = 0
 
+    def compute_qty_delivered(self):
+        for production in self:
+            product_qty_done = {}
+            product_qty_left = {}
+
+            # Step 1: Find the latest picking by name
+            latest_picking = None
+            done_pickings = [p for p in production.picking_ids if p.state == 'done']
+            if done_pickings:
+                latest_picking = max(done_pickings, key=lambda p: p.date_done)
+
+            # Step 2: Compute qty_delivered and qty_left from latest picking only
+            if latest_picking:
+                for move in latest_picking.move_lines:
+                    if move.product_id:
+                        product_qty_done[move.product_id.id] = move.quantity_done
+                        product_qty_left[move.product_id.id] = move.quantity_left
+
+            # Step 3: Assign to move_raw_ids
+            for move in production.move_raw_ids:
+                move.qty_delivered = product_qty_done.get(move.product_id.id, 0.0)
+                move.qty_left = product_qty_left.get(move.product_id.id, 0.0)
+            if production.state == 'done':
+                for move in production.move_raw_ids:
+                    move.qty_delivered = 0
+
+    def compute_qty_delivered_total(self):
+        for production in self:
+            product_qty_done = {}
+            product_qty_left = {}
+
+            # ✅ Go through all 'done' pickings linked to the production
+            for picking in production.picking_ids:
+                for move in picking.move_lines:
+                    product_id = move.product_id.id
+                    # Cumulative delivery quantities
+                    product_qty_done[product_id] = product_qty_done.get(product_id, 0.0) + move.quantity_done
+                    product_qty_left[product_id] = product_qty_left.get(product_id, 0.0) + move.quantity_left
+
+            # ✅ Assign cumulated values to move_raw_ids
+            for move in production.move_raw_ids:
+                move.qty_delivered = product_qty_done.get(move.product_id.id, 0.0)
+                move.qty_left = product_qty_left.get(move.product_id.id, 0.0)
+
+            # ✅ If production is done, reset qty_delivered to 0
+            if production.state == 'done':
+                for move in production.move_raw_ids:
+                    move.qty_delivered = 0.0
+
     def button_mark_done(self):
         for mrp in self:
             if mrp.ignore_component_check:

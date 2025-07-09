@@ -1,8 +1,7 @@
-from unicodedata import digit
-
-from odoo import models, fields, api
 import logging
 from datetime import timedelta, datetime
+
+from odoo import models, fields, api
 
 _logger = logging.getLogger(__name__)  # Logger setup
 
@@ -25,12 +24,12 @@ class MrpWorkorder(models.Model):
     real_duration = fields.Float(string="Real Duration", store=True)
     real_duration_formatted = fields.Char(string="Formatted Duration", store=True)
     details_operation = fields.One2many('mrp.operation.of', 'workorder_id', string="Details Operations")
-    productivity = fields.Float(string="Productivité", compute="_compute_productivity", store=True , digits=(16,3))
+    productivity = fields.Float(string="Productivité", compute='compute_productivity', store=True, digits=(16, 3))
     productivity_display = fields.Char(string="Productivité (%)", compute="_compute_productivity_display")
 
-
-    @api.depends('duration_expected_formatted', 'real_duration_formatted', 'operation_qty', 'details_operation')
-    def _compute_productivity(self):
+    @api.depends('duration_expected_formatted', 'real_duration_formatted', 'operation_qty', 'details_operation',
+                 'production_id')
+    def compute_productivity(self):
         for order in self:
             try:
                 # Debugging output to see the actual values of the fields
@@ -66,32 +65,32 @@ class MrpWorkorder(models.Model):
                 order.productivity = 0.0
 
     def calculate_productivity(self):
-        def _compute_productivity(self):
-            for order in self:
-                try:
-                    # Debugging output to see the actual values of the fields
-                    _logger.info(f"Calculating productivity for order {order.id}:")
-                    _logger.info(f"Duration Expected: {order.duration_expected}")
-                    _logger.info(f"Real Duration: {order.real_duration}")
-                    _logger.info(f"Duration Real: {order.duration_real}")
-                    _logger.info(f"Duration Real Float: {order.real_duration_float}")
+        for order in self:
+            try:
+                # Debugging output to see the actual values of the fields
+                _logger.info(f"Calculating productivity for order {order.id}:")
+                _logger.info(f"Duration Expected: {order.duration_expected}")
+                _logger.info(f"Real Duration: {order.real_duration}")
+                _logger.info(f"Duration Real: {order.duration_real}")
+                _logger.info(f"Duration Real Float: {order.real_duration_float}")
 
-                    # Ensure the calculation is only done if linked to a production
-                    if order.production_id:
-                        # Validate the fields are numbers and greater than 0
-                        if order.duration_expected > 0 and order.real_duration_float > 0:
-                            order.productivity = (order.duration_expected / order.real_duration_float)
-                            _logger.info(f"Productivity calculated: {order.productivity}%")
-                        else:
-                            order.productivity = 0.0
-                            _logger.warning(
-                                f"Productivity set to 0 due to invalid duration values for order {order.id}.")
+                # Ensure the calculation is only done if linked to a production
+                if order.production_id:
+                    # Validate the fields are numbers and greater than 0
+                    if order.duration_expected > 0 and order.real_duration_float > 0:
+                        order.productivity = (order.duration_expected / order.real_duration_float)
+                        _logger.info(f"Productivity calculated: {order.productivity}%")
                     else:
-                        order.productivity = 0.0  # Default value if no production is linked
-                        _logger.warning(f"Productivity set to 0 because no production is linked to order {order.id}.")
-                except Exception as e:
-                    _logger.error(f"Error calculating productivity for order {order.id}: {e}")
-                    order.productivity = 0.0
+                        order.productivity = 0.0
+                        _logger.warning(
+                            f"Productivity set to 0 due to invalid duration values for order {order.id}.")
+                else:
+                    order.productivity = 0.0  # Default value if no production is linked
+                    _logger.warning(f"Productivity set to 0 because no production is linked to order {order.id}.")
+            except Exception as e:
+                _logger.error(f"Error calculating productivity for order {order.id}: {e}")
+                order.productivity = 0.0
+
     def _extract_seconds_from_duration(self, duration_str):
         """
         Extract the total number of seconds from a formatted string (e.g., '1H 1M 1S')
@@ -117,8 +116,6 @@ class MrpWorkorder(models.Model):
             _logger.error(f"Erreur lors de l'extraction des secondes de la durée '{duration_str}': {e}")
 
         return total_seconds
-
-    from datetime import timedelta  # Ensure to import necessary modules
 
     def do_real_duration(self):
         """Fetch real duration from heure_debut to heure_fin and handle proper time formatting with second rollover.
@@ -248,7 +245,6 @@ class MrpProduction(models.Model):
             for workorder in workorders:
                 workorder.do_real_duration()  # Trigger real duration calculation for each workorder
 
-
     avg_productivity = fields.Float(
         string="Average Productivity",
         compute="_compute_avg_productivity",  # Computed field
@@ -258,6 +254,25 @@ class MrpProduction(models.Model):
 
     @api.depends('workorder_ids')  # Trigger computation when workorder_ids are updated
     def _compute_avg_productivity(self):
+        """Calculate the average productivity for all workorders related to this production."""
+        for record in self:
+            workorders = self.env['mrp.workorder'].search([('production_id', '=', record.id)])
+
+            total_productivity = 0.0
+            valid_workorders = 0  # To keep track of workorders that have valid productivity
+
+            for workorder in workorders:
+                if workorder.productivity:  # Check if productivity is already computed
+                    total_productivity += workorder.productivity
+                    valid_workorders += 1
+
+            # Calculate the average productivity if there are valid workorders
+            if valid_workorders > 0:
+                record.avg_productivity = total_productivity / valid_workorders
+            else:
+                record.avg_productivity = 0.0
+
+    def compute_avg_productivity(self):
         """Calculate the average productivity for all workorders related to this production."""
         for record in self:
             workorders = self.env['mrp.workorder'].search([('production_id', '=', record.id)])

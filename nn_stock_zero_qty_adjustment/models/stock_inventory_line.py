@@ -95,16 +95,46 @@ class StockInventoryLine(models.Model):
 
     @api.model
     def create(self, vals):
-
         record = super(StockInventoryLine, self).create(vals)
-        record.is_new = True
+
+        # Only flag as is_new if product_id is being set manually (user input)
+        if vals.get('product_id') and self.env.context.get('default_inventory_id'):
+            record.is_new = True
 
         return record
 
     is_new = fields.Boolean(default=False)
+    can_edit = fields.Boolean(
+        string='Compté',
+        compute='_compute_can_edit'
+    )
 
-    def write(self, vals):
-        res = super(StockInventoryLine, self).write(vals)
-        if 'product_id' in vals:
-            self.is_new = False
-        return res
+    @api.depends('product_qty_counted')
+    def _compute_can_edit(self):
+
+        for record in self:
+
+            if self.env.user.has_group('nn_Z2S.stock_inventory_validation'):
+
+                record.can_edit = False
+
+            else:
+
+                record.can_edit = True
+
+    product_qty_counted_char_access = fields.Boolean(
+        string='Compté',
+        compute='_compute_product_qty_counted_char_access'
+    )
+
+    @api.depends('product_qty_counted')
+    def _compute_product_qty_counted_char_access(self):
+
+        for record in self:
+
+            if self.env.user.has_group('nn_Z2S.stock_inventory_validation'):
+
+                record.product_qty_counted_char_access = False
+
+            else:
+                record.product_qty_counted_char_access = True

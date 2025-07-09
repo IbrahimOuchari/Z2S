@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- module category -->
+    <record id="group_ignore_component_check_user" model="res.groups">
+        <field name="name">Ignoré Vérification Composants</field>
+    </record>
+
+
+</odoo>

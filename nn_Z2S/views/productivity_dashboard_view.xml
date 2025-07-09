@@ -6,7 +6,9 @@
         <field name="model">mrp.production</field>
         <field name="arch" type="xml">
             <tree string="Productivité des Opérations" create="false" delete="false"
+                  default_order="date_realisation desc"
             >  <!-- Domain filter for done state -->
+                <field name="date_realisation"/>  <!-- Manufacturing Order -->
                 <field name="name" string="OF"/>  <!-- Manufacturing Order -->
                 <field name="product_id" string="Article"/>  <!-- Product -->
                 <field name="ref_product_client" string="Référence Article"/>  <!-- Client Reference -->

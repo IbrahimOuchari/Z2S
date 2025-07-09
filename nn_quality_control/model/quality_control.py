@@ -200,11 +200,11 @@ class QualityControl(models.Model):
     def _compute_ppm(self):
         for record in self:
             ppm_values = []
-            if record.ppm1:
+            if record.type_1:
                 ppm_values.append(record.ppm1)
-            if record.ppm2:
+            if record.type_1:
                 ppm_values.append(record.ppm2)
-            if record.ppm3:
+            if record.type_1:
                 ppm_values.append(record.ppm3)
             if ppm_values:
                 record.ppm = sum(ppm_values) / len(ppm_values)

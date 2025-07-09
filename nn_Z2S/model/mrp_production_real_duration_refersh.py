@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 
+
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
@@ -32,13 +33,12 @@ class MrpProduction(models.Model):
                 workorders = self.env['mrp.workorder'].search([('production_id', '=', record.id)])
                 for workorder in workorders:
                     workorder.do_real_duration()  # Trigger the method
-                    workorder.calculate_productivity()  # Trigger the method
+                    workorder.compute_productivity()  # Trigger the method
 
                     # Trigger the method
 
                 # Reset the boolean field after computation
                 record.action_trigger_operation_count = False
-
 
     def prod_cal(self):
         """Count the number of operations related to this production order."""
@@ -60,3 +60,8 @@ class MrpProduction(models.Model):
 
                 # Reset the boolean field after computation
                 record.action_trigger_operation_count = False
+
+    def action_call_for_productivity(self):
+        for rec in self:
+            for worker in rec.workorder_ids:
+                worker.calculate_productivity()  # Trigger the method
