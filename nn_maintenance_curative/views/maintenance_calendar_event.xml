@@ -1,0 +1,56 @@
+<odoo>
+
+    <menuitem
+            id="maintenance.menu_equipment_form"
+            name="Equipments"
+            parent="maintenance.menu_maintenance_title"
+            groups="maintenance.group_equipment_manager,base.group_user"
+            sequence="2"/>
+    <!-- Submenu: Form/List View for Equipments -->
+    <menuitem
+            id="maintenance.menu_equipment_form_list"
+            name="Équipements"
+            parent="maintenance.menu_equipment_form"
+            action="maintenance.hr_equipment_action"
+            sequence="1"
+            groups="maintenance.group_equipment_manager,base.group_user"/>
+
+    <!-- Submenu: Calendar for Maintenance Events -->
+    <record id="view_maintenance_calendar_event_line_calendar" model="ir.ui.view">
+        <field name="name">maintenance.calendar.event.line.calendar</field>
+        <field name="model">maintenance.calendar.event.line</field>
+        <field name="arch" type="xml">
+            <calendar string="Planning de maintenance"
+                      date_start="date"
+                      color="period_count"
+                      event_limit="5"
+                      quick_add="false">
+                <field name="equipment_id"/>
+                <field name="period_count"/>
+                <field name="event_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="action_maintenance_calendar_event" model="ir.actions.act_window">
+        <field name="name">Planning Maintenance</field>
+        <field name="res_model">maintenance.calendar.event.line</field> <!-- changed here -->
+        <field name="view_mode">calendar,tree,form</field>
+        <field name="view_id" ref="view_maintenance_calendar_event_line_calendar"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to schedule a new maintenance event line.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+            id="menu_maintenance_calendar_event"
+            name="Planning de maintenance"
+            parent="maintenance.menu_equipment_form"
+            action="action_maintenance_calendar_event"
+            sequence="2"
+            groups="maintenance.group_equipment_manager,base.group_user"/>
+
+
+</odoo>

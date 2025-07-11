@@ -352,11 +352,10 @@
               web_icon="nn_quality_control,static/src/my_icon.png"/>
 
     <!-- Rental Order Menu -->
-    <menuitem id="menu_Z2S_control_quality"
+    <menuitem id="menu_Z2S_control_quality_new"
               name="Contrôle Qualité"
               action="action_quality_control"
               parent="menu_root_control_quality"
               sequence="1"
-    /> <!-- Replace with your actual module name -->
-
+    />
 </odoo>

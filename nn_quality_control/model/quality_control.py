@@ -107,6 +107,7 @@ class QualityControl(models.Model):
                                        )
     state_of = fields.Selection(related='of_id.state', store=True,
                                 )  # New field for quantity produced
+  
     product_qty = fields.Float(string='Quantité Produite', store=True)  # New field for quantity produced
 
     qty_producing = fields.Float(string='Quantité Produite', store=True,

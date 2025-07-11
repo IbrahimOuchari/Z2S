@@ -9,6 +9,7 @@ class QualityControlLineType1(models.Model):
     _description = 'Ligne de Contrôle Qualité Type 1'
 
     quality_id = fields.Many2one('control.quality', string='Contrôle Qualité', ondelete='cascade')
+    article_id = fields.Many2one(related='quality_id.article_id', string='Article', store=True, )
     manu_of = fields.Many2one(
         'mrp.production',
         string='Ordre de Fabrication',

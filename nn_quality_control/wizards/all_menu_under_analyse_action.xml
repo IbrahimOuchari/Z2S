@@ -6,8 +6,9 @@
         <field name="name">productivity.filter.wizard.type1.form</field>
         <field name="model">productivity.filter.wizard.type1</field>
         <field name="arch" type="xml">
-            <form string="Filtrer Opérations Type 1 par date de création">
+            <form string="Filtrer Opérations Type 1 par date">
                 <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                 </group>
@@ -23,8 +24,9 @@
         <field name="name">productivity.filter.wizard.type2.form</field>
         <field name="model">productivity.filter.wizard.type2</field>
         <field name="arch" type="xml">
-            <form string="Filtrer Opérations Type 2 par date de création">
+            <form string="Filtrer Opérations Type 2 par date">
                 <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                 </group>
@@ -40,8 +42,9 @@
         <field name="name">productivity.filter.wizard.type3.form</field>
         <field name="model">productivity.filter.wizard.type3</field>
         <field name="arch" type="xml">
-            <form string="Filtrer Opérations Type 3 par date de création">
+            <form string="Filtrer Opérations Type 3 par date">
                 <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                 </group>
@@ -57,8 +60,9 @@
         <field name="name">productivity.filter.wizard.quality.form</field>
         <field name="model">productivity.filter.wizard.quality</field>
         <field name="arch" type="xml">
-            <form string="Filtrer Tableau de bord Qualité par date de création">
+            <form string="Filtrer Tableau de bord Qualité par date">
                 <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                 </group>
@@ -70,30 +74,33 @@
         </field>
     </record>
 
-    <!-- Wizard Window Actions -->
+    <!-- Type 1: Lampe Loup -->
     <record id="action_productivity_filter_wizard_type1" model="ir.actions.act_window">
-        <field name="name">Filtrer Opérations Type 1</field>
+        <field name="name">Contrôle Qualité - Lampe Loup</field>
         <field name="res_model">productivity.filter.wizard.type1</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_productivity_filter_wizard_type1_form"/>
         <field name="target">new</field>
     </record>
 
+    <!-- Type 2: Caméra -->
     <record id="action_productivity_filter_wizard_type2" model="ir.actions.act_window">
-        <field name="name">Filtrer Opérations Type 2</field>
+        <field name="name">Contrôle Qualité - Caméra</field>
         <field name="res_model">productivity.filter.wizard.type2</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_productivity_filter_wizard_type2_form"/>
         <field name="target">new</field>
     </record>
 
+    <!-- Type 3: Rayon X -->
     <record id="action_productivity_filter_wizard_type3" model="ir.actions.act_window">
-        <field name="name">Filtrer Opérations Type 3</field>
+        <field name="name">Contrôle Qualité - Rayon X</field>
         <field name="res_model">productivity.filter.wizard.type3</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_productivity_filter_wizard_type3_form"/>
         <field name="target">new</field>
     </record>
+
 
     <record id="action_productivity_filter_wizard_quality" model="ir.actions.act_window">
         <field name="name">Filtrer Tableau de bord Qualité</field>

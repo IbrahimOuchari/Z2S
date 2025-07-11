@@ -24,6 +24,7 @@ class StockInventoryLine(models.Model):
     is_produit_fini = fields.Boolean(string="Produit Fini", related='inventory_id.is_produit_fini', store=True)
     is_produit_achete = fields.Boolean(string="Produit Acheté", related='inventory_id.is_produit_achete', store=True)
     is_produit_fourni = fields.Boolean(string="Produit Fourni", related='inventory_id.is_produit_fourni', store=True)
+    exhausted = fields.Boolean(string="Exhausted", related='inventory_id.exhausted', store=True)
     inventory_id = fields.Many2one('stock.inventory', string='Inventory', required=True, ondelete='cascade')
 
     product_qty_counted = fields.Float(
@@ -31,19 +32,6 @@ class StockInventoryLine(models.Model):
         default=False,  # Allows the field to be empty
         help="Enter the counted quantity. Leave empty if not touched."
     )
-
-    # user_touched_qty = fields.Boolean(
-    #     string='User Touched Quantity',
-    #     compute='_compute_user_touched_qty',
-    #     store=True,
-    #     help="Indicates if the user has interacted with the field."
-    # )
-    #
-    # @api.constrains('product_qty_counted')
-    # def _check_product_qty_counted(self):
-    #     for line in self:
-    #         if line.product_qty_counted == 0 and not line.user_touched_qty:
-    #             raise ValidationError("Please fill in the Product Quantity Counted or leave it blank.")
 
     @api.onchange('product_qty_counted')
     def _onchange_product_qty_counted(self):
@@ -91,3 +79,44 @@ class StockInventoryLine(models.Model):
             else:
 
                 record.can_edit = True
+
+    @api.onchange('category_id', 'partner_id', 'is_produit_fini', 'is_produit_achete', 'is_produit_fourni', 'exhausted')
+    def _onchange_filter_product_domain(self):
+        domain = []
+
+        if self.is_produit_achete:
+            domain.append(('purchase_ok', '=', True))
+
+        if self.is_produit_fini:
+            domain.append(('sale_ok', '=', True))
+
+        if self.category_id:
+            domain.append(('categ_id', '=', self.category_id.id))
+
+        if self.partner_id:
+            domain.append(('client_id', '=', self.partner_id.id))
+
+        if self.is_produit_fourni:
+            domain.append(('seller_ids', '!=', False))
+
+        if self.exhausted:
+            domain.append(('qty_available', '>=', 0))
+        else:
+            domain.append(('qty_available', '>', 0))
+
+        return {'domain': {'product_id': domain}}
+
+    @api.onchange('inventory_id')
+    def _onchange_inventory_id(self):
+        if self.inventory_id:
+            self.category_id = self.inventory_id.category_id
+            self.partner_id = self.inventory_id.partner_id
+            self.is_produit_fini = self.inventory_id.is_produit_fini
+            self.is_produit_achete = self.inventory_id.is_produit_achete
+            self.is_produit_fourni = self.inventory_id.is_produit_fourni
+        else:
+            self.category_id = False
+            self.partner_id = False
+            self.is_produit_fini = False
+            self.is_produit_achete = False
+            self.is_produit_fourni = False

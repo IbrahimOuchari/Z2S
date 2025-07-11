@@ -81,3 +81,17 @@ class MrpProduction(models.Model):
         except Exception as e:
             _logger.error(f"Erreur lors du formatage de la durée {total_seconds}: {e}")
             return "0S"
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+        res = super(MrpProduction, self).read_group(domain, fields, groupby, offset=offset, limit=limit,
+                                                    orderby=orderby, lazy=lazy)
+
+        if 'productivity' in fields and groupby:
+            for line in res:
+                if line.get('__domain'):
+                    records = self.search(line['__domain'])
+                    if records:
+                        line['productivity'] = sum(records.mapped('productivity')) / len(records)
+
+        return res

@@ -115,7 +115,9 @@ class StockInventory(models.Model):
         if self.category_id:
             domain.append(('product_id.categ_id', '=', self.category_id.id))
         if self.partner_id:
+            domain.append('|')
             domain.append(('product_id.client_id', '=', self.partner_id.id))
+            domain.append(('is_new', '=', True))
 
         return domain
 

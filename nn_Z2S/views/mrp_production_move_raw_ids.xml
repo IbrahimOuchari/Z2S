@@ -11,6 +11,14 @@
                 <field name="qty_delivered" optional="hide"/>
                 <field name="qty_left" optional="hide"/>
                 <field name="qty_needed" optional="hide"/>
+                <field name="total_delivered"
+                       optional="hide"/>
+
+                <field name="qty_consumed"
+                       optional="hide"/>
+
+                <field name="qty_remaining_available" force_save="1"
+                       optional="hide"/>
 
             </xpath>
             <xpath expr="//page[@name='components']/field[@name='move_raw_ids']" position="attributes">

@@ -20,7 +20,7 @@
                     <div style="width:70%;">
                         <group name="frequency_control" class="o_col_4" style="width:80%;">
 
-                            <field name="period_1_frequency" string="Période 1 (en jours)" style="width:30%;"/>
+                            <field name="period_1_frequency" string="Période Mensuelle (en jours)" style="width:30%;"/>
                             <div class="oe_sticky_warning" t-if="period_1_warning">
                                 <field name="period_1_warning" readonly="1" nolabel="1"/>
                             </div>
@@ -56,7 +56,9 @@
                     <!-- Fréquence 2 -->
                     <div style="width:70%;" attrs="{'invisible': [('period_count', 'not in', ['2', '3', '4'])]}">
                         <group name="frequency_control_2" class="o_col_4" style="width:80%;">
-                            <field name="period_2_frequency" string="Période 2 (en jours)" style="width:30%;"/>
+                            <field name="period_2_frequency" string="Période Trimestrielle (en jours)"
+                                   style="width:30%;"/>
+
                             <div class="oe_sticky_warning" t-if="period_2_warning">
                                 <field name="period_2_warning" readonly="1" nolabel="1"/>
                             </div>
@@ -90,7 +92,9 @@
                     <!-- Fréquence 3 -->
                     <div style="width:70%;" attrs="{'invisible': [('period_count', 'not in', ['3', '4'])]}">
                         <group name="frequency_control_3" class="o_col_4" style="width:80%;">
-                            <field name="period_3_frequency" string="Période 3 (en jours)" style="width:30%;"/>
+                            <field name="period_3_frequency" string="Période Semestrielle (en jours)"
+                                   style="width:30%;"/>
+
                             <div class="oe_sticky_warning" t-if="period_3_warning">
                                 <field name="period_3_warning" readonly="1" nolabel="1"/>
                             </div>
@@ -124,7 +128,7 @@
                     <!-- Fréquence 4 -->
                     <div style="width:70%;" attrs="{'invisible': [('period_count', '!=', '4')]}">
                         <group name="frequency_control_4" class="o_col_4" style="width:80%;">
-                            <field name="period_4_frequency" string="Période 4 (en jours)" style="width:30%;"/>
+                            <field name="period_4_frequency" string="Période Annuelle (en jours)" style="width:30%;"/>
                             <div class="oe_sticky_warning" t-if="period_4_warning">
                                 <field name="period_4_warning" readonly="1" nolabel="1"/>
                             </div>

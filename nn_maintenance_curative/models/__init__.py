@@ -1,3 +1,4 @@
+from . import maintenance_calendar_event
 from . import maintenance_curative
 from . import maintenance_curative_spare_part
 from . import maintenance_curative_spare_part_demand

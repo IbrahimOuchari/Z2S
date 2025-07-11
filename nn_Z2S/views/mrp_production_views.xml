@@ -33,7 +33,7 @@
                                class="o_checkbox_big"
                                groups="nn_Z2S.group_ignore_component_check_user"/>
                     </div>
-
+                    <field name="last_backorder_count" invisible="0"/>
 
                 </xpath>
                 <xpath expr="//header" position="inside">

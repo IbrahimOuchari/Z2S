@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -19,6 +20,12 @@ class MaintenanceEquipment(models.Model):
         string="Fréquence",
         default='1',
     )
+    calendar_event_ids = fields.One2many(
+        'maintenance.calendar.event',
+        'equipment_id',
+        string="Événements de maintenance"
+    )
+
     period_1_frequency = fields.Integer("Période 1 (en jours)")
     period_2_frequency = fields.Integer("Période 2 (en jours)")
     period_3_frequency = fields.Integer("Période 3 (en jours)")
@@ -33,18 +40,61 @@ class MaintenanceEquipment(models.Model):
     @api.depends('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency')
     def _compute_warnings(self):
         for rec in self:
-            rec.period_1_warning = (
-                "<div class='note-warning'>⚠️ Plus de 31 jours !</div>" if rec.period_1_frequency and rec.period_1_frequency > 31 else False
-            )
-            rec.period_2_warning = (
-                "<div class='note-warning'>⚠️ Plus de 93 jours !</div>" if rec.period_2_frequency and rec.period_2_frequency > 93 else False
-            )
-            rec.period_3_warning = (
-                "<div class='note-warning'>⚠️ Plus de 186 jours !</div>" if rec.period_3_frequency and rec.period_3_frequency > 186 else False
-            )
-            rec.period_4_warning = (
-                "<div class='note-warning'>⚠️ Plus de 366 jours !</div>" if rec.period_4_frequency and rec.period_4_frequency > 366 else False
-            )
+            if rec.period_1_frequency:
+                if rec.period_1_frequency < 1:
+                    rec.period_1_warning = "<div class='note-warning'>⚠️ La période mensuelle doit être au moins 1 jour !</div>"
+                elif rec.period_1_frequency > 31:
+                    rec.period_1_warning = f"<div class='note-warning'>⚠️ Période mensuelle trop longue : {rec.period_1_frequency} jours (max 31) !</div>"
+                else:
+                    rec.period_1_warning = False
+            else:
+                rec.period_1_warning = False
+
+            if rec.period_2_frequency:
+                if rec.period_2_frequency < 1:
+                    rec.period_2_warning = "<div class='note-warning'>⚠️ La période trimestrielle doit être au moins 1 jour !</div>"
+                elif rec.period_2_frequency > 93:
+                    rec.period_2_warning = f"<div class='note-warning'>⚠️ Période trimestrielle trop longue : {rec.period_2_frequency} jours (max 93) !</div>"
+                else:
+                    rec.period_2_warning = False
+            else:
+                rec.period_2_warning = False
+
+            if rec.period_3_frequency:
+                if rec.period_3_frequency < 1:
+                    rec.period_3_warning = "<div class='note-warning'>⚠️ La période semestrielle doit être au moins 1 jour !</div>"
+                elif rec.period_3_frequency > 186:
+                    rec.period_3_warning = f"<div class='note-warning'>⚠️ Période semestrielle trop longue : {rec.period_3_frequency} jours (max 186) !</div>"
+                else:
+                    rec.period_3_warning = False
+            else:
+                rec.period_3_warning = False
+
+            if rec.period_4_frequency:
+                if rec.period_4_frequency < 1:
+                    rec.period_4_warning = "<div class='note-warning'>⚠️ La période annuelle doit être au moins 1 jour !</div>"
+                elif rec.period_4_frequency > 366:
+                    rec.period_4_warning = f"<div class='note-warning'>⚠️ Période annuelle trop longue : {rec.period_4_frequency} jours (max 366) !</div>"
+                else:
+                    rec.period_4_warning = False
+            else:
+                rec.period_4_warning = False
+
+    @api.constrains('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency')
+    def _check_period_frequencies(self):
+        for rec in self:
+            errors = []
+            if rec.period_1_frequency and not (1 <= rec.period_1_frequency <= 31):
+                errors.append("La période mensuelle doit être comprise entre 1 et 31 jours.")
+            if rec.period_2_frequency and not (32 <= rec.period_2_frequency <= 93):
+                errors.append("La période trimestrielle doit être comprise entre 32 et 93 jours.")
+            if rec.period_3_frequency and not (94 <= rec.period_3_frequency <= 186):
+                errors.append("La période semestrielle doit être comprise entre 94 et 186 jours.")
+            if rec.period_4_frequency and not (1 <= rec.period_4_frequency <= 366):
+                errors.append("La période annuelle doit être comprise entre 187 et 366 jours.")
+
+            if errors:
+                raise ValidationError('\n'.join(errors))
 
     effective_date = fields.Date("Date effective")
 
@@ -79,36 +129,84 @@ class MaintenanceEquipment(models.Model):
         store=True
     )
 
-    @api.depends('period_1_frequency')
+    def _sync_calendar_event(self, period_key, frequency_days, start_date):
+        """Always remove any existing event (and its lines), then recreate if needed."""
+        for record in self:
+            if not record.id:
+                continue
+
+            # 1) Unlink any existing event (and cascade‑delete its lines)
+            existing = self.env['maintenance.calendar.event'].search([
+                ('equipment_id', '=', record.id),
+                ('period_count', '=', period_key),
+            ], limit=1)
+            if existing:
+                existing.unlink()
+
+            # 2) If no frequency → done (we’ve already cleaned up)
+            if not frequency_days:
+                continue
+
+            # 3) Need a start date to build a new series
+            if not start_date:
+                continue
+
+            # 4) Create fresh event + lines
+            vals = {
+                'name': record.name or 'Maintenance',
+                'period_count': period_key,
+                'equipment_id': record.id,
+                'frequency_days': frequency_days,
+                'start_maintenance_date': start_date,
+            }
+            new_event = self.env['maintenance.calendar.event'].create(vals)
+            new_event.generate_lines()
+
+    @api.depends('start_maintenance_date', 'period_1_frequency')
     def _compute_next_maintenance_mensuelle(self):
         for record in self:
-            if record.period_1_frequency:
-                record.next_maintenance_mensuelle = fields.Date.today() + timedelta(days=record.period_1_frequency)
-
+            freq = record.period_1_frequency
+            start = record.start_maintenance_date or fields.Date.today()
+            if freq:
+                next_date = start + timedelta(days=freq)
+                record.next_maintenance_mensuelle = next_date
+                record._sync_calendar_event('1', freq, start)
             else:
                 record.next_maintenance_mensuelle = False
 
-    @api.depends('period_2_frequency')
+    @api.depends('start_maintenance_date', 'period_2_frequency')
     def _compute_next_maintenance_trimestrielle(self):
         for record in self:
-            if record.period_2_frequency:
-                record.next_maintenance_trimestrielle = fields.Date.today() + timedelta(days=record.period_2_frequency)
+            freq = record.period_2_frequency
+            start = record.start_maintenance_date or fields.Date.today()
+            if freq:
+                next_date = start + timedelta(days=freq)
+                record.next_maintenance_trimestrielle = next_date
+                record._sync_calendar_event('2', freq, start)
             else:
                 record.next_maintenance_trimestrielle = False
 
-    @api.depends('period_3_frequency')
+    @api.depends('start_maintenance_date', 'period_3_frequency')
     def _compute_next_maintenance_semestrielle(self):
         for record in self:
-            if record.period_3_frequency:
-                record.next_maintenance_semestrielle = fields.Date.today() + timedelta(days=record.period_3_frequency)
+            freq = record.period_3_frequency
+            start = record.start_maintenance_date or fields.Date.today()
+            if freq:
+                next_date = start + timedelta(days=freq)
+                record.next_maintenance_semestrielle = next_date
+                record._sync_calendar_event('3', freq, start)
             else:
                 record.next_maintenance_semestrielle = False
 
-    @api.depends('period_4_frequency')
+    @api.depends('start_maintenance_date', 'period_4_frequency')
     def _compute_next_maintenance_annuelle(self):
         for record in self:
-            if record.period_4_frequency:
-                record.next_maintenance_annuelle = fields.Date.today() + timedelta(days=record.period_4_frequency)
+            freq = record.period_4_frequency
+            start = record.start_maintenance_date or fields.Date.today()
+            if freq:
+                next_date = start + timedelta(days=freq)
+                record.next_maintenance_annuelle = next_date
+                record._sync_calendar_event('4', freq, start)
             else:
                 record.next_maintenance_annuelle = False
 

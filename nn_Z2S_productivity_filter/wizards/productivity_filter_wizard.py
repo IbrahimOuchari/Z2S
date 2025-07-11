@@ -17,13 +17,27 @@ class ProductivityFilterWizard(models.TransientModel):
 
     def action_filter(self):
         domain = []
-        if self.date_start:
+        today = fields.Date.today()
+
+        if self.date_start and self.date_end:
+            # Both dates selected: filter between start and end
             domain.append(('date_realisation', '>=', self.date_start))
-        if self.date_end:
             domain.append(('date_realisation', '<=', self.date_end))
 
-        if not self.date_start and not self.date_end:
-            domain.append(('id', '=', -1))  # No result
+        elif self.date_start and not self.date_end:
+            # Only start date selected: filter from start date to today
+            domain.append(('date_realisation', '>=', self.date_start))
+            domain.append(('date_realisation', '<=', today))
+
+        elif not self.date_start and self.date_end:
+            # Only end date selected: fetch records with date_realisation <= end date
+            domain.append(('date_realisation', '<=', self.date_end))
+
+        else:
+            # No dates selected: fetch all records (no domain)
+
+            # If you want to explicitly fetch all, just leave domain empty:
+            domain = []
 
         action = self.env.ref('nn_Z2S.action_productivity_analysis_tree').read()[0]
         action['domain'] = domain

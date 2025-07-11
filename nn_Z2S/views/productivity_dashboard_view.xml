@@ -41,6 +41,8 @@
 
                 <!-- Date Filter -->
                 <field name="create_date" string="Date de création" filter_domain="[('create_date', '>=', self)]"/>
+
+                <!-- Existing filters -->
                 <filter invisible="1" string="Late Activities" name="activities_overdue"
                         domain="[('my_activity_date_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"
                         help="Show all records which has next action date is before today"/>
@@ -48,11 +50,14 @@
                         domain="[('my_activity_date_deadline', '=', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter invisible="1" string="Future Activities" name="activities_upcoming_all"
                         domain="[('my_activity_date_deadline', '&gt;', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter name="filter_date_realisation" string="Date réalisation" date="date_realisation"/>
+
+                <!-- Filter for date_realisation -->
+                <filter name="filter_date_realisation" string="Date réalisation" domain="[]" date="date_realisation"/>
+
                 <filter name="filter_plan_date" invisible="1" string="Scheduled Date: Last 365 Days"
                         domain="[('date_realisation', '>', (datetime.datetime.now() + relativedelta(days=-365)).to_utc().strftime('%Y-%m-%d %H:%M:%S'))]"/>
-                <separator/>
 
+                <separator/>
 
                 <field name="state" string="State"/>
                 <filter name="state_filter" string="Fait" domain="[('state','=','done')]"/>
@@ -61,7 +66,9 @@
                 <group expand="1" string="Group By">
                     <filter string="Article" name="group_by_product" context="{'group_by':'product_id'}"/>
                     <filter string="OF" name="group_by_OF" context="{'group_by':'name'}"/>
-
+                    <!-- Add group by date_realisation -->
+                    <filter string="Date réalisation" name="group_by_date_realisation"
+                            context="{'group_by':'date_realisation'}"/>
                 </group>
             </search>
         </field>

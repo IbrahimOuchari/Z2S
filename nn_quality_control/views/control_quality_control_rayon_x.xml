@@ -53,6 +53,35 @@
             </graph>
         </field>
     </record>
+    <record id="view_control_quality_type3_search" model="ir.ui.view">
+        <field name="name">control.quality.type3.line.search</field>
+        <field name="model">control.quality.type3.line</field>
+        <field name="arch" type="xml">
+            <search string="Recherche Contrôles Qualité - RAYON X">
+
+                <!-- Filters: Basic -->
+                <field name="quality_id"/>
+                <field name="created_date"/>
+
+                <!-- Simulated Separator: Résultat Section -->
+                <group string="Résultat">
+                    <filter name="filter_conform" string="Conforme" domain="[('result1', '=', 'conform')]"/>
+                    <filter name="filter_non_conform" string="Non Conforme" domain="[('result1', '=', 'non_conform')]"/>
+                </group>
+
+                <!-- Group By Options -->
+                <group expand="0" string="Groupé par">
+                    <filter name="group_by_created_date" string="Date de Création"
+                            context="{'group_by': 'created_date'}"/>
+                    <filter name="group_by_article" string="Article" context="{'group_by': 'article_id'}"/>
+                    <filter name="group_by_controlleur" string="Contrôleur" context="{'group_by': 'controlleur_id'}"/>
+                    <filter name="group_by_result" string="Résultat" context="{'group_by': 'result1'}"/>
+                    <filter name="group_by_defect1" string="Défaut 1" context="{'group_by': 'defect1'}"/>
+                    <filter name="group_by_defect2" string="Défaut 2" context="{'group_by': 'defect2'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
 
     <!-- Updated Action Window: RAYON X with all views -->

@@ -10,6 +10,7 @@ class QualityControlLineType3(models.Model):
 
     serial_number = fields.Char(string='Numéro de Série', required=True)
     quality_id = fields.Many2one('control.quality', string='Contrôle Qualité', ondelete='cascade')
+    article_id = fields.Many2one(related='quality_id.article_id', string='Article', store=True, )
 
     manu_of = fields.Many2one(
         'mrp.production',

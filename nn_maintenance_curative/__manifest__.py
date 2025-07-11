@@ -28,6 +28,7 @@
         'views/maintenance_request_form.xml',
         'views/product_form_view.xml',
         'views/date_prochaine_maintenance_view.xml',
+        'views/maintenance_calendar_event.xml',
 
         # Ajoutez ici les fichiers XML (vues, actions, séquences, etc.)
     ],
