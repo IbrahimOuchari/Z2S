@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from dateutil.relativedelta import relativedelta
 from odoo import models, fields, api
 
 
@@ -36,33 +37,34 @@ class MaintenanceCalendarEvent(models.Model):
         required=True
     )
 
-    @api.model
     def generate_lines(self, years=2):
-        """Generate maintenance calendar event lines for the next `years` years"""
         EventLine = self.env['maintenance.calendar.event.line']
-        for event in self.search([]):
+        for event in self:
             if not event.frequency_days or not event.start_maintenance_date:
                 continue
 
             start_date = event.start_maintenance_date
 
-            # Remove future duplicates
+            # Only delete lines related to this event (period and equipment)
             old_lines = EventLine.search([
                 ('event_id', '=', event.id),
                 ('date', '>=', start_date)
             ])
             old_lines.unlink()
 
-            days_limit = years * 365
             current_date = start_date
             lines_vals = []
+            end_date = start_date + relativedelta(years=years)
 
-            while (current_date - start_date).days <= days_limit:
-                lines_vals.append({
-                    'event_id': event.id,
-                    'date': current_date,
-                })
-                current_date += timedelta(days=event.frequency_days)
+            while current_date <= end_date:
+                lines_vals.append({'event_id': event.id, 'date': current_date})
+
+                # Add days based on frequency_days, regardless of period type
+                # You can add special case for annual if needed
+                if event.period_count == '4':  # Annual
+                    current_date += relativedelta(years=1)
+                else:
+                    current_date += timedelta(days=event.frequency_days)
 
             if lines_vals:
                 EventLine.create(lines_vals)

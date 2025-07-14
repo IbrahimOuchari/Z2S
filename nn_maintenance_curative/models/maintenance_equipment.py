@@ -10,16 +10,11 @@ _logger = logging.getLogger(__name__)
 class MaintenanceEquipment(models.Model):
     _inherit = 'maintenance.equipment'
 
-    period_count = fields.Selection(
-        selection=[
-            ('1', 'Mensuelle'),
-            ('2', 'Trimestrielle'),
-            ('3', 'Semestrielle'),
-            ('4', 'Annuelle'),
-        ],
-        string="Fréquence",
-        default='1',
-    )
+    is_mensuelle = fields.Boolean(string="Mensuelle")
+    is_trimestrielle = fields.Boolean(string="Trimestrielle")
+    is_semestrielle = fields.Boolean(string="Semestrielle")
+    is_annuelle = fields.Boolean(string="Annuelle")
+
     calendar_event_ids = fields.One2many(
         'maintenance.calendar.event',
         'equipment_id',
@@ -30,6 +25,7 @@ class MaintenanceEquipment(models.Model):
     period_2_frequency = fields.Integer("Période 2 (en jours)")
     period_3_frequency = fields.Integer("Période 3 (en jours)")
     period_4_frequency = fields.Integer("Période 4 (en jours)")
+
     state = fields.Integer("Période 4 (en jours)")
 
     period_1_warning = fields.Html(string="Alerte Période 1", compute="_compute_warnings")
@@ -92,15 +88,12 @@ class MaintenanceEquipment(models.Model):
                 errors.append("La période semestrielle doit être comprise entre 94 et 186 jours.")
             if rec.period_4_frequency and not (1 <= rec.period_4_frequency <= 366):
                 errors.append("La période annuelle doit être comprise entre 187 et 366 jours.")
-
             if errors:
                 raise ValidationError('\n'.join(errors))
 
     effective_date = fields.Date("Date effective")
-
     start_maintenance_date = fields.Date(
         string="Date début maintenance",
-        compute="_compute_start_maintenance_date",
         store=True,
         readonly=False,
     )
@@ -110,47 +103,118 @@ class MaintenanceEquipment(models.Model):
         compute="_compute_next_maintenance_mensuelle",
         store=True
     )
-
     next_maintenance_trimestrielle = fields.Date(
         string="Prochaine maintenance trimestrielle",
         compute="_compute_next_maintenance_trimestrielle",
         store=True
     )
-
     next_maintenance_semestrielle = fields.Date(
         string="Prochaine maintenance semestrielle",
         compute="_compute_next_maintenance_semestrielle",
         store=True
     )
-
     next_maintenance_annuelle = fields.Date(
         string="Prochaine maintenance annuelle",
         compute="_compute_next_maintenance_annuelle",
         store=True
     )
 
+    sync_calendar_flag = fields.Boolean(compute="_compute_sync_calendar_all")
+
+    @api.onchange(
+        'period_1_frequency',
+        'period_2_frequency',
+        'period_3_frequency',
+        'period_4_frequency',
+        'start_maintenance_date',
+    )
+    def _compute_sync_calendar_all(self):
+        for rec in self:
+            if not rec.start_maintenance_date:
+                continue
+            start = rec.start_maintenance_date
+            if rec.period_1_frequency and rec.is_mensuelle:
+                date_1 = start + timedelta(days=rec.period_1_frequency)
+                rec._sync_calendar_event('1', rec.period_1_frequency, date_1)
+            if rec.period_2_frequency and rec.is_trimestrielle:
+                date_2 = start + timedelta(days=rec.period_2_frequency)
+                rec._sync_calendar_event('2', rec.period_2_frequency, date_2)
+            if rec.period_3_frequency and rec.is_semestrielle:
+                date_3 = start + timedelta(days=rec.period_3_frequency)
+                rec._sync_calendar_event('3', rec.period_3_frequency, date_3)
+            if rec.period_4_frequency and rec.is_annuelle:
+                date_4 = start + timedelta(days=rec.period_4_frequency)
+                rec._sync_calendar_event('4', rec.period_4_frequency, date_4)
+            rec.sync_calendar_flag = True
+
+    cleanup_flag = fields.Boolean(compute="_compute_cleanup_calendar_events")
+
+    @api.onchange(
+        'period_1_frequency',
+        'period_2_frequency',
+        'period_3_frequency',
+        'period_4_frequency',
+        'is_mensuelle',
+        'is_trimestrielle',
+        'is_semestrielle',
+        'is_annuelle',
+    )
+    def _compute_cleanup_calendar_events(self):
+        for rec in self:
+            try:
+                periods_to_delete = []
+                # Check period 1
+                if not rec.is_mensuelle or not rec.period_1_frequency:
+                    periods_to_delete.append('1')
+                # Check period 2
+                if not rec.is_trimestrielle or not rec.period_2_frequency:
+                    periods_to_delete.append('2')
+                # Check period 3
+                if not rec.is_semestrielle or not rec.period_3_frequency:
+                    periods_to_delete.append('3')
+                # Check period 4
+                if not rec.is_annuelle or not rec.period_4_frequency:
+                    periods_to_delete.append('4')
+
+                # If all are to be deleted → delete all
+                if len(periods_to_delete) == 4:
+                    rec._delete_calendar_event_by_period()
+                else:
+                    for period in periods_to_delete:
+                        rec._delete_calendar_event_by_period(period)
+                rec.cleanup_flag = True
+            except Exception as e:
+                _logger.error("Error while cleaning calendar events for equipment %s: %s", rec.name or rec.id, e)
+                rec.cleanup_flag = False
+
+    def _delete_calendar_event_by_period(self, period_key=None):
+        """Delete calendar events for the current equipment and (optionally) a specific period."""
+        self.ensure_one()
+        domain = [('equipment_id', '=', self.id)]
+        if period_key:
+            domain.append(('period_count', '=', period_key))
+        events = self.env['maintenance.calendar.event'].search(domain)
+        if events:
+            events.unlink()
+
     def _sync_calendar_event(self, period_key, frequency_days, start_date):
         """Always remove any existing event (and its lines), then recreate if needed."""
         for record in self:
             if not record.id:
                 continue
-
-            # 1) Unlink any existing event (and cascade‑delete its lines)
+            # 1) Unlink any existing event (and cascade-delete its lines)
             existing = self.env['maintenance.calendar.event'].search([
                 ('equipment_id', '=', record.id),
                 ('period_count', '=', period_key),
             ], limit=1)
             if existing:
                 existing.unlink()
-
             # 2) If no frequency → done (we’ve already cleaned up)
             if not frequency_days:
                 continue
-
             # 3) Need a start date to build a new series
             if not start_date:
                 continue
-
             # 4) Create fresh event + lines
             vals = {
                 'name': record.name or 'Maintenance',
@@ -162,51 +226,51 @@ class MaintenanceEquipment(models.Model):
             new_event = self.env['maintenance.calendar.event'].create(vals)
             new_event.generate_lines()
 
-    @api.depends('start_maintenance_date', 'period_1_frequency')
+    @api.onchange('start_maintenance_date', 'period_1_frequency', 'is_mensuelle')
     def _compute_next_maintenance_mensuelle(self):
         for record in self:
             freq = record.period_1_frequency
             start = record.start_maintenance_date or fields.Date.today()
-            if freq:
-                next_date = start + timedelta(days=freq)
-                record.next_maintenance_mensuelle = next_date
-                record._sync_calendar_event('1', freq, start)
+            if freq and record.is_mensuelle:
+                start_date = start + timedelta(days=freq)
+                record.next_maintenance_mensuelle = start_date
+                record._sync_calendar_event('1', freq, start_date)
             else:
                 record.next_maintenance_mensuelle = False
 
-    @api.depends('start_maintenance_date', 'period_2_frequency')
+    @api.onchange('start_maintenance_date', 'period_2_frequency', 'is_trimestrielle')
     def _compute_next_maintenance_trimestrielle(self):
         for record in self:
             freq = record.period_2_frequency
             start = record.start_maintenance_date or fields.Date.today()
-            if freq:
-                next_date = start + timedelta(days=freq)
-                record.next_maintenance_trimestrielle = next_date
-                record._sync_calendar_event('2', freq, start)
+            if freq and record.is_trimestrielle:
+                start_date = start + timedelta(days=freq)
+                record.next_maintenance_trimestrielle = start_date
+                record._sync_calendar_event('2', freq, start_date)
             else:
                 record.next_maintenance_trimestrielle = False
 
-    @api.depends('start_maintenance_date', 'period_3_frequency')
+    @api.onchange('start_maintenance_date', 'period_3_frequency', 'is_semestrielle')
     def _compute_next_maintenance_semestrielle(self):
         for record in self:
             freq = record.period_3_frequency
             start = record.start_maintenance_date or fields.Date.today()
-            if freq:
-                next_date = start + timedelta(days=freq)
-                record.next_maintenance_semestrielle = next_date
-                record._sync_calendar_event('3', freq, start)
+            if freq and record.is_semestrielle:
+                start_date = start + timedelta(days=freq)
+                record.next_maintenance_semestrielle = start_date
+                record._sync_calendar_event('3', freq, start_date)
             else:
                 record.next_maintenance_semestrielle = False
 
-    @api.depends('start_maintenance_date', 'period_4_frequency')
+    @api.onchange('start_maintenance_date', 'period_4_frequency', 'is_annuelle')
     def _compute_next_maintenance_annuelle(self):
         for record in self:
             freq = record.period_4_frequency
             start = record.start_maintenance_date or fields.Date.today()
-            if freq:
-                next_date = start + timedelta(days=freq)
-                record.next_maintenance_annuelle = next_date
-                record._sync_calendar_event('4', freq, start)
+            if freq and record.is_annuelle:
+                start_date = start + timedelta(days=freq)
+                record.next_maintenance_annuelle = start_date
+                record._sync_calendar_event('4', freq, start_date)
             else:
                 record.next_maintenance_annuelle = False
 
@@ -221,47 +285,52 @@ class MaintenanceEquipment(models.Model):
 
     reference_intervention = fields.Char(string="Référence", compute='_compute_reference_intervention', readonly=False)
 
-    @api.onchange('period_count')
+    @api.onchange('is_mensuelle', 'is_trimestrielle', 'is_semestrielle', 'is_annuelle')
     def _compute_reference_intervention(self):
         for rec in self:
             rec.reference_intervention = rec.reference_interne
 
     poste = fields.Char(string="Poste")
-    date_heure_debut_1 = fields.Datetime(string="Date début fréquence 1", compute="_compute_date_debut", store=True)
-    date_heure_debut_2 = fields.Datetime(string="Date début fréquence 2", compute="_compute_date_debut", store=True)
-    date_heure_debut_3 = fields.Datetime(string="Date début fréquence 3", compute="_compute_date_debut", store=True)
-    date_heure_debut_4 = fields.Datetime(string="Date début fréquence 4", compute="_compute_date_debut", store=True)
-    date_heure_fin = fields.Datetime(string="Date et heure fin")
 
-    @api.depends('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency')
+    date_heure_debut_1 = fields.Datetime(string="Date début maintenance Mensuelle", compute="_compute_date_debut",
+                                         store=True)
+    date_heure_debut_2 = fields.Datetime(string="Date début maintenance Trimestrielle", compute="_compute_date_debut",
+                                         store=True)
+    date_heure_debut_3 = fields.Datetime(string="Date début maintenance Semestrielle", compute="_compute_date_debut",
+                                         store=True)
+    date_heure_debut_4 = fields.Datetime(string="Date début maintenance Annuelle", compute="_compute_date_debut",
+                                         store=True)
+
+    date_heure_fin_1 = fields.Datetime(string="Date et heure fin")
+    date_heure_fin_2 = fields.Datetime(string="Date et heure fin")
+    date_heure_fin_3 = fields.Datetime(string="Date et heure fin")
+    date_heure_fin_4 = fields.Datetime(string="Date et heure fin")
+
+    @api.onchange('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency',
+                  'start_maintenance_date')
     def _compute_date_debut(self):
         for rec in self:
             today = datetime.today()
-            rec.date_heure_debut_1 = today + timedelta(days=rec.period_1_frequency) if rec.period_1_frequency else False
-            rec.date_heure_debut_2 = today + timedelta(days=rec.period_2_frequency) if rec.period_2_frequency else False
-            rec.date_heure_debut_3 = today + timedelta(days=rec.period_3_frequency) if rec.period_3_frequency else False
-            rec.date_heure_debut_4 = today + timedelta(days=rec.period_4_frequency) if rec.period_4_frequency else False
+            rec.date_heure_debut_1 = rec.start_maintenance_date + timedelta(
+                days=rec.period_1_frequency) if rec.period_1_frequency and rec.is_mensuelle else False
+            rec.date_heure_debut_2 = rec.start_maintenance_date + timedelta(
+                days=rec.period_2_frequency) if rec.period_2_frequency and rec.is_trimestrielle else False
+            rec.date_heure_debut_3 = rec.start_maintenance_date + timedelta(
+                days=rec.period_3_frequency) if rec.period_3_frequency and rec.is_semestrielle else False
+            rec.date_heure_debut_4 = rec.start_maintenance_date + timedelta(
+                days=rec.period_4_frequency) if rec.period_4_frequency and rec.is_annuelle else False
 
-    @api.onchange('period_count')
+    @api.onchange('is_mensuelle', 'is_trimestrielle', 'is_semestrielle', 'is_annuelle')
     def _onchange_period_count(self):
-        """Update UI when period_count changes"""
-        _logger.info("Entering _onchange_period_count with period_count: %s", self.period_count)
+        """Update UI when period checkboxes change"""
+        _logger.info("Entering _onchange_period_count")
         self._create_intervention_lines()
 
     def _create_intervention_lines(self):
-        """Create intervention lines based on period_count"""
-        _logger.info("Creating intervention lines with period_count: %s", self.period_count)
-
-        if not self.period_count:
-            _logger.warning("period_count is not set, exiting function.")
-            return
-
-        freq_number = int(self.period_count)
-        _logger.info("Converted period_count to integer: %d", freq_number)
-
-        # Fetch all operations
+        """Create intervention lines based on period checkboxes"""
+        _logger.info("Creating intervention lines")
         operations = self.env['maintenance.operation.list'].search([('equipment_id', '=', self.id)])
-        _logger.info("Fetched %d operations ", len(operations))
+        _logger.info("Fetched %d operations", len(operations))
 
         # Clear existing lines before populating new ones
         self.intervention_ligne_ids_1 = [(5, 0, 0)]
@@ -278,38 +347,38 @@ class MaintenanceEquipment(models.Model):
         # Iterate through operations and collect names based on frequency
         for op in operations:
             if op.equipment_id.id == self.id:
-                if op.is_mensuelle:
+                if op.is_mensuelle and self.is_mensuelle:
                     line_1.append((0, 0, {
                         'frequency': '1',
                         'operation_name': op.name,
                         'operation_id': op.id,
-                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                        'equipment_id': self.id,
                     }))
-                _logger.info("Added operation_id %s to line_1", op.id)
-                if op.is_trimestrielle:
+                    _logger.info("Added operation_id %s to line_1", op.id)
+                if op.is_trimestrielle and self.is_trimestrielle:
                     line_2.append((0, 0, {
                         'frequency': '2',
                         'operation_name': op.name,
                         'operation_id': op.id,
-                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                        'equipment_id': self.id,
                     }))
-                _logger.info("Added operation_id %s to line_2", op.id)
-                if op.is_semestrielle:
+                    _logger.info("Added operation_id %s to line_2", op.id)
+                if op.is_semestrielle and self.is_semestrielle:
                     line_3.append((0, 0, {
                         'frequency': '3',
                         'operation_name': op.name,
                         'operation_id': op.id,
-                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                        'equipment_id': self.id,
                     }))
-                _logger.info("Added operation_id %s to line_3", op.id)
-                if op.is_annuelle:
+                    _logger.info("Added operation_id %s to line_3", op.id)
+                if op.is_annuelle and self.is_annuelle:
                     line_4.append((0, 0, {
                         'frequency': '4',
                         'operation_name': op.name,
                         'operation_id': op.id,
-                        'equipment_id': self.id,  # Explicitly set the parent equipment_id
+                        'equipment_id': self.id,
                     }))
-                _logger.info("Added operation_id %s to line_4", op.id)
+                    _logger.info("Added operation_id %s to line_4", op.id)
 
         # Assign the collected lines to the respective intervention fields
         self.intervention_ligne_ids_1 = line_1
@@ -327,33 +396,13 @@ class MaintenanceEquipment(models.Model):
     def create(self, vals):
         """Override create to ensure intervention lines are created on record creation"""
         record = super(MaintenanceEquipment, self).create(vals)
-        if vals.get('period_count'):
-            record._create_intervention_lines()
+        record._create_intervention_lines()
         return record
 
     def write(self, vals):
-        """Override write to ensure intervention lines are updated when period_count changes"""
+        """Override write to ensure intervention lines are updated when period checkboxes change"""
         result = super(MaintenanceEquipment, self).write(vals)
-        if 'period_count' in vals:
+        if any(field in vals for field in ['is_mensuelle', 'is_trimestrielle', 'is_semestrielle', 'is_annuelle']):
             for record in self:
                 record._create_intervention_lines()
         return result
-
-    @api.depends('period_1_frequency', 'period_2_frequency', 'period_3_frequency', 'period_4_frequency')
-    def _compute_start_maintenance_date(self):
-        today = fields.Date.today()
-        for record in self:
-            freqs = [
-                record.period_1_frequency,
-                record.period_2_frequency,
-                record.period_3_frequency,
-                record.period_4_frequency
-            ]
-            freqs = [f for f in freqs if f and f > 0]
-
-            if freqs:
-                next_date = today + timedelta(days=min(freqs))
-                _logger.info(f"[Maintenance] Prochaine date calculée : {next_date}")
-                record.start_maintenance_date = next_date
-            else:
-                record.start_maintenance_date = False
