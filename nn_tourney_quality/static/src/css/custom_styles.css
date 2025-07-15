@@ -1,0 +1,22 @@
+/* Custom styles for the statusbar in Odoo */
+.custom-statusbar .o_statusbar .o_statusbar_item.draft {
+    background-color: #f0ad4e; /* Color for 'draft' state */
+    color: white; /* Optional: text color */
+}
+
+.custom-statusbar .o_statusbar .o_statusbar_item.in_progress {
+    background-color: #5bc0de; /* Color for 'in_progress' state */
+    color: white; /* Optional: text color */
+}
+
+.custom-statusbar .o_statusbar .o_statusbar_item.closed {
+    background-color: #5cb85c; /* Color for 'closed' state */
+    color: white; /* Optional: text color */
+}
+
+.custom-statusbar .o_statusbar .o_statusbar_item.validated {
+    background-color: #d9534f; /* Color for 'validated' state */
+    color: white; /* Optional: text color */
+}
+
+

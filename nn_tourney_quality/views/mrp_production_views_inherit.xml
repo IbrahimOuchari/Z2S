@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mrp_production_form_view_inherit_quality_button" model="ir.ui.view">
+            <field name="name">mrp.production.form.view.inherit.quality.button</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <field name="tq_created" invisible="0"/>
+                    <field name="tourney_quality_id" invisible="0"/>
+                    <button name="button_redirect_tourney_quality"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-tasks"
+                            attrs="{'invisible': ['|', ('tq_created', '!=', True), ('state', '=', 'done')]}"
+                    >
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">Tournée</span>
+                            <span class="o_stat_value">Qualité</span>
+                        </div>
+                    </button>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

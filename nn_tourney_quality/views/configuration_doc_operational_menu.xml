@@ -1,0 +1,12 @@
+<odoo>
+
+
+    <menuitem id="menu_Z2S_cq_config_doc"
+              name="Contrôle Documentaire"
+              parent="nn_quality_control.menu_quality_control_config"
+    />
+    <menuitem id="menu_Z2S_cq_config_op"
+              name="Contrôle Opérationnel"
+              parent="nn_quality_control.menu_quality_control_config"
+    />
+</odoo>

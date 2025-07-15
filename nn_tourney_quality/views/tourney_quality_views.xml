@@ -1,0 +1,340 @@
+<odoo>
+
+    <record id="tourney_quality_view_form" model="ir.ui.view">
+        <field name="name">tourney.quality.form</field>
+        <field name="model">tourney.quality</field>
+        <field name="arch" type="xml">
+            <form string="Tourney Quality Control" class="custom-form-styles">
+                <header>
+                    <field name="state" widget="statusbar" colors='{"draft":"red","in_progress":"blue"}'/>
+
+                    <button name="action_validate" type="object" string="Validate" class="btn-primary" states="closed"/>
+
+                    <button name="action_force_closure"
+                            string="Force Closure"
+                            type="object"
+                            class="btn-danger"
+                            groups="nn_quality_control.force_closure_cq"
+                            attrs="{'invisible': [('state', '!=', 'in_progress')]}"/>
+
+                </header>
+                <sheet>
+                    <div class="oe_button_box d-flex flex-wrap" name="buttons" style="gap: 5px;">
+                        <button type="button" class="btn btn-primary" name="action_taux_defaut_global"
+                                string="Global Defect Rate (%)">
+                            <span t-field="global_defect_rate"/>
+                            <field name="global_defect_rate" attrs="{'readonly': True}" force_save="1"/>
+                        </button>
+
+                        <button type="button" class="btn btn-primary" name="action_taux_defaut_global">
+                            <span t-field="ppm"/>
+                            Average PPM :
+                            <field name="ppm" attrs="{'readonly': True}" force_save="1"/>
+                        </button>
+                    </div>
+
+                    <group>
+                        <field name="controller_id" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="barcode" invisible="1"/>
+                        <field name="name" string="Référence" attrs="{'readonly': True}" force_save="1"/>
+                        <field name="of_id"
+                               domain="[('tq_created', '=', False), ('state', 'in', ['confirmed', 'progress', 'to_close', 'done'])]"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}"
+                               options="{'no_create': True}"
+                               force_save="1"/>
+                        <field name="of_selected"/>
+                        <field name="backup_of_id" invisible="1"/>
+                        <field name="article_id" string="Article" attrs="{'readonly': True}" force_save="1"/>
+                        <field name="client_reference" string="Référence Client" attrs="{'readonly': True}"
+                               force_save="1"/>
+                        <field name="client_id" string="Client" attrs="{'readonly': True}" force_save="1"/>
+                        <field name="designation" string="Désignation" attrs="{'readonly': True}" force_save="1"/>
+                        <field name="product_qty" string="Qté Produite" attrs="{'readonly': True}" force_save="1"/>
+                        <field name="original_product_qty" string="Qté Originale"
+                               attrs="{'invisible': [('manual_quantity', '=', False)]}"
+                               readonly="1" force_save="1"
+                               groups="nn_quality_control.group_manual_quantity_management"/>
+                        <field name="product_qty_percentage" string="Qté (%)"
+                               attrs="{'invisible': [('manual_quantity', '!=', True)]}"
+                               groups="nn_quality_control.group_manual_quantity_management"/>
+
+                        <field name="manual_quantity" string="Quantité Manuelle" widget="boolean_toggle"
+                               groups="nn_quality_control.group_manual_quantity_management"/>
+                        <field name="total_lines" string="Nombre de Lignes" attrs="{'readonly': True}" force_save="1"/>
+                        <field name="other_info" string="Autres Informations"/>
+                        <field name="start_date" string="Date de Début" invisible="0" force_save="1" readonly="True"/>
+                        <field name="end_date" string="Date de Fin" invisible="0" force_save="1" readonly="True"/>
+                        <field name="forced_closure" invisible="1"/>
+
+                    </group>
+
+                    <div class="form-group">
+                        <div>
+                            <label for="has_documentary_control" string="Contrôle Documentaire"
+                                   style="font-size: 1.5em; font-weight: bold;"/>
+                            <field name="has_documentary_control" string="Contrôle Documentaire"
+                                   attrs="{'readonly': [('state', '=', 'validated'), ('state', '=', 'closed')]}"
+                                   style="font-size: 1.5em;"/>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="button" class="btn btn-success"
+                                    attrs="{'invisible': [('has_documentary_control', '=', False)]}"
+                                    name="documentary_conform_button">
+                                <span t-field="documentary_conform_count"/>
+                                Conform Count
+                                <field name="documentary_conform_count" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_documentary_control', '=', False)]}"
+                                    name="documentary_non_conform_button">
+                                <span t-field="documentary_non_conform_count"/>
+                                Non-Conform Count
+                                <field name="documentary_non_conform_count" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_documentary_control', '=', False)]}"
+                                    name="documentary_total_client_defect_button">
+                                <span t-field="documentary_total_client_default"/>
+                                Total Client Defect
+                                <field name="documentary_total_client_default" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_documentary_control', '=', False)]}"
+                                    name="documentary_client_defect_rate_button">
+                                <span t-field="documentary_client_default_avg"/>
+                                Client Defect Rate (%)
+                                <field name="documentary_client_default_avg" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-primary"
+                                    attrs="{'invisible': [('has_documentary_control', '=', False)]}"
+                                    name="documentary_ppm_button">
+                                <span t-field="ppm_documentary"/>
+                                PPM :
+                                <field name="ppm_documentary" force_save="1"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div>
+                            <label for="has_operational_control" string="Contrôle Opérationnel"
+                                   style="font-size: 1.5em; font-weight: bold;"/>
+                            <field name="has_operational_control" string="Contrôle Opérationnel"
+                                   attrs="{'readonly': [('state', '=', 'validated'), ('state', '=', 'closed')]}"/>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="button" class="btn btn-success"
+                                    attrs="{'invisible': [('has_operational_control', '=', False)]}"
+                                    name="operational_conform_button">
+                                <span t-field="operational_conform_count"/>
+                                Conform Count
+                                <field name="operational_conform_count" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_operational_control', '=', False)]}"
+                                    name="operational_non_conform_button">
+                                <span t-field="operational_non_conform_count"/>
+                                Non-Conform Count
+                                <field name="operational_non_conform_count" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_operational_control', '=', False)]}"
+                                    name="operational_total_client_defect_button">
+                                <span t-field="operational_total_client_default"/>
+                                Total Client Defect
+                                <field name="operational_total_client_default" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_operational_control', '=', False)]}"
+                                    name="operational_client_defect_rate_button">
+                                <span t-field="operational_client_default_avg"/>
+                                Client Defect Rate (%)
+                                <field name="operational_client_default_avg" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-primary"
+                                    attrs="{'invisible': [('has_operational_control', '=', False)]}"
+                                    name="operational_ppm_button">
+                                <span t-field="ppm_operational"/>
+                                PPM :
+                                <field name="ppm_operational" force_save="1"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div>
+                            <label for="has_product_control" string="Contrôle Produit"
+                                   style="font-size: 1.5em; font-weight: bold;"/>
+                            <field name="has_product_control" string="Contrôle Produit"
+                                   attrs="{'readonly': [('state', '=', 'validated'), ('state', '=', 'closed')]}"/>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="button" class="btn btn-success"
+                                    attrs="{'invisible': [('has_product_control', '=', False)]}"
+                                    name="product_conform_button">
+                                <span t-field="product_conform_count"/>
+                                Conform Count
+                                <field name="product_conform_count" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_product_control', '=', False)]}"
+                                    name="product_non_conform_button">
+                                <span t-field="product_non_conform_count"/>
+                                Non-Conform Count
+                                <field name="product_non_conform_count" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_product_control', '=', False)]}"
+                                    name="product_total_client_defect_button">
+                                <span t-field="product_total_client_default"/>
+                                Total Client Defect
+                                <field name="product_total_client_default" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    attrs="{'invisible': [('has_product_control', '=', False)]}"
+                                    name="product_client_defect_rate_button">
+                                <span t-field="product_client_default_avg"/>
+                                Client Defect Rate (%)
+                                <field name="product_client_default_avg" force_save="1"/>
+                            </button>
+                            <button type="button" class="btn btn-primary"
+                                    attrs="{'invisible': [('has_product_control', '=', False)]}"
+                                    name="product_ppm_button">
+                                <span t-field="ppm_product"/>
+                                PPM :
+                                <field name="ppm_product" force_save="1"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Contrôle Documentaire"
+                              attrs="{'invisible': [('has_documentary_control', '=', False)]}">
+                            <field name="documentary_line_ids">
+                                <tree editable="bottom" class="text-center">
+                                    <field name="serial_number" width="400px"/>
+                                    <field name="controlleur_id" readonly="True" force_save="1"/>
+                                    <field name="quality_list_id" string="Document" options="{'no_create': True}"/>
+                                    <field name="result1" string="Résultat 1" sortable="True"/>
+                                    <field name="defect1_type_id" string="Défault" options="{'no_create': True}"
+                                           attrs="{'invisible': [('result1', '=', 'conform')],'required': [('result1', '=', 'non_conform')]}"/>
+                                    <field name="reprise_type_id" options="{'no_create': True}" string="Reprise"
+                                           attrs="{ 'invisible': [('result1', '=', 'conform')], 'required': [('result1', '=', 'non_conform')] }"/>
+
+
+                                    <field name="result2" sortable="True" string="Résultat 2"/>
+
+                                    <field name="other_info" string="Autre info"/>
+                                    <field name="timestamp"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Contrôle Opérationnel"
+                              attrs="{'invisible': [('has_operational_control', '=', False)]}">
+                            <field name="operational_line_ids">
+                                <tree editable="bottom" class="text-center">
+                                    <field name="serial_number" width="400px"/>
+                                    <field name="controlleur_id" readonly="True" force_save="1"/>
+                                    <field name="quality_list_id" string="Document" options="{'no_create': True}"/>
+                                    <field name="result1" string="Résultat 1" sortable="True"/>
+                                    <field name="defect1_type_id" string="Défault" options="{'no_create': True}"
+                                           attrs="{'invisible': [('result1', '=', 'conform')],'required': [('result1', '=', 'non_conform')]}"/>
+                                    <field name="reprise_type_id" options="{'no_create': True}" string="Reprise"
+                                           attrs="{ 'invisible': [('result1', '=', 'conform')], 'required': [('result1', '=', 'non_conform')] }"/>
+
+
+                                    <field name="result2" sortable="True" string="Résultat 2"/>
+
+                                    <field name="other_info" string="Autre info"/>
+                                    <field name="timestamp"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Contrôle Produit" attrs="{'invisible': [('has_product_control', '=', False)]}">
+                            <field name="product_line_ids">
+                                <tree editable="bottom" class="text-center">
+
+                                    <field name="serial_number" string="Numéro de Série" width="400px"/>
+                                    <field name="controlleur_id" string="Contrôleur" readonly="True" force_save="1"/>
+                                    <field name="operator_id" string="Opérateur" required="True"
+                                           options="{'no_create': True}"/>
+                                    <field name="service_count" string="Nombre de Services"/>
+                                    <field name="result1" string="Résultat 1" sortable="True"/>
+                                    <field name="defect1" string="Défaut 1" options="{'no_create': True}"
+                                           attrs="{'invisible': [('result1', '=', 'conform')],'required': [('result1', '=', 'non_conform')]}"/>
+                                    <field name="defect2" string="Défaut 2" options="{'no_create': True}"
+                                           attrs="{'invisible': [('result1', '=', 'conform')]}"/>
+
+                                    <field name="reprise_id" string="Reprise" options="{'no_create': True}"
+                                           attrs="{ 'invisible': [('result1', '=', 'conform')], 'required': [('result1', '=', 'non_conform')] }"/>
+
+                                    <field name="result2" string="Résultat 2" sortable="True"/>
+                                    <field name="other_info" string="Autres Informations"/>
+                                    <field name="timestamp" string="Horodatage"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="tourney_quality_view_tree" model="ir.ui.view">
+        <field name="name">tourney.quality.tree</field>
+        <field name="model">tourney.quality</field>
+        <field name="arch" type="xml">
+            <tree string="Tourney Quality Controls">
+                <field name="name" string="Quality Control Reference"/>
+                <field name="of_id" options="{'no_create': True}" string="Manufacturing Order"/>
+                <field name="article_id"/>
+                <field name="client_reference"/>
+                <field name="client_id"/>
+                <field name="designation"/>
+                <field name="total_lines"/>
+
+                <field name="state" widget="badge"
+                       decoration-muted="state == 'draft'"
+                       decoration-info="state == 'in_progress'"
+                       decoration-success="state == 'validated'"
+                       decoration-primary="state == 'closed'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="tourney_quality_view_search" model="ir.ui.view">
+        <field name="name">tourney.quality.search</field>
+        <field name="model">tourney.quality</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="of_id"/>
+                <field name="article_id"/>
+                <field name="client_reference"/>
+                <field name="state"/>
+                <filter name="default_in_progress_draft"
+                        string="In Progress or Draft"
+                        domain="[('state', 'in', ['in_progress', 'draft'])]"
+                />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_tourney_quality" model="ir.actions.act_window">
+        <field name="name">Tournée Qualité</field>
+        <field name="res_model">tourney.quality</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"search_default_default_in_progress_draft":1}</field>
+    </record>
+
+    <menuitem id="menu_Z2S_control_quality"
+              name="Tournée Qualité"
+              parent="nn_quality_control.menu_root_control_quality"
+              action="action_tourney_quality"
+              sequence="0"
+    />
+
+</odoo>

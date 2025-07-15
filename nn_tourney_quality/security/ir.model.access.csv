@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tourney_quality_all,tourney.quality.all,model_tourney_quality,,1,1,1,1
+access_tourney_quality_documentary_line_all,tourney.quality.documentary.line.all,model_tourney_quality_documentary_line,,1,1,1,1
+access_tourney_quality_operational_line_all,tourney.quality.operational.line.all,model_tourney_quality_operational_line,,1,1,1,1
+access_tourney_quality_product_line_all,tourney.quality.product.line.all,model_tourney_quality_product_line,,1,1,1,1
+
+access_tourney_quality_documentary_line_defect1_all,tourney.quality.documentary.line.defect1.all,model_tourney_quality_documentary_line_defect1,,1,1,1,1
+access_tourney_quality_documentary_line_reprise_all,tourney.quality.documentary.line.reprise.all,model_tourney_quality_documentary_line_reprise,,1,1,1,1
+
+access_tourney_quality_operational_line_defect1_all,tourney.quality.operational.line.defect1.all,model_tourney_quality_operational_line_defect1,,1,1,1,1
+access_tourney_quality_operational_line_reprise_all,tourney.quality.operational.line.reprise.all,model_tourney_quality_operational_line_reprise,,1,1,1,1
+
+access_tourney_quality_document_list_all,tourney.quality.document.list.all,model_tourney_quality_document_list,,1,1,1,1
+access_tourney_quality_operation_list_all,tourney.quality.operation.list.all,model_tourney_quality_operational_list,,1,1,1,1

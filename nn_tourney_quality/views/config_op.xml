@@ -1,0 +1,146 @@
+<odoo>
+
+    <!-- ==================== TREE VIEWS ==================== -->
+
+    <!-- Tree View for Defect Type 1 -->
+    <record id="view_tree_tourney_operational_defect1" model="ir.ui.view">
+        <field name="name">tourney.quality.operational.line.defect1.tree</field>
+        <field name="model">tourney.quality.operational.line.defect1</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- Tree View for Operational Line Reprise -->
+    <record id="view_tree_tourney_operational_line_reprise" model="ir.ui.view">
+        <field name="name">tourney.quality.operational.line.reprise.tree</field>
+        <field name="model">tourney.quality.operational.line.reprise</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Tree View for Quality Operational List -->
+    <record id="view_tree_tourney_quality_operational_list" model="ir.ui.view">
+        <field name="name">tourney.quality.operational.list.tree</field>
+        <field name="model">tourney.quality.operational.list</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ==================== FORM VIEWS ==================== -->
+
+    <!-- Form View for Defect Type 1 -->
+    <record id="view_form_tourney_operational_defect1" model="ir.ui.view">
+        <field name="name">tourney.quality.operational.line.defect1.form</field>
+        <field name="model">tourney.quality.operational.line.defect1</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Form View for Operational Line Reprise -->
+    <record id="view_form_tourney_operational_line_reprise" model="ir.ui.view">
+        <field name="name">tourney.quality.operational.line.reprise.form</field>
+        <field name="model">tourney.quality.operational.line.reprise</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View for Quality Operational List -->
+    <record id="view_form_tourney_quality_operational_list" model="ir.ui.view">
+        <field name="name">tourney.quality.operational.list.form</field>
+        <field name="model">tourney.quality.operational.list</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== ACTIONS ==================== -->
+
+    <!-- Action for Defect Type 1 -->
+    <record id="action_tourney_operational_defect1" model="ir.actions.act_window">
+        <field name="name">Défault 1</field>
+        <field name="res_model">tourney.quality.operational.line.defect1</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Defect Type 2 -->
+
+
+    <!-- Action for Operational Line Reprise -->
+    <record id="action_tourney_operational_line_reprise" model="ir.actions.act_window">
+        <field name="name">Reprises</field>
+        <field name="res_model">tourney.quality.operational.line.reprise</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Quality Operational List -->
+    <record id="action_tourney_quality_operational_list" model="ir.actions.act_window">
+        <field name="name">Liste Déroulante</field>
+        <field name="res_model">tourney.quality.operational.list</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ==================== MENU ITEMS ==================== -->
+
+    <!-- Main Parent Menu -->
+    <menuitem id="menu_Z2S_cq_config_op"
+              name="Contrôle Opérationnel"
+              parent="nn_quality_control.menu_quality_control_config"
+              sequence="51"/>
+
+    <!-- MenuItem for Defect Type 1 -->
+    <menuitem id="menu_tourney_operational_defect1"
+              name="Défauts 1"
+              parent="menu_Z2S_cq_config_op"
+              action="action_tourney_operational_defect1"/>
+
+
+    <!-- MenuItem for Operational Line Reprise -->
+    <menuitem id="menu_tourney_operational_line_reprise"
+              name="Reprises"
+              parent="menu_Z2S_cq_config_op"
+              action="action_tourney_operational_line_reprise"/>
+
+    <!-- MenuItem for Quality Operational List -->
+    <menuitem id="menu_tourney_quality_operational_list"
+              name="Liste Déroulante"
+              parent="menu_Z2S_cq_config_op"
+              action="action_tourney_quality_operational_list"/>
+
+</odoo>

@@ -45,8 +45,8 @@ class QualityControlLineType1(models.Model):
             if rec.quality_id and rec.quality_id.article_id:
                 rec.article_id = rec.quality_id.article_id
 
-    serial_number = fields.Char(string='Numéro de Série', required=True)
     other_info = fields.Text(string="Autre Info", default="RAS")
+    serial_number = fields.Char(string='Numéro de Série', required=True)
 
     @api.constrains('serial_number')
     def check_serial_number_unique(self):

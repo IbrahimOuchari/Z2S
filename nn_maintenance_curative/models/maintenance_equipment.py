@@ -119,7 +119,7 @@ class MaintenanceEquipment(models.Model):
         store=True
     )
 
-    sync_calendar_flag = fields.Boolean(compute="_compute_sync_calendar_all")
+    sync_calendar_flag = fields.Boolean(compute="_compute_sync_calendar_all", default=False)
 
     @api.onchange(
         'period_1_frequency',
@@ -127,12 +127,19 @@ class MaintenanceEquipment(models.Model):
         'period_3_frequency',
         'period_4_frequency',
         'start_maintenance_date',
+        'is_mensuelle',
+        'is_trimestrielle',
+        'is_semestrielle',
+        'is_annuelle',
     )
     def _compute_sync_calendar_all(self):
         for rec in self:
             if not rec.start_maintenance_date:
+                rec.sync_calendar_flag = False  # ✅ Now we assign a value even if skipped
                 continue
+
             start = rec.start_maintenance_date
+
             if rec.period_1_frequency and rec.is_mensuelle:
                 date_1 = start + timedelta(days=rec.period_1_frequency)
                 rec._sync_calendar_event('1', rec.period_1_frequency, date_1)
@@ -145,6 +152,7 @@ class MaintenanceEquipment(models.Model):
             if rec.period_4_frequency and rec.is_annuelle:
                 date_4 = start + timedelta(days=rec.period_4_frequency)
                 rec._sync_calendar_event('4', rec.period_4_frequency, date_4)
+
             rec.sync_calendar_flag = True
 
     cleanup_flag = fields.Boolean(compute="_compute_cleanup_calendar_events")

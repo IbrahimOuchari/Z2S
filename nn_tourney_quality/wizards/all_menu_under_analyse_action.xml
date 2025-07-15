@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Wizard Forms -->
+    <record id="view_productivity_filter_wizard_type1_form" model="ir.ui.view">
+        <field name="name">productivity.filter.wizard.type1.form</field>
+        <field name="model">productivity.filter.wizard.type1</field>
+        <field name="arch" type="xml">
+            <form string="Filtrer Opérations Type 1 par date">
+                <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                </group>
+                <footer>
+                    <button string="Appliquer" type="object" name="action_filter" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_productivity_filter_wizard_type2_form" model="ir.ui.view">
+        <field name="name">productivity.filter.wizard.type2.form</field>
+        <field name="model">productivity.filter.wizard.type2</field>
+        <field name="arch" type="xml">
+            <form string="Filtrer Opérations Type 2 par date">
+                <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                </group>
+                <footer>
+                    <button string="Appliquer" type="object" name="action_filter" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_productivity_filter_wizard_type3_form" model="ir.ui.view">
+        <field name="name">productivity.filter.wizard.type3.form</field>
+        <field name="model">productivity.filter.wizard.type3</field>
+        <field name="arch" type="xml">
+            <form string="Filtrer Opérations Type 3 par date">
+                <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                </group>
+                <footer>
+                    <button string="Appliquer" type="object" name="action_filter" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_productivity_filter_wizard_quality_form" model="ir.ui.view">
+        <field name="name">productivity.filter.wizard.quality.form</field>
+        <field name="model">productivity.filter.wizard.quality</field>
+        <field name="arch" type="xml">
+            <form string="Filtrer Tableau de bord Qualité par date">
+                <group>
+                    <field name="date_filter_type" widget="radio" string="Filtrer par"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                </group>
+                <footer>
+                    <button string="Appliquer" type="object" name="action_filter" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Type 1: Lampe Loup -->
+    <record id="action_productivity_filter_wizard_type1" model="ir.actions.act_window">
+        <field name="name">Contrôle Qualité - Lampe Loup</field>
+        <field name="res_model">productivity.filter.wizard.type1</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_productivity_filter_wizard_type1_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Type 2: Caméra -->
+    <record id="action_productivity_filter_wizard_type2" model="ir.actions.act_window">
+        <field name="name">Contrôle Qualité - Caméra</field>
+        <field name="res_model">productivity.filter.wizard.type2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_productivity_filter_wizard_type2_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Type 3: Rayon X -->
+    <record id="action_productivity_filter_wizard_type3" model="ir.actions.act_window">
+        <field name="name">Contrôle Qualité - Rayon X</field>
+        <field name="res_model">productivity.filter.wizard.type3</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_productivity_filter_wizard_type3_form"/>
+        <field name="target">new</field>
+    </record>
+
+
+    <record id="action_productivity_filter_wizard_quality" model="ir.actions.act_window">
+        <field name="name">Filtrer Tableau de bord Qualité</field>
+        <field name="res_model">productivity.filter.wizard.quality</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_productivity_filter_wizard_quality_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_tb_dashboard_quality"
+              name="TB Tableau de bord Qualité"
+              parent="menu_Z2S_control_quality"
+              action="nn_quality_control.action_productivity_filter_wizard_quality"
+              sequence="1"/>
+
+
+    <!-- Menu Item: TB Tableau de bord Qualité -->
+
+    <!-- Menu Item: TB Lampe Loup (Type 1) -->
+    <menuitem id="menu_tb_lampe_loup"
+              name="TB Lampe Loup"
+              parent="menu_Z2S_dashboard_defaut_groups"
+              action="nn_quality_control.action_productivity_filter_wizard_type1"
+              sequence="1"/>
+
+    <!-- Menu Item: TB Caméra (Type 2) -->
+    <menuitem id="menu_tb_camera"
+              name="TB Caméra"
+              parent="menu_Z2S_dashboard_defaut_groups"
+              action="nn_quality_control.action_productivity_filter_wizard_type2"
+              sequence="2"/>
+    <menuitem id="menu_tb_control_ray_x"
+              name="TB Rayon X"
+              parent="menu_Z2S_dashboard_defaut_groups"
+              action="nn_quality_control.action_productivity_filter_wizard_type3"
+              sequence="3"/>
+
+</odoo>
