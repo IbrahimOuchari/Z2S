@@ -282,14 +282,26 @@ class MaintenanceEquipment(models.Model):
             else:
                 record.next_maintenance_annuelle = False
 
-    intervention_ligne_ids_1 = fields.One2many('maintenance.intervention.line1', 'equipment_id',
-                                               string="Intervention fréquence 1", domain=[('frequency', '=', '1')])
-    intervention_ligne_ids_2 = fields.One2many('maintenance.intervention.line2', 'equipment_id',
-                                               string="Intervention fréquence 2", domain=[('frequency', '=', '2')])
-    intervention_ligne_ids_3 = fields.One2many('maintenance.intervention.line3', 'equipment_id',
-                                               string="Intervention fréquence 3", domain=[('frequency', '=', '3')])
-    intervention_ligne_ids_4 = fields.One2many('maintenance.intervention.line4', 'equipment_id',
-                                               string="Intervention fréquence 4", domain=[('frequency', '=', '4')])
+    intervention_ligne_ids_1 = fields.One2many(
+        'maintenance.intervention.line1', 'equipment_id',
+        string="Intervention fréquence 1",
+    )
+
+    intervention_ligne_ids_2 = fields.One2many(
+        'maintenance.intervention.line2', 'equipment_id',
+        string="Intervention fréquence 2",
+    )
+
+    intervention_ligne_ids_3 = fields.One2many(
+        'maintenance.intervention.line3', 'equipment_id',
+        string="Intervention fréquence 3",
+    )
+
+    intervention_ligne_ids_4 = fields.One2many(
+        'maintenance.intervention.line4', 'equipment_id',
+        string="Intervention fréquence 4",
+
+    )
 
     reference_intervention = fields.Char(string="Référence", compute='_compute_reference_intervention', readonly=False)
 
@@ -328,15 +340,22 @@ class MaintenanceEquipment(models.Model):
             rec.date_heure_debut_4 = rec.start_maintenance_date + timedelta(
                 days=rec.period_4_frequency) if rec.period_4_frequency and rec.is_annuelle else False
 
-    @api.onchange('is_mensuelle', 'is_trimestrielle', 'is_semestrielle', 'is_annuelle')
-    def _onchange_period_count(self):
+    period_changed = fields.Integer(compute='compute_period_changes')
+
+    @api.depends('is_mensuelle', 'is_trimestrielle', 'is_semestrielle', 'is_annuelle')
+    def compute_period_changes(self):
         """Update UI when period checkboxes change"""
         _logger.info("Entering _onchange_period_count")
+
         self._create_intervention_lines()
+        self.period_changed += 1
 
     def _create_intervention_lines(self):
         """Create intervention lines based on period checkboxes"""
-        _logger.info("Creating intervention lines")
+        self.ensure_one()  # ensure single record for safety
+
+        _logger.info("Creating intervention lines for equipment ID %s", self.id)
+
         operations = self.env['maintenance.operation.list'].search([('equipment_id', '=', self.id)])
         _logger.info("Fetched %d operations", len(operations))
 
@@ -346,59 +365,57 @@ class MaintenanceEquipment(models.Model):
         self.intervention_ligne_ids_3 = [(5, 0, 0)]
         self.intervention_ligne_ids_4 = [(5, 0, 0)]
 
-        # Initialize lists to store operation records for each frequency
         line_1 = []
         line_2 = []
         line_3 = []
         line_4 = []
 
-        # Iterate through operations and collect names based on frequency
         for op in operations:
             if op.equipment_id.id == self.id:
-                if op.is_mensuelle and self.is_mensuelle:
+                if op.is_mensuelle and getattr(self, 'is_mensuelle', False):
                     line_1.append((0, 0, {
-                        'frequency': '1',
                         'operation_name': op.name,
                         'operation_id': op.id,
                         'equipment_id': self.id,
+                        'is_mensuelle': True,
                     }))
-                    _logger.info("Added operation_id %s to line_1", op.id)
-                if op.is_trimestrielle and self.is_trimestrielle:
+                    _logger.info("Added operation_id %s to line_1 (Mensuelle)", op.id)
+                if op.is_trimestrielle and getattr(self, 'is_trimestrielle', False):
                     line_2.append((0, 0, {
-                        'frequency': '2',
                         'operation_name': op.name,
                         'operation_id': op.id,
                         'equipment_id': self.id,
+                        'is_trimestrielle': True,
                     }))
-                    _logger.info("Added operation_id %s to line_2", op.id)
-                if op.is_semestrielle and self.is_semestrielle:
+                    _logger.info("Added operation_id %s to line_2 (Trimestrielle)", op.id)
+                if op.is_semestrielle and getattr(self, 'is_semestrielle', False):
                     line_3.append((0, 0, {
-                        'frequency': '3',
                         'operation_name': op.name,
                         'operation_id': op.id,
                         'equipment_id': self.id,
+                        'is_semestrielle': True,
                     }))
-                    _logger.info("Added operation_id %s to line_3", op.id)
-                if op.is_annuelle and self.is_annuelle:
+                    _logger.info("Added operation_id %s to line_3 (Semestrielle)", op.id)
+                if op.is_annuelle and getattr(self, 'is_annuelle', False):
                     line_4.append((0, 0, {
-                        'frequency': '4',
                         'operation_name': op.name,
                         'operation_id': op.id,
                         'equipment_id': self.id,
+                        'is_annuelle': True,
                     }))
-                    _logger.info("Added operation_id %s to line_4", op.id)
+                    _logger.info("Added operation_id %s to line_4 (Annuelle)", op.id)
 
-        # Assign the collected lines to the respective intervention fields
+        # Assign the collected lines to the respective fields
         self.intervention_ligne_ids_1 = line_1
         self.intervention_ligne_ids_2 = line_2
         self.intervention_ligne_ids_3 = line_3
         self.intervention_ligne_ids_4 = line_4
 
-        # Log the content of each intervention line
-        _logger.info("Content of intervention_ligne_ids_1 (frequency '1'): %s", line_1)
-        _logger.info("Content of intervention_ligne_ids_2 (frequency '2'): %s", line_2)
-        _logger.info("Content of intervention_ligne_ids_3 (frequency '3'): %s", line_3)
-        _logger.info("Content of intervention_ligne_ids_4 (frequency '4'): %s", line_4)
+        # Log the content of each intervention line for debugging
+        _logger.info("intervention_ligne_ids_1: %s", line_1)
+        _logger.info("intervention_ligne_ids_2: %s", line_2)
+        _logger.info("intervention_ligne_ids_3: %s", line_3)
+        _logger.info("intervention_ligne_ids_4: %s", line_4)
 
     @api.model
     def create(self, vals):

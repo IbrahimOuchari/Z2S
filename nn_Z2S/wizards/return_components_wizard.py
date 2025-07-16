@@ -22,38 +22,47 @@ class ReturnComponentsWizard(models.TransientModel):
     stock_picking_id = fields.Many2one('stock.picking', string='Stock Picking')
 
     @api.model
-    def default_get(self, fields):
-        res = super(ReturnComponentsWizard, self).default_get(fields)
+    def default_get(self, fields_list):
+        res = super(ReturnComponentsWizard, self).default_get(fields_list)
         production_id = self._context.get('default_mrp_production_id')
+        if not production_id:
+            return res
 
-        if production_id:
-            res['mrp_production_id'] = production_id
-            production = self.env['mrp.production'].browse(res['mrp_production_id'])
+        res['mrp_production_id'] = production_id
+        production = self.env['mrp.production'].browse(production_id)
 
-            if production:
-                lines_to_return = []
-                for move in production.move_raw_ids:
-                    if move.qty_left > 0:
-                        quantity_left = move.qty_left
-                        stock_moves = self.env['stock.move'].search([
-                            ('product_id', '=', move.product_id.id),
-                            ('picking_id.origin', '=', production.name),
-                            ('picking_id.state', '=', 'done')
-                        ])
-                        total_returned = sum(stock_moves.mapped('product_uom_qty'))
-                        quantity_left -= total_returned
+        lines_to_return = []
+        for move in production.move_raw_ids:
+            # 1) How much is still not consumed on the raw move?
+            qty_not_consumed = move.qty_not_consumed or 0.0
+            if qty_not_consumed <= 0:
+                continue
 
-                        if quantity_left > 0:
-                            lines_to_return.append((0, 0, {
-                                'product_id': move.product_id.id,
-                                'quantity': quantity_left,
-                                'quantity_left': quantity_left,
-                                'move_id': move.id
-                            }))
+            # 2) Find only the return moves (picking type RT) that have been done
+            return_moves = self.env['stock.move'].search([
+                ('product_id', '=', move.product_id.id),
+                ('state', '=', 'done'),
+                ('picking_id.origin', '=', production.name),
+                ('picking_id.picking_type_id.code', '=', 'RT'),
+            ])
 
-                res['line_ids'] = lines_to_return
-                res['state'] = 'non_solde'
+            # 3) Sum what’s already been returned
+            already_returned = sum(ret.quantity_done or 0.0 for ret in return_moves)
 
+            # 4) Net quantity still left to return
+            net_to_return = qty_not_consumed - already_returned
+            if net_to_return > 0:
+                lines_to_return.append((0, 0, {
+                    'product_id': move.product_id.id,
+                    'quantity': net_to_return,
+                    'quantity_left': net_to_return,
+                    'move_id': move.id,
+                }))
+
+        res.update({
+            'line_ids': lines_to_return,
+            'state': 'non_solde',
+        })
         return res
 
     @api.onchange('stock_picking_id')
@@ -73,14 +82,41 @@ class ReturnComponentsWizard(models.TransientModel):
             self.default_get()
 
     def confirm(self):
+        # 1) Create the new picking and its stock moves
         stock_picking = self.create_stock_picking()
+        if not stock_picking:
+            return
 
-        if stock_picking:
-            self.stock_picking_id = stock_picking.id  # This will trigger the onchange
-            self.create_stock_moves(stock_picking)
-            self.update_stock_moves_quantity_left()
-            self.mrp_production_id.write({'state': 'annulation_encours'})
-            # Further logic...
+        self.stock_picking_id = stock_picking.id
+        self.create_stock_moves(stock_picking)
+
+        # 2) **Deduct** the returned quantities from the original MRPs raw moves
+        for line in self.line_ids:
+            returned_qty = line.quantity or 0.0
+            orig_move = line.move_id
+            if orig_move and returned_qty:
+                # Subtract from qty_delivered (never go negative)
+                new_delivered = max(orig_move.qty_delivered - returned_qty, 0.0)
+                orig_move.qty_delivered = new_delivered
+
+                # Recompute qty_left on the raw move: qty_left = (needed) - delivered
+                # Assuming qty_needed is the required qty:
+                new_left = max((orig_move.qty_needed or 0.0) - new_delivered, 0.0)
+                orig_move.qty_left = new_left
+
+        # 3) Refresh the production’s totals
+        prod = self.mrp_production_id
+        prod._compute_qty_delivered_total()
+        prod._update_qty_left()
+
+        # 4) Update production state
+        prod.write({'state': 'annulation_encours'})
+
+        # 5) Finally, pop open the wizard or return True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     def check_all_returned(self):
         """

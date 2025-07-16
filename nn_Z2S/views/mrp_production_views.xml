@@ -36,9 +36,7 @@
                     <field name="last_backorder_count" invisible="1"/>
 
                 </xpath>
-                <xpath expr="//header" position="inside">
-                    <field name="stock_move_changes" invisible="1"/>
-                </xpath>
+
                 <xpath expr="//header/button[@name='action_cancel'][1]" position="attributes">
 
 
@@ -104,10 +102,8 @@
                             attrs="{
             'invisible': [
                 '|',
-                    ('state', 'not in', ['confirmed', 'progress']),
-                    '&amp;',
-                        ('state', '=', 'annulation_encours'),
-                        ('components_returned', '=', True)
+                    ('state', 'not in', ['confirmed', 'progress', 'annulation_encours']),
+                    ('components_returned', '=', True)
             ]
         }"/>
 
@@ -133,8 +129,10 @@
 
                     <button name="action_view_total_return_operations" type="object" class="oe_stat_button"
                             icon="fa-refresh"
-                            attrs="{'invisible': [('return_count_total', '=', 0)]}" states="cancel">
+                            attrs="{'invisible': [('show_return_button', '=', False)]}">
                         <field name="return_count_total" widget="statinfo" string="Opérations de Retour Totales"/>
+                        <field name="show_return_button"/>
+
                     </button>
                 </xpath>
                 <xpath expr="//group[@name='group_extra_info']/field[@name='cout_of']" position="after">

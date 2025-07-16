@@ -1,10 +1,6 @@
-from email.policy import default
-
-from odoo import models, fields, api, _
-
 import logging
 
-from psycopg2.sql import DEFAULT
+from odoo import models, fields, api, _
 
 _logger = logging.getLogger(__name__)
 
@@ -118,16 +114,68 @@ class MrpProduction(models.Model):
 
             _logger.info("Updated return state for OF %s: %s", production.name, production.return_state)
 
-    return_count_total = fields.Integer(string="Retour des Composants", compute="_compute_return_count_total")
+    return_count_total = fields.Integer(
+        string="Retour des Composants", compute="_compute_return_count_total"
+    )
 
-    @api.depends('name')
+    show_return_button = fields.Boolean(
+        string="Afficher le bouton de retour", compute="_compute_return_count_total"
+    )
+
+    @api.depends('name', 'move_raw_ids')
     def _compute_return_count_total(self):
+        Picking = self.env['stock.picking']
         for production in self:
-            # Assigning the computed count to the correct field (return_count_total)
-            production.return_count_total = self.env['stock.picking'].search_count([
+            production.return_count_total = 0
+            production.show_return_button = False
+            production.components_returned = False
+
+            if not production.name or not production.move_raw_ids:
+                continue
+
+            # 🔄 Count RT pickings not yet processed
+            pending_returns = Picking.search([
                 ('origin', '=', production.name),
                 ('picking_type_id.sequence_code', '=', 'RT'),
+                ('state', 'not in', ['done', 'cancel']),
             ])
+            production.return_count_total = len(pending_returns)
+            production.show_return_button = len(pending_returns) > 0
+
+            # ✅ Process already done return pickings
+            done_returns = Picking.search([
+                ('origin', '=', production.name),
+                ('picking_type_id.sequence_code', '=', 'RT'),
+                ('state', '=', 'done'),
+            ])
+
+            for pick in done_returns:
+                for ml in pick.move_lines:
+                    returned = ml.quantity_done or 0.0
+
+                    raw_moves = production.move_raw_ids.filtered(
+                        lambda m: m.product_id.id == ml.product_id.id
+                    )
+
+                    for move in raw_moves:
+                        if hasattr(move, 'qty_not_consumed'):
+                            new_qty = max((move.qty_not_consumed or 0.0) - returned, 0.0)
+                            move.qty_not_consumed = new_qty
+
+                        if hasattr(move, 'qty_delivered'):
+                            new_delivered = max((move.qty_delivered or 0.0) - returned, 0.0)
+                            move.qty_delivered = new_delivered
+
+            # 🧾 Final check: are all components returned?
+            all_zero = all(
+                (move.qty_not_consumed or 0.0) == 0.0
+                for move in production.move_raw_ids
+                if hasattr(move, 'qty_not_consumed')
+            )
+
+            if all_zero:
+                production.state = 'cancel'
+                production.components_returned = True
 
     def action_view_total_return_operations(self):
         self.ensure_one()

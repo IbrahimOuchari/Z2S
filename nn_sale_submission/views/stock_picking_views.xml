@@ -1,0 +1,16 @@
+<odoo>
+    <record id="view_picking_form_inherit_submission" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.submission</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='ref_client_id']" position="after">
+                <div attrs="{'invisible': [('sale_id', '=', False)]}">
+                    <field name="numero_submission" readonly="1"/>
+                    <field name="date_submission_start" readonly="1"/>
+                    <field name="date_submission_end" readonly="1"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

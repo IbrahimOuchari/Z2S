@@ -1,9 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_control_quality,access_control_quality,model_control_quality,,1,1,1,1
-access_control_quality_line,access_control_quality_manager_line,model_control_quality_line,,1,1,1,1
-access_control_quality_manager_type1,access_control_quality_manager_type1,model_control_quality_type1_line,,1,1,1,1
-access_control_quality_manager_type2,access_control_quality_manager_type2,model_control_quality_type2_line,,1,1,1,1
-access_control_quality_manager_type3,access_control_quality_manager_type3,model_control_quality_type3_line,,1,1,1,1
-access_reprise,access_reprise,model_reprise,,1,1,1,1
-access_defect_type,access_defect_type,model_defect_type,,1,1,1,1
-

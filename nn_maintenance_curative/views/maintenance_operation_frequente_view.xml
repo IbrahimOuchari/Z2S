@@ -9,7 +9,7 @@
                     <sheet>
                         <group>
                             <field name="name" string="Nom de l'opération"/>
-                            <field name="equipment_id" string="Équipement"/>
+                            <field name="equipment_id" string="Équipement" required="True"/>
                             <group string="Période associée">
                                 <field name="is_mensuelle"/>
                                 <field name="is_trimestrielle"/>

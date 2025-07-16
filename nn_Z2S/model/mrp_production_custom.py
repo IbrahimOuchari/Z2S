@@ -260,57 +260,6 @@ class MrpProduction(models.Model):
             # Update the quality_control_checked based on the count
             production.quality_control_checked = control_count > 0  # Set to True if count is greater than 0
 
-    def action_return_components(self):
-        for production in self:
-            # Check if there are any components not consumed
-            not_consumed_components = False
-
-            # Get move lines for components (raw moves)
-            for move in production.move_raw_ids:
-                # Check if any quantity remains to be consumed
-                if move.qty_left > 0:
-                    not_consumed_components = True
-                    break
-
-            # If no unconsumed components, show warning in French and change state to cancel
-            if not not_consumed_components:
-                production.write({'state': 'cancel'})
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Pas de composants à retourner'),
-                        'message': _(
-                            'Tous les composants ont été entièrement consommés. Il n\'y a pas de composants à retourner. L\'état de la production va changer à "Annulé" lors du rechargement de la page.'),
-                        'sticky': True,
-                        'type': 'warning',
-                    }
-                }
-
-            # If there are unconsumed components, open the wizard
-            return {
-                'name': 'Return Components Wizard',
-                'type': 'ir.actions.act_window',
-                'res_model': 'return.components.wizard',
-                'view_mode': 'form',
-                'view_id': self.env.ref('nn_Z2S.view_return_components_wizard_form').id,
-                'target': 'new',
-                'context': {'default_mrp_production_id': production.id}
-            }
-
-    components_returned = fields.Boolean(string="Composants Retourné", default=False,
-                                         compute='_compute_components_returned')
-
-    @api.onchange('move_raw_ids.qty_left', 'move_raw_ids')
-    def _compute_components_returned(self):
-        for mrp in self:
-            all_returned = True
-            for move in mrp.move_raw_ids:
-                if move.qty_left > 0:
-                    all_returned = False
-                    break
-            mrp.components_returned = all_returned
-
     def action_view_return_operations(self):
         self.ensure_one()
         return {

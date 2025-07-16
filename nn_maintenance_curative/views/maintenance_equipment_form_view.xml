@@ -14,6 +14,7 @@
                 <xpath expr="//page[@name='maintenance']" position="inside">
                     <field name="sync_calendar_flag" invisible="1"/>
                     <field name="cleanup_flag" invisible="1"/>
+                    <field name="period_changed"/>
                 </xpath>
                 <xpath expr="//page[@name='maintenance']" position="inside">
                     <group name="frequency_control" class="o_col_4"
@@ -51,7 +52,6 @@
                                 <field name="numero" readonly="1"/>
                                 <field name="operation_id" readonly="1" invisible="1"/>
                                 <field name="operation_name" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
                                 <field name="ok" attrs="{'invisible':[('nok','=',True)]}"/>
                                 <field name="nok" attrs="{'invisible':[('ok','=',True)]}"/>
                                 <field name="observations"/>
@@ -83,7 +83,6 @@
                                 <field name="numero" readonly="1"/>
                                 <field name="operation_id" readonly="1" invisible="1"/>
                                 <field name="operation_name" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
                                 <field name="ok" attrs="{'invisible':[('nok','=',True)]}"/>
                                 <field name="nok" attrs="{'invisible':[('ok','=',True)]}"/>
                                 <field name="observations"/>
@@ -115,7 +114,6 @@
                                 <field name="numero" readonly="1"/>
                                 <field name="operation_id" readonly="1" invisible="1"/>
                                 <field name="operation_name" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
                                 <field name="ok" attrs="{'invisible':[('nok','=',True)]}"/>
                                 <field name="nok" attrs="{'invisible':[('ok','=',True)]}"/>
                                 <field name="observations"/>
@@ -146,7 +144,6 @@
                                 <field name="numero" readonly="1"/>
                                 <field name="operation_id" readonly="1" invisible="1"/>
                                 <field name="operation_name" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
                                 <field name="ok" attrs="{'invisible':[('nok','=',True)]}"/>
                                 <field name="nok" attrs="{'invisible':[('ok','=',True)]}"/>
                                 <field name="observations"/>

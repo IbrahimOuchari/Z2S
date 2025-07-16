@@ -1,9 +1,11 @@
-from odoo import models, api
+from odoo import models, api, fields
 from odoo.exceptions import ValidationError, UserError
 
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
+
+    date_done = fields.Datetime(default=fields.Datetime.now)
 
     def button_validate(self):
         for picking in self:
@@ -15,3 +17,22 @@ class StockPicking(models.Model):
                     raise ValidationError(
                         "Vous ne pouvez pas valider ce bon de livraison en dehors de la période de soumission définie dans la commande client.")
         return super(StockPicking, self).button_validate()
+
+    numero_submission = fields.Char(
+        related='sale_id.numero_submission',
+        string="Numéro de soumission",
+        readonly=True,
+        store=True
+    )
+    date_submission_start = fields.Date(
+        related='sale_id.date_submission_start',
+        string="Date de début de soumission",
+        readonly=True,
+        store=True
+    )
+    date_submission_end = fields.Date(
+        related='sale_id.date_submission_end',
+        string="Date de fin de soumission",
+        readonly=True,
+        store=True
+    )

@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 
 class MaintenanceOperationList(models.Model):
@@ -7,17 +8,18 @@ class MaintenanceOperationList(models.Model):
 
     name = fields.Char("Nom de l'opération", required=True)
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
-    frequency_name = fields.Selection([
-        ('1', 'Mensuelle'),
-        ('2', 'Trimestrielle'),
-        ('3', 'Semestrielle'),
-        ('4', 'Annuelle'),
-    ], string="Fréquence associée", required=True)
 
     is_mensuelle = fields.Boolean(string="Mensuelle", store=True)
     is_trimestrielle = fields.Boolean(string="Trimestrielle", store=True)
     is_semestrielle = fields.Boolean(string="Semestrielle", store=True)
     is_annuelle = fields.Boolean(string="Annuelle", store=True)
+
+    @api.constrains('is_mensuelle', 'is_trimestrielle', 'is_semestrielle', 'is_annuelle')
+    def _check_at_least_one_frequency(self):
+        for record in self:
+            if not (record.is_mensuelle or record.is_trimestrielle or record.is_semestrielle or record.is_annuelle):
+                raise ValidationError(
+                    "Au moins un champ de fréquence doit être sélectionné (Mensuelle, Trimestrielle, Semestrielle ou Annuelle).")
 
 
 class MaintenanceInterventionLine1(models.Model):
@@ -27,14 +29,14 @@ class MaintenanceInterventionLine1(models.Model):
     sequence = fields.Char(string="sequence")
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
-    operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
-    frequency = fields.Selection([
-        ('1', 'Mensuelle'),
-        ('2', 'Trimestrielle'),
-        ('3', 'Semestrielle'),
-        ('4', 'Annuelle'),
-    ], string="Fréquence", default='1')
-    ""
+    operation_id = fields.Many2one('maintenance.operation.list', string="Opération")
+
+    # Boolean frequency fields
+    is_mensuelle = fields.Boolean(string="Mensuelle")
+    is_trimestrielle = fields.Boolean(string="Trimestrielle")
+    is_semestrielle = fields.Boolean(string="Semestrielle")
+    is_annuelle = fields.Boolean(string="Annuelle")
+
     operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
@@ -53,13 +55,14 @@ class MaintenanceInterventionLine2(models.Model):
 
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
-    operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
-    frequency = fields.Selection([
-        ('1', 'Mensuelle'),
-        ('2', 'Trimestrielle'),
-        ('3', 'Semestrielle'),
-        ('4', 'Annuelle'),
-    ], string="Fréquence", default='1')
+    operation_id = fields.Many2one('maintenance.operation.list', string="Opération")
+
+    # Boolean frequency fields
+    is_mensuelle = fields.Boolean(string="Mensuelle")
+    is_trimestrielle = fields.Boolean(string="Trimestrielle")
+    is_semestrielle = fields.Boolean(string="Semestrielle")
+    is_annuelle = fields.Boolean(string="Annuelle")
+
     operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
@@ -78,13 +81,14 @@ class MaintenanceInterventionLine3(models.Model):
 
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
-    operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
-    frequency = fields.Selection([
-        ('1', 'Mensuelle'),
-        ('2', 'Trimestrielle'),
-        ('3', 'Semestrielle'),
-        ('4', 'Annuelle'),
-    ], string="Fréquence", default='1')
+    operation_id = fields.Many2one('maintenance.operation.list', string="Opération")
+
+    # Boolean frequency fields
+    is_mensuelle = fields.Boolean(string="Mensuelle")
+    is_trimestrielle = fields.Boolean(string="Trimestrielle")
+    is_semestrielle = fields.Boolean(string="Semestrielle")
+    is_annuelle = fields.Boolean(string="Annuelle")
+
     operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
@@ -103,13 +107,14 @@ class MaintenanceInterventionLine4(models.Model):
 
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
-    operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération")
-    frequency = fields.Selection([
-        ('1', 'Mensuelle'),
-        ('2', 'Trimestrielle'),
-        ('3', 'Semestrielle'),
-        ('4', 'Annuelle'),
-    ], string="Fréquence", default='1')
+    operation_id = fields.Many2one('maintenance.operation.list', string="Opération")
+
+    # Boolean frequency fields
+    is_mensuelle = fields.Boolean(string="Mensuelle")
+    is_trimestrielle = fields.Boolean(string="Trimestrielle")
+    is_semestrielle = fields.Boolean(string="Semestrielle")
+    is_annuelle = fields.Boolean(string="Annuelle")
+
     operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")
@@ -128,13 +133,14 @@ class MaintenanceInterventionLine(models.Model):
 
     equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
     numero = fields.Integer("N°", compute="_compute_numero", store=True)
-    operation_id = fields.Many2one('maintenance.operation.frequente', string="Opération", required=True)
-    frequency = fields.Selection([
-        ('1', 'Fréquence 1'),
-        ('2', 'Fréquence 2'),
-        ('3', 'Fréquence 3'),
-        ('4', 'Fréquence 4'),
-    ], string="Fréquence", default='1')
+    operation_id = fields.Many2one('maintenance.operation.list', string="Opération", required=True)
+
+    # Boolean frequency fields
+    is_mensuelle = fields.Boolean(string="Mensuelle")
+    is_trimestrielle = fields.Boolean(string="Trimestrielle")
+    is_semestrielle = fields.Boolean(string="Semestrielle")
+    is_annuelle = fields.Boolean(string="Annuelle")
+
     operation_name = fields.Char("Nom de l'opération", readonly=True)
     ok = fields.Boolean("OK ✅")
     nok = fields.Boolean("NOK ❌")

@@ -11,6 +11,7 @@
         'views/sale_order_views.xml',
         'reports/stock_picking_report.xml',
         'data/cron_expired_quotation.xml',
+        'views/stock_picking_views.xml',
     ],
     'installable': True,
     'application': False,
