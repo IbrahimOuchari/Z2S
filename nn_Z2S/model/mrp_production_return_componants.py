@@ -159,10 +159,10 @@ class MrpProduction(models.Model):
 
                     for move in raw_moves:
                         # FIX 1: Check if field exists and initialize if needed
-                        if hasattr(move, 'qty_not_consumed'):
-                            current_not_consumed = getattr(move, 'qty_not_consumed', 0.0) or 0.0
-                            new_qty = max(current_not_consumed - returned, 0.0)
-                            move.qty_not_consumed = new_qty
+                        # if hasattr(move, 'qty_not_consumed'):
+                        #     current_not_consumed = getattr(move, 'qty_not_consumed', 0.0) or 0.0
+                        #     new_qty = max(current_not_consumed - returned, 0.0)
+                        #     move.qty_not_consumed = new_qty
 
                         if hasattr(move, 'qty_delivered'):
                             current_delivered = getattr(move, 'qty_delivered', 0.0) or 0.0

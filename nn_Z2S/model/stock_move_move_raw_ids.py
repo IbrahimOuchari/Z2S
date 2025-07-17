@@ -216,9 +216,9 @@ class MrpProduction(models.Model):
                 _logger.info("Raising warning error")
                 raise UserError("ℹ️ Infos de validation :\n\n" + "\n\n".join(warnings))
 
-            # 2) Update qty_needed_total and qty_not_consumed - only if no backorder wizard
-            if mrp.state == 'done':  # Only if fully completed (no wizard shown)
-                mrp._update_qty_totals()
+            # 2) Update qty_needed_total and qty_not_consumed - always update after processing
+            # This will handle both full completion and backorder scenarios
+            mrp._update_qty_totals()
 
         return result
 
@@ -243,13 +243,56 @@ class MrpProduction(models.Model):
         result = super().write(vals)
         self.update_qty_needed_on_moves()
 
+        # Update totals when state changes to 'done' OR when backorder is created
         if vals.get('state') == 'done':
             for mrp in self:
                 mrp._update_qty_totals()
 
+        # Also handle backorder creation scenario
+        # When a backorder is created, the original MRP might not be 'done' but we still want to update totals
+        if 'procurement_group_id' in vals or 'origin' in vals:
+            # This suggests a backorder scenario - update totals for safety
+            for mrp in self:
+                if mrp.state in ['done', 'cancel']:  # Only update if processing is complete
+                    mrp._update_qty_totals()
+
+        return result
+
+    # Alternative approach: Override the backorder creation method
+    def _generate_backorder_productions(self, close_mo=True):
+        """Override to ensure qty totals are preserved when creating backorders"""
+
+        # Store current totals before backorder creation
+        totals_backup = {}
+        for mrp in self:
+            totals_backup[mrp.id] = {}
+            for move in mrp.move_raw_ids:
+                totals_backup[mrp.id][move.id] = {
+                    'qty_needed_total': move.qty_needed_total,
+                    'qty_not_consumed': move.qty_not_consumed
+                }
+
+        # Call the original method
+        result = super()._generate_backorder_productions(close_mo=close_mo)
+
+        # Update totals after backorder creation
+        for mrp in self:
+            if close_mo:  # If the original MRP is being closed
+                mrp._update_qty_totals()
+            else:
+                # Restore the backed up totals if needed
+                for move in mrp.move_raw_ids:
+                    if move.id in totals_backup.get(mrp.id, {}):
+                        backup_data = totals_backup[mrp.id][move.id]
+                        if backup_data['qty_needed_total'] is not None:
+                            move.qty_needed_total = backup_data['qty_needed_total']
+                        if backup_data['qty_not_consumed'] is not None:
+                            move.qty_not_consumed = backup_data['qty_not_consumed']
+
         return result
 
     mark_button_done = fields.Boolean()
+    is_done_and_updated = fields.Boolean()
     mark_button_done_counter = fields.Boolean()
 
     def update_qty_needed_on_moves(self):
