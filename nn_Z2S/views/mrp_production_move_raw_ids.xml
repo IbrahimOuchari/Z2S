@@ -21,32 +21,53 @@
             </xpath>
 
             <xpath expr="//div[@name='button_box']" position="inside">
+                <!--                &lt;!&ndash; Button for qty_delivered_total &ndash;&gt;-->
+                <!--                <button type="object"-->
+                <!--                        class="oe_stat_button"-->
+                <!--                        name="dummy_button_qty_delivered"-->
+                <!--                        icon="fa-truck">-->
+                <!--                    <div class="o_field_widget o_stat_info">-->
+                <!--                        <span class="o_stat_value">-->
+                <!--                            <field name="qty_delivered_total" widget="float"/>-->
+                <!--                        </span>-->
+                <!--                        <span class="o_stat_text">Trackée</span>-->
+                <!--                    </div>-->
+                <!--                </button>-->
 
-                <!-- Button for qty_delivered_total -->
-                <button type="object"
-                        class="oe_stat_button"
-                        name="dummy_button_qty_delivered"
-                        icon="fa-truck">
-                    <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value">
-                            <field name="qty_delivered_total" widget="float"/>
-                        </span>
-                        <span class="o_stat_text">Trackée</span>
-                    </div>
-                </button>
-
-                <!-- Button for qty_left_total -->
-                <button type="object"
-                        class="oe_stat_button"
-                        name="dummy_button_qty_left"
-                        icon="fa-hourglass-half">
-                    <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value">
-                            <field name="qty_left_total" widget="float" readonly="True"/>
-                        </span>
-                        <span class="o_stat_text">Restante</span>
-                    </div>
-                </button>
+                <!--                &lt;!&ndash; Button for qty_left_total &ndash;&gt;-->
+                <!--                <button type="object"-->
+                <!--                        class="oe_stat_button"-->
+                <!--                        name="dummy_button_qty_left"-->
+                <!--                        icon="fa-hourglass-half">-->
+                <!--                    <div class="o_field_widget o_stat_info">-->
+                <!--                        <span class="o_stat_value">-->
+                <!--                            <field name="qty_left_total" widget="float" readonly="True"/>-->
+                <!--                        </span>-->
+                <!--                        <span class="o_stat_text">Restante</span>-->
+                <!--                    </div>-->
+                <!--                </button>-->
+                <!--                <button type="object"-->
+                <!--                        class="oe_stat_button"-->
+                <!--                        name="dummy_button_qty_left"-->
+                <!--                        icon="fa-hourglass-half">-->
+                <!--                    <div class="o_field_widget o_stat_info">-->
+                <!--                        <span class="o_stat_value">-->
+                <!--                            <field name="mark_button_done" readonly="True"/>-->
+                <!--                        </span>-->
+                <!--                        <span class="o_stat_text">Compute trigger counter</span>-->
+                <!--                    </div>-->
+                <!--                </button>-->
+                <!--                <button type="object"-->
+                <!--                        class="oe_stat_button"-->
+                <!--                        name="dummy_button_qty_left"-->
+                <!--                        icon="fa-hourglass-half">-->
+                <!--                    <div class="o_field_widget o_stat_info">-->
+                <!--                        <span class="o_stat_value">-->
+                <!--                            <field name="mark_button_done_counter" readonly="True"/>-->
+                <!--                        </span>-->
+                <!--                        <span class="o_stat_text">Mark Done counter</span>-->
+                <!--                    </div>-->
+                <!--                </button>-->
 
             </xpath>
 

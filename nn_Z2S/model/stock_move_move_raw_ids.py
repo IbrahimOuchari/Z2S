@@ -29,6 +29,7 @@ class StockMove(models.Model):
         store=True,
         help="Quantité livrée moins quantité nécessaire"
     )
+    qty_total_updated = fields.Integer(string='Quantité totale mise à jour', default=False)
 
 
 class MrpProduction(models.Model):
@@ -69,7 +70,6 @@ class MrpProduction(models.Model):
     def _update_qty_left(self):
         excluded_states = ['done', 'cancel']
         min_date = datetime(2025, 7, 1)
-
         for production in self:
             # ✅ Skip if created before July 1st, 2025
             if production.create_date and production.create_date < min_date:
@@ -91,19 +91,31 @@ class MrpProduction(models.Model):
                     print(f"[MFG {production.name}] No pickings found, resetting qty_left.")
 
             if latest_picking:
+                # Create map of products that exist in the latest picking
                 product_left_map = {
                     ml.product_id.id: ml.quantity_left or 0.0
                     for ml in latest_picking.move_lines
                 }
+
+                # Calculate total only from products in the latest picking
                 total_left = sum(product_left_map.values())
+
+                # Update qty_left only for products that exist in the latest picking
+                # Preserve existing qty_left for products not in the latest picking
+                for move in production.move_raw_ids:
+                    if move.product_id.id in product_left_map:
+                        # Update qty_left for products in the latest picking
+                        move.qty_left = product_left_map[move.product_id.id]
+                    # If product not in latest picking, keep existing qty_left value (no change)
+
+                # Update total (this will only reflect products from latest picking)
                 production.qty_left_total = total_left
 
-                for move in production.move_raw_ids:
-                    move.qty_left = product_left_map.get(move.product_id.id, 0.0)
+                print(
+                    f"[MFG {production.name}] update_qty_left: total_left={total_left}, updated_products={list(product_left_map.keys())}")
 
-                print(f"[MFG {production.name}] _update_qty_left: total_left={total_left}, left_map={product_left_map}")
             else:
-                # no picking found at all
+                # no picking found at all - reset everything
                 production.qty_left_total = 0.0
                 for move in production.move_raw_ids:
                     move.qty_left = 0.0
@@ -141,61 +153,104 @@ class MrpProduction(models.Model):
                 f"delivered_map={product_delivered_map}, qty_left_total={production.qty_left_total}"
             )
 
+    def _collect_validation_messages(self):
+        _logger.info("=== _collect_validation_messages called ===")
+
+        # Skip entirely if we're in the middle of our post‑update write pass
+        if self.env.context.get('skip_mrp_validation'):
+            _logger.info("Skipping validation due to context flag")
+            return [], []
+
+        blocking_msgs = []
+        warning_msgs = []
+
+        for move in self.move_raw_ids:
+            product = move.product_id.display_name
+            delivered = float(move.qty_delivered or 0.0)
+            needed = float(move.qty_needed or 0.0)
+
+            _logger.info(f"Processing {product}: delivered={delivered}, needed={needed}")
+
+            # Skip if fully delivered
+            if delivered >= needed:
+                _logger.info(f"  -> OK: fully delivered ({delivered} >= {needed})")
+                continue
+
+            # Blocking if nothing delivered
+            if delivered <= 0.0:
+                _logger.info(f"  -> BLOCKING: nothing delivered")
+                blocking_msgs.append(
+                    f"❌ {product} : {delivered:.2f}/{needed:.2f} unités\n"
+                    "   • Aucune collecte effectuée."
+                )
+
+            # Warning if partial delivery
+            else:
+                missing = needed - delivered
+                _logger.info(f"  -> WARNING: partial delivery ({delivered} < {needed})")
+                warning_msgs.append(
+                    f"⚠️ {product} : {delivered:.2f}/{needed:.2f} unités\n"
+                    f"   • Il manque {missing:.2f} unité(s)."
+                )
+
+        _logger.info(f"Final result: {len(blocking_msgs)} blocking, {len(warning_msgs)} warnings")
+        return blocking_msgs, warning_msgs
+
     def button_mark_done(self):
-        global result
+        _logger.info("=== button_mark_done called ===")
+
+        result = super(MrpProduction, self).button_mark_done()
+
         for mrp in self:
             if mrp.ignore_component_check:
                 continue
 
-            messages = []
-            for move in mrp.move_raw_ids:
-                product = move.product_id.display_name
-                delivered = move.qty_delivered or 0.0
+            # 1) Run normal validation
+            _logger.info("Running validation...")
+            blocking, warnings = mrp._collect_validation_messages()
 
-                # NEW: Add current and past needed quantities together
-                needed_total = (move.qty_needed_total or 0.0) + (move.qty_needed or 0.0)
+            if blocking:
+                _logger.info("Raising blocking error")
+                raise UserError("❌ Erreurs de validation :\n\n" + "\n\n".join(blocking))
+            if warnings:
+                _logger.info("Raising warning error")
+                raise UserError("ℹ️ Infos de validation :\n\n" + "\n\n".join(warnings))
 
-                # 1) Nothing delivered at all → still block
-                if delivered <= 0.0:
-                    messages.append(
-                        f"❌ {product} : 0/{needed_total:.2f} unités\n"
-                        f"   • Aucune collecte effectuée."
-                    )
-                    continue
-
-                # 2) Partial delivery → allow but warn about missing quantity
-                if delivered < needed_total:
-                    missing = needed_total - delivered
-                    messages.append(
-                        f"⚠️ {product} : {delivered:.2f}/{needed_total:.2f} unités\n"
-                        f"   • Il manque {missing:.2f} unité(s) pour compléter la consommation."
-                    )
-
-                # 3) Full delivery or more → OK
-
-            if messages:
-                # Optional: Just a warning or raise as needed
-                raise UserError("ℹ️ Infos de validation :\n\n" + "\n\n".join(messages))
-
-            # ✅ Proceed with production completion
-            result = super(MrpProduction, self).button_mark_done()
-
-            # 🔁 Recalculate total and not consumed
-            for move in mrp.move_raw_ids:
-                if move.qty_needed:
-                    move.qty_needed_total = (move.qty_needed_total or 0.0) + move.qty_needed
-                if move.qty_delivered is not None and move.qty_needed_total is not None:
-                    move.qty_not_consumed = max(
-                        (move.qty_delivered or 0.0) - (move.qty_needed_total or 0.0),
-                        0.0
-                    )
+            # 2) Update qty_needed_total and qty_not_consumed - only if no backorder wizard
+            if mrp.state == 'done':  # Only if fully completed (no wizard shown)
+                mrp._update_qty_totals()
 
         return result
 
+    def _update_qty_totals(self):
+        """Update qty_needed_total and qty_not_consumed after production completion"""
+        for move in self.move_raw_ids:
+            if move.qty_needed:
+                old_total = move.qty_needed_total or 0.0
+                move.qty_needed_total = old_total + move.qty_needed
+                _logger.info(
+                    f"✅ Updated {move.product_id.display_name}: qty_needed_total {old_total} + {move.qty_needed} = {move.qty_needed_total}"
+                )
+
+            if move.qty_delivered is not None and move.qty_needed_total is not None:
+                old_not_consumed = move.qty_not_consumed or 0.0
+                move.qty_not_consumed = max(move.qty_delivered - move.qty_needed_total, 0.0)
+                _logger.info(
+                    f"↺ Updated {move.product_id.display_name}: qty_not_consumed {old_not_consumed} -> {move.qty_not_consumed}"
+                )
+
     def write(self, vals):
-        res = super().write(vals)
+        result = super().write(vals)
         self.update_qty_needed_on_moves()
-        return res
+
+        if vals.get('state') == 'done':
+            for mrp in self:
+                mrp._update_qty_totals()
+
+        return result
+
+    mark_button_done = fields.Boolean()
+    mark_button_done_counter = fields.Boolean()
 
     def update_qty_needed_on_moves(self):
         for mrp in self:

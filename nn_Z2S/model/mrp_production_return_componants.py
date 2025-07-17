@@ -158,24 +158,32 @@ class MrpProduction(models.Model):
                     )
 
                     for move in raw_moves:
+                        # FIX 1: Check if field exists and initialize if needed
                         if hasattr(move, 'qty_not_consumed'):
-                            new_qty = max((move.qty_not_consumed or 0.0) - returned, 0.0)
+                            current_not_consumed = getattr(move, 'qty_not_consumed', 0.0) or 0.0
+                            new_qty = max(current_not_consumed - returned, 0.0)
                             move.qty_not_consumed = new_qty
 
                         if hasattr(move, 'qty_delivered'):
-                            new_delivered = max((move.qty_delivered or 0.0) - returned, 0.0)
+                            current_delivered = getattr(move, 'qty_delivered', 0.0) or 0.0
+                            new_delivered = max(current_delivered - returned, 0.0)
                             move.qty_delivered = new_delivered
 
             # 🧾 Final check: are all components returned?
-            all_zero = all(
-                (move.qty_not_consumed or 0.0) == 0.0
-                for move in production.move_raw_ids
-                if hasattr(move, 'qty_not_consumed')
+            # FIX 2: Only check if there are moves with qty_not_consumed > 0
+            moves_with_not_consumed = production.move_raw_ids.filtered(
+                lambda m: hasattr(m, 'qty_not_consumed') and (getattr(m, 'qty_not_consumed', 0.0) or 0.0) > 0.0
             )
 
-            if all_zero:
-                production.state = 'cancel'
-                production.components_returned = True
+            if moves_with_not_consumed:
+                all_zero = all(
+                    (getattr(move, 'qty_not_consumed', 0.0) or 0.0) == 0.0
+                    for move in moves_with_not_consumed
+                )
+
+                if all_zero:
+                    production.state = 'cancel'
+                    production.components_returned = True
 
     def action_view_total_return_operations(self):
         self.ensure_one()
