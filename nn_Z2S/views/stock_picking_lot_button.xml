@@ -10,7 +10,8 @@
                             string="Imprimer Étiquette"
                             class="btn-primary"
                             type="object"
-                            attrs="{'invisible': [('picking_type_code', '!=', 'incoming')]}"/>
+                            attrs="{'invisible': [('picking_type_code', 'not in', ['incoming', 'internal'])]}"/>
+
                 </xpath>
                 <xpath expr="//header//button[@name='print_etiquette']" position="attributes">
                     <attribute name="invisible">1</attribute>
