@@ -68,7 +68,6 @@
                         <field name="forced_closure" invisible="1"/>
 
                     </group>
-
                     <div class="form-group">
                         <div>
                             <label for="has_documentary_control" string="Contrôle Documentaire"
@@ -82,28 +81,28 @@
                                     attrs="{'invisible': [('has_documentary_control', '=', False)]}"
                                     name="documentary_conform_button">
                                 <span t-field="documentary_conform_count"/>
-                                Conform Count
+                                Nombre Conforme
                                 <field name="documentary_conform_count" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_documentary_control', '=', False)]}"
                                     name="documentary_non_conform_button">
                                 <span t-field="documentary_non_conform_count"/>
-                                Non-Conform Count
+                                Nombre Non Conforme
                                 <field name="documentary_non_conform_count" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_documentary_control', '=', False)]}"
                                     name="documentary_total_client_defect_button">
                                 <span t-field="documentary_total_client_default"/>
-                                Total Client Defect
+                                Total Défaut Client
                                 <field name="documentary_total_client_default" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_documentary_control', '=', False)]}"
                                     name="documentary_client_defect_rate_button">
                                 <span t-field="documentary_client_default_avg"/>
-                                Client Defect Rate (%)
+                                Taux Défaut Client (%)
                                 <field name="documentary_client_default_avg" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-primary"
@@ -128,28 +127,28 @@
                                     attrs="{'invisible': [('has_operational_control', '=', False)]}"
                                     name="operational_conform_button">
                                 <span t-field="operational_conform_count"/>
-                                Conform Count
+                                Nombre Conforme
                                 <field name="operational_conform_count" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_operational_control', '=', False)]}"
                                     name="operational_non_conform_button">
                                 <span t-field="operational_non_conform_count"/>
-                                Non-Conform Count
+                                Nombre Non Conforme
                                 <field name="operational_non_conform_count" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_operational_control', '=', False)]}"
                                     name="operational_total_client_defect_button">
                                 <span t-field="operational_total_client_default"/>
-                                Total Client Defect
+                                Total Défaut Client
                                 <field name="operational_total_client_default" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_operational_control', '=', False)]}"
                                     name="operational_client_defect_rate_button">
                                 <span t-field="operational_client_default_avg"/>
-                                Client Defect Rate (%)
+                                Taux Défaut Client (%)
                                 <field name="operational_client_default_avg" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-primary"
@@ -174,28 +173,28 @@
                                     attrs="{'invisible': [('has_product_control', '=', False)]}"
                                     name="product_conform_button">
                                 <span t-field="product_conform_count"/>
-                                Conform Count
+                                Nombre Conforme
                                 <field name="product_conform_count" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_product_control', '=', False)]}"
                                     name="product_non_conform_button">
                                 <span t-field="product_non_conform_count"/>
-                                Non-Conform Count
+                                Nombre Non Conforme
                                 <field name="product_non_conform_count" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_product_control', '=', False)]}"
                                     name="product_total_client_defect_button">
                                 <span t-field="product_total_client_default"/>
-                                Total Client Defect
+                                Total Défaut Client
                                 <field name="product_total_client_default" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-danger"
                                     attrs="{'invisible': [('has_product_control', '=', False)]}"
                                     name="product_client_defect_rate_button">
                                 <span t-field="product_client_default_avg"/>
-                                Client Defect Rate (%)
+                                Taux Défaut Client (%)
                                 <field name="product_client_default_avg" force_save="1"/>
                             </button>
                             <button type="button" class="btn btn-primary"
@@ -215,7 +214,8 @@
                                 <tree editable="bottom" class="text-center">
                                     <field name="serial_number" width="400px"/>
                                     <field name="controlleur_id" readonly="True" force_save="1"/>
-                                    <field name="quality_list_id" string="Document" options="{'no_create': True}"/>
+                                    <field name="quality_list_id" string="Liste Document"
+                                           options="{'no_create': True}"/>
                                     <field name="result1" string="Résultat 1" sortable="True"/>
                                     <field name="defect1_type_id" string="Défault" options="{'no_create': True}"
                                            attrs="{'invisible': [('result1', '=', 'conform')],'required': [('result1', '=', 'non_conform')]}"/>
@@ -237,7 +237,8 @@
                                 <tree editable="bottom" class="text-center">
                                     <field name="serial_number" width="400px"/>
                                     <field name="controlleur_id" readonly="True" force_save="1"/>
-                                    <field name="quality_list_id" string="Document" options="{'no_create': True}"/>
+                                    <field name="quality_list_id" string="Liste Opérationnel"
+                                           options="{'no_create': True}"/>
                                     <field name="result1" string="Résultat 1" sortable="True"/>
                                     <field name="defect1_type_id" string="Défault" options="{'no_create': True}"
                                            attrs="{'invisible': [('result1', '=', 'conform')],'required': [('result1', '=', 'non_conform')]}"/>

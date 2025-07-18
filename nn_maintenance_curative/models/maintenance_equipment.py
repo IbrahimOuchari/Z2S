@@ -1,7 +1,8 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
@@ -330,15 +331,20 @@ class MaintenanceEquipment(models.Model):
                   'start_maintenance_date')
     def _compute_date_debut(self):
         for rec in self:
-            today = datetime.today()
-            rec.date_heure_debut_1 = rec.start_maintenance_date + timedelta(
-                days=rec.period_1_frequency) if rec.period_1_frequency and rec.is_mensuelle else False
-            rec.date_heure_debut_2 = rec.start_maintenance_date + timedelta(
-                days=rec.period_2_frequency) if rec.period_2_frequency and rec.is_trimestrielle else False
-            rec.date_heure_debut_3 = rec.start_maintenance_date + timedelta(
-                days=rec.period_3_frequency) if rec.period_3_frequency and rec.is_semestrielle else False
-            rec.date_heure_debut_4 = rec.start_maintenance_date + timedelta(
-                days=rec.period_4_frequency) if rec.period_4_frequency and rec.is_annuelle else False
+            if rec.start_maintenance_date:
+                rec.date_heure_debut_1 = rec.start_maintenance_date + timedelta(
+                    days=rec.period_1_frequency) if rec.period_1_frequency and rec.is_mensuelle else False
+                rec.date_heure_debut_2 = rec.start_maintenance_date + timedelta(
+                    days=rec.period_2_frequency) if rec.period_2_frequency and rec.is_trimestrielle else False
+                rec.date_heure_debut_3 = rec.start_maintenance_date + timedelta(
+                    days=rec.period_3_frequency) if rec.period_3_frequency and rec.is_semestrielle else False
+                rec.date_heure_debut_4 = rec.start_maintenance_date + timedelta(
+                    days=rec.period_4_frequency) if rec.period_4_frequency and rec.is_annuelle else False
+            else:
+                rec.date_heure_debut_1 = False
+                rec.date_heure_debut_2 = False
+                rec.date_heure_debut_3 = False
+                rec.date_heure_debut_4 = False
 
     period_changed = fields.Integer(compute='compute_period_changes')
 
@@ -351,12 +357,20 @@ class MaintenanceEquipment(models.Model):
         self.period_changed += 1
 
     def _create_intervention_lines(self):
-        """Create intervention lines based on period checkboxes"""
+        """Create intervention lines based on period checkboxes and equipment/category link"""
         self.ensure_one()  # ensure single record for safety
 
         _logger.info("Creating intervention lines for equipment ID %s", self.id)
 
-        operations = self.env['maintenance.operation.list'].search([('equipment_id', '=', self.id)])
+        # Get equipment's category id (if any)
+        category_id = self.category_id.id if self.category_id else False
+
+        # Search operations linked either to this equipment or to the equipment's category
+        operations = self.env['maintenance.operation.list'].search([
+            '|',
+            ('equipment_id', '=', self.id),
+            ('category_id', '=', category_id)
+        ])
         _logger.info("Fetched %d operations", len(operations))
 
         # Clear existing lines before populating new ones
@@ -371,7 +385,9 @@ class MaintenanceEquipment(models.Model):
         line_4 = []
 
         for op in operations:
-            if op.equipment_id.id == self.id:
+            # Only add if the operation applies to this equipment's settings
+            if (op.equipment_id and op.equipment_id.id == self.id) or (
+                    op.category_id and op.category_id.id == category_id):
                 if op.is_mensuelle and getattr(self, 'is_mensuelle', False):
                     line_1.append((0, 0, {
                         'operation_name': op.name,
@@ -431,3 +447,41 @@ class MaintenanceEquipment(models.Model):
             for record in self:
                 record._create_intervention_lines()
         return result
+
+    def unlink(self):
+        if not self.env.user.has_group('nn_maintenance_curative.group_equipment_deletion'):
+            raise UserError(_("❌ Vous n'avez pas la permission de supprimer un équipement."))
+
+        for equipment in self:
+            has_requests = self.env['maintenance.request'].search_count([('equipment_id', '=', equipment.id)])
+            if has_requests > 0:
+                raise UserError(_("❌ Impossible de supprimer : cet équipement est lié à des demandes de maintenance."))
+
+        return super(MaintenanceEquipment, self).unlink()
+
+    current_date = fields.Datetime(
+        string="Date Courante",
+        default=lambda self: fields.Datetime.now(),
+        help="Custom 'today' date, can be modified to simulate a different current date."
+    )
+
+    next_maintenance_date = fields.Date(
+        string="Prochaine date maintenance",
+        compute="_compute_next_maintenance_date",
+        store=False,
+        help="Next upcoming maintenance date based on current_date."
+    )
+
+    @api.onchange('current_date')
+    def _compute_next_maintenance_date(self):
+        for equipment in self:
+            # Use only date part of current_date for comparison
+            current_date_only = fields.Datetime.to_datetime(
+                equipment.current_date).date() if equipment.current_date else fields.Date.today()
+
+            next_line = self.env['maintenance.calendar.event.line'].search([
+                ('equipment_id', '=', equipment.id),
+                ('date', '>=', current_date_only)
+            ], order='date asc', limit=1)
+
+            equipment.next_maintenance_date = next_line.date if next_line else False

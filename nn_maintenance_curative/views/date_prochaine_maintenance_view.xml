@@ -4,7 +4,7 @@
         <field name="name">maintenance.curative.date_intervention_souhaitee</field>
         <field name="model">maintenance.curative</field>
         <field name="arch" type="xml">
-            <tree default_order="date_intervention_souhaitee asc">
+            <tree default_order="date_intervention_souhaitee asc" create="false" edit="false">
                 <field name="equipment_id"/>
                 <field name="date_intervention_souhaitee"/>
             </tree>

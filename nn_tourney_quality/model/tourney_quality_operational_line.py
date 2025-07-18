@@ -34,16 +34,16 @@ class TourneyQualityOperationalLine(models.Model):
 
     # Replaced 'result' with 'result1' and added 'result2'
     result1 = fields.Selection([
-        ('conform', 'Conform'),
-        ('non_conform', 'Non-Conform'),
-        ('client_default', 'Client Defect'),
-    ], string='Result 1', default='conform', required=True)
+        ('conform', 'Conforme'),
+        ('non_conform', 'Non Conforme'),
+        ('client_default', 'Défaut Client'),
+    ], string='Résultat 1', default='conform', required=True)
 
     result2 = fields.Selection([
-        ('conform', 'Conform'),
-        ('non_conform', 'Non-Conform'),
-        ('client_default', 'Client Defect'),
-    ], string='Result 2')
+        ('conform', 'Conforme'),
+        ('non_conform', 'Non Conforme'),
+        ('client_default', 'Défaut Client'),
+    ], string='Résultat 2')
 
     other_info = fields.Text(string="Other Info", default="RAS")
 

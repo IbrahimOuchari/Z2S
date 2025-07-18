@@ -18,6 +18,8 @@
         'security/security_rules_and_groups.xml',
         'security/ir.model.access.csv',
         'data/maintenance_curative_sequence.xml',
+        'views/maintenance_menuitem_removal.xml',
+
         'views/maintenance_curative_form_calendar_views.xml',
         'views/maintenance_equipment_form_view.xml',
         'report/maintenance_curative_report.xml',
@@ -29,6 +31,7 @@
         'views/product_form_view.xml',
         'views/date_prochaine_maintenance_view.xml',
         'views/maintenance_calendar_event.xml',
+        'views/maintenance_equipment_tree_view.xml',
 
         # Ajoutez ici les fichiers XML (vues, actions, séquences, etc.)
     ],

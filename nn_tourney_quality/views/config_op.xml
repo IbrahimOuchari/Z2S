@@ -139,7 +139,7 @@
 
     <!-- MenuItem for Quality Operational List -->
     <menuitem id="menu_tourney_quality_operational_list"
-              name="Liste Déroulante"
+              name="Liste Opérationnel"
               parent="menu_Z2S_cq_config_op"
               action="action_tourney_quality_operational_list"/>
 

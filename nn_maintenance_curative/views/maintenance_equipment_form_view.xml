@@ -14,7 +14,7 @@
                 <xpath expr="//page[@name='maintenance']" position="inside">
                     <field name="sync_calendar_flag" invisible="1"/>
                     <field name="cleanup_flag" invisible="1"/>
-                    <field name="period_changed"/>
+                    <field name="period_changed" invisible="1"/>
                 </xpath>
                 <xpath expr="//page[@name='maintenance']" position="inside">
                     <group name="frequency_control" class="o_col_4"
@@ -155,10 +155,13 @@
                         <group>
                             <group string="Planification de la maintenance préventive">
                                 <div>
+
+                                    <field name="current_date" invisible="1"/>
+                                    <field name="next_maintenance_date" invisible="1"/>
                                     <div>
-                                        <label for="effective_date"
+                                        <label for="next_maintenance_date"
                                                style="font-size:15px; font-weight:500; color:#000;"/>
-                                        <field name="effective_date"
+                                        <field name="next_maintenance_date"
                                                style="font-size:15px; font-weight:500; color:#000;"/>
                                     </div>
                                     <div>

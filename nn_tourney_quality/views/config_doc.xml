@@ -138,7 +138,7 @@
 
     <!-- MenuItem for Quality Document List -->
     <menuitem id="menu_tourney_quality_document_list"
-              name="Liste Déroulante"
+              name="Liste Document"
               parent="menu_Z2S_cq_config_doc"
               action="action_tourney_quality_document_list"/>
 

@@ -7,19 +7,38 @@ class MaintenanceOperationList(models.Model):
     _description = 'Opérations par équipement'
 
     name = fields.Char("Nom de l'opération", required=True)
-    equipment_id = fields.Many2one('maintenance.equipment', string="Équipement", ondelete='cascade')
+    equipment_id = fields.Many2one(
+        'maintenance.equipment',
+        string="Équipement",
+        ondelete='cascade',
+        required=False  # removed required
+    )
+    category_id = fields.Many2one(
+        'maintenance.equipment.category',
+        string="Catégorie d'équipement",
+        required=False
+    )
 
     is_mensuelle = fields.Boolean(string="Mensuelle", store=True)
     is_trimestrielle = fields.Boolean(string="Trimestrielle", store=True)
     is_semestrielle = fields.Boolean(string="Semestrielle", store=True)
     is_annuelle = fields.Boolean(string="Annuelle", store=True)
 
+    @api.constrains('equipment_id', 'category_id')
+    def _check_equipment_or_category(self):
+        for record in self:
+            if not (record.equipment_id or record.category_id):
+                raise ValidationError(
+                    "Vous devez sélectionner au moins un équipement ou une catégorie d'équipement."
+                )
+
     @api.constrains('is_mensuelle', 'is_trimestrielle', 'is_semestrielle', 'is_annuelle')
     def _check_at_least_one_frequency(self):
         for record in self:
             if not (record.is_mensuelle or record.is_trimestrielle or record.is_semestrielle or record.is_annuelle):
                 raise ValidationError(
-                    "Au moins un champ de fréquence doit être sélectionné (Mensuelle, Trimestrielle, Semestrielle ou Annuelle).")
+                    "Au moins un champ de fréquence doit être sélectionné (Mensuelle, Trimestrielle, Semestrielle ou Annuelle)."
+                )
 
 
 class MaintenanceInterventionLine1(models.Model):
