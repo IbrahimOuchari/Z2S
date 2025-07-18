@@ -131,7 +131,7 @@
                             icon="fa-refresh"
                             attrs="{'invisible': [('show_return_button', '=', False)]}">
                         <field name="return_count_total" widget="statinfo" string="Opérations de Retour Totales"/>
-                        <field name="show_return_button"/>
+                        <field name="show_return_button" invisible="1"/>
 
                     </button>
                 </xpath>
